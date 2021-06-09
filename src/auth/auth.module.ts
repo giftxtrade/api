@@ -12,7 +12,7 @@ import { JWT } from '../../auth-tokens.json';
     PassportModule,
     JwtModule.register({
       secret: JWT.SECRET,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '60 days' },
     })
   ],
   controllers: [AuthController],

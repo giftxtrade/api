@@ -1,5 +1,6 @@
-import { BaseEntity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+@Entity('users')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -11,14 +12,11 @@ export class User extends BaseEntity {
   email: string;
 
   @Column()
-  image: string;
+  imageUrl: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
-  @Column('text', { select: false })
+  @Column('text', { select: false, nullable: true })
   password: string;
-
-  @Column('boolean', { default: false })
-  active: boolean;
 }

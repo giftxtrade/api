@@ -15,7 +15,7 @@ export class UsersService {
     const userEntity = new User();
     userEntity.email = user.email;
     userEntity.name = user.name;
-    userEntity.imageUrl = user.imageUrl
+    userEntity.imageUrl = user.imageUrl;
 
     return await userEntity.save();
   }

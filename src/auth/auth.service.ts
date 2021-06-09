@@ -11,7 +11,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) { }
 
-  async validateUser(email: string, pass: string): Promise<User> {
+  async validateUser(email: string): Promise<User> {
     return this.userServices.findOne(email);
   }
 

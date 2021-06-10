@@ -12,7 +12,7 @@ export class GoogleController {
 
   @Get('redirect')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req) {
+  async googleAuthRedirect(@Req() req) {
     const user = req.user;
 
     if (!user)
@@ -20,7 +20,7 @@ export class GoogleController {
         message: 'Something went wrong while trying to authenticate'
       }, HttpStatus.BAD_REQUEST)
 
-    return this.googleServices.googleLogin({
+    return await this.googleServices.googleLogin({
       accessToken: user.accessToken,
       email: user.email,
       firstName: user.firstName,

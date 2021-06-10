@@ -5,14 +5,14 @@ import { AuthService } from 'src/auth/auth.service';
 export class GoogleService {
   constructor(private readonly authServices: AuthService) { }
 
-  googleLogin(user: {
+  async googleLogin(user: {
     accessToken: string,
     email: string,
     firstName: string,
     lastName: string,
     picture: string
   }) {
-    return this.authServices
+    return await this.authServices
       .login(
         {
           email: user.email,

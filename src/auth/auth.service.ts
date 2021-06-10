@@ -3,6 +3,7 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import JwtPayload from 'src/util/jwtPayload';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +16,9 @@ export class AuthService {
     return this.userServices.findOne(email);
   }
 
-  async login(createUser: CreateUserDto, accessToken: string): Promise<{ user: User, accessToken: string }> {
+  async login(createUser: CreateUserDto, gToken: string): Promise<{ user: User, accessToken: string }> {
     const user = await this.userServices.findOneOrCreate(createUser);
-    const payload = { user, accessToken };
+    const payload: JwtPayload = { user, gToken };
     return {
       user: user,
       accessToken: this.jwtService.sign(payload),

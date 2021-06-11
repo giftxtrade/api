@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { GoogleModule } from './google/google.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { ProductsModule } from './products/products.module';
     UsersModule,
     GoogleModule,
     AuthModule,
-    ProductsModule
+    ProductsModule,
+    CategoriesModule
   ],
   controllers: [AppController],
   providers: [AppService],

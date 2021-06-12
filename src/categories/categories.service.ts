@@ -13,8 +13,8 @@ export class CategoriesService {
   async insert(name: string, description?: string, categoryUrl?: string): Promise<Category> {
     const category: Category = new Category();
     category.name = name;
-    category.description = description;
-    category.categoryUrl = categoryUrl;
+    category.description = description ? description : '';
+    category.categoryUrl = categoryUrl ? categoryUrl : '';
     return await category.save();
   }
 
@@ -42,7 +42,7 @@ export class CategoriesService {
   }
 
   async findLikeOrCreate(name: string, description?: string, categoryUrl?: string): Promise<Category> {
-    const category = await this.findLikeOrCreate(name);
+    const category = await this.findOneLike(name);
     if (!category)
       return await this.insert(name);
     return category;

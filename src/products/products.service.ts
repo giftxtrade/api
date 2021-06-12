@@ -15,6 +15,12 @@ export class ProductsService {
   ) { }
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
+    const productFound = await this.findByProductKey(createProductDto.productKey)
+    if (productFound) {
+      // Update rating and price, then return
+      return productFound;
+    }
+
     const product = new Product();
     product.title = createProductDto.title;
     product.description = createProductDto.description;
@@ -34,14 +40,10 @@ export class ProductsService {
   }
 
   async findOne(id: number): Promise<Product> {
-    return await this.productRepository.findOne({ id: id });
+    return await this.productRepository.findOne({ id });
   }
 
-  /* update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async findByProductKey(productKey: string): Promise<Product> {
+    return await this.productRepository.findOne({ productKey })
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
-  } */
 }

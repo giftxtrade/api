@@ -25,7 +25,7 @@ export class CategoriesService {
 
   async findOneLike(name: string): Promise<Category> {
     name = name.toLowerCase().trim();
-    return this.categoryRepository
+    return await this.categoryRepository
       .createQueryBuilder('categories')
       .where(`
         name like :name or

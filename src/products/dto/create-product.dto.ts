@@ -1,5 +1,4 @@
 export class CreateProductDto {
-  id: number;
   title: string;
   description: string;
   productKey: string;

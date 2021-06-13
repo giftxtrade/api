@@ -33,8 +33,22 @@ export class UsersService {
 
   async findOneOrCreate(user: CreateUserDto): Promise<User> {
     const existingUser = await this.findOne(user.email);
-    if (existingUser)
+    if (existingUser) {
+      let changed = false;
+      if (user.imageUrl !== existingUser.imageUrl) {
+        existingUser.imageUrl = user.imageUrl;
+        changed ||= true;
+      }
+
+      if (user.name !== existingUser.name) {
+        existingUser.name = user.name;
+        changed ||= true;
+      }
+
+      if (changed)
+        return await existingUser.save();
       return existingUser;
+    }
     return await this.insert(user);
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, HttpStatus, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -15,8 +15,18 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll() {
-    return await this.productsService.findAll();
+  async findAll(
+    @Query('limit') limit: number = 50,
+    @Query('page') page: number = 1
+  ) {
+    try {
+      const prevPage = page - 1;
+      return await this.productsService.findAllWithLimit(limit, prevPage * limit);
+    } catch (e) {
+      throw new HttpException({
+        message: 'Page not available'
+      }, HttpStatus.BAD_REQUEST)
+    }
   }
 
   @Get(':id')

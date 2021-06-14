@@ -54,6 +54,14 @@ export class ProductsService {
     return await this.productRepository.find();
   }
 
+  async findAllWithLimit(limit: number, offset: number): Promise<Product[]> {
+    return await this.productRepository
+      .createQueryBuilder('products')
+      .limit(limit)
+      .offset(offset)
+      .getRawMany();
+  }
+
   async findOne(id: number): Promise<Product> {
     return await this.productRepository.findOne({ id });
   }

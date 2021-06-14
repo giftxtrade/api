@@ -17,10 +17,23 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto): Promise<Product> {
     const productFound = await this.findByProductKey(createProductDto.productKey)
     if (productFound) {
-      // If product already exists then update rating and price, then return
-      productFound.price = createProductDto.price;
-      productFound.rating = createProductDto.rating;
-      return await productFound.save();
+      let changed = false
+
+      if (createProductDto.price !== productFound.price) {
+        productFound.price = createProductDto.price
+        changed ||= true
+      }
+
+      if (createProductDto.rating !== productFound.rating) {
+        productFound.rating = createProductDto.rating
+        changed ||= true
+      }
+
+      if (changed) {
+        productFound.modified = new Date(Date.now());
+        return await productFound.save();
+      }
+      return productFound;
     }
 
     const product = new Product();

@@ -17,11 +17,21 @@ export class ProductsController {
   @Get()
   async findAll(
     @Query('limit') limit: number = 50,
-    @Query('page') page: number = 1
+    @Query('page') page: number = 1,
+    @Query('min_price') minPrice: number,
+    @Query('max_price') maxPrice: number,
+    @Query('search') search: string
   ) {
     try {
       const prevPage = page - 1;
-      return await this.productsService.findAllWithLimit(limit, prevPage * limit);
+      return await this.productsService
+        .findAllWithLimit(
+          limit,
+          prevPage * limit,
+          minPrice,
+          maxPrice,
+          search
+        );
     } catch (e) {
       throw new HttpException({
         message: 'Page not available'

@@ -20,7 +20,6 @@ export class ProductsService {
     'products.modified AS modified',
     'categories.name AS category',
     'products.website AS website',
-    'categories.name AS category',
   ];
 
   constructor(
@@ -69,11 +68,27 @@ export class ProductsService {
     return await this.productRepository.find();
   }
 
-  async findAllWithLimit(limit: number, offset: number): Promise<Product[]> {
+  async findAllWithLimit(limit: number, offset: number, minPrice?: number, maxPrice?: number, search?: string): Promise<Product[]> {
+    let where = ''
+    let whereValues = {}
+    if (minPrice && maxPrice) {
+      where = 'price >= :minPrice AND price <= :maxPrice';
+      whereValues = { minPrice, maxPrice };
+
+      if (search) {
+        where += ' AND (title LIKE :search OR categories.name LIKE :search)';
+        whereValues = { minPrice, maxPrice, search: `%${search}%` };
+      }
+    }
+
     return await this.productRepository
       .createQueryBuilder('products')
+      .select(ProductsService.selectAll)
+      .where(where, whereValues)
+      .leftJoin('products.category', 'categories')
       .limit(limit)
       .offset(offset)
+      .orderBy('products.rating', 'DESC')
       .getRawMany();
   }
 

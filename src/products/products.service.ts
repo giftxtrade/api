@@ -17,6 +17,8 @@ export class ProductsService {
     'products.rating AS rating',
     'products.price AS price',
     'products.currency AS currency',
+    'products.modified AS modified',
+    'categories.name AS category',
     'products.website AS website',
     'categories.name AS category',
   ];

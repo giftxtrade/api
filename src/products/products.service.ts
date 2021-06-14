@@ -24,8 +24,8 @@ export class ProductsService {
     }
 
     const product = new Product();
-    product.title = createProductDto.title;
-    product.description = createProductDto.description;
+    product.title = createProductDto.title.trim();
+    product.description = createProductDto.description.trim();
     product.productKey = createProductDto.productKey;
     product.imageUrl = createProductDto.imageUrl;
     product.rating = createProductDto.rating;

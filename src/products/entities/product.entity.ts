@@ -6,7 +6,7 @@ export class Product extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column('text')
   title: string;
 
   @Column('text')
@@ -15,7 +15,7 @@ export class Product extends BaseEntity {
   @Column()
   productKey: string;
 
-  @Column()
+  @Column('text')
   imageUrl: string;
 
   @Column('double')
@@ -33,6 +33,6 @@ export class Product extends BaseEntity {
   @ManyToOne(() => Category, category => category.products)
   category: Category;
 
-  @Column()
+  @Column('text')
   website: string;
 }

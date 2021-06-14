@@ -8,6 +8,19 @@ import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ProductsService {
+  private static readonly selectAll = [
+    'products.id AS id',
+    'products.title AS title',
+    'products.description AS description',
+    'products.productKey AS productKey',
+    'products.imageUrl AS imageUrl',
+    'products.rating AS rating',
+    'products.price AS price',
+    'products.currency AS currency',
+    'products.website AS website',
+    'categories.name AS category',
+  ];
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,

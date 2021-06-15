@@ -88,7 +88,7 @@ export class ProductsService {
       .leftJoin('products.category', 'categories')
       .limit(limit)
       .offset(offset)
-      .orderBy('products.rating', 'DESC')
+      .orderBy('products.id, products.rating', 'DESC')
       .getRawMany();
   }
 

@@ -1,4 +1,6 @@
+import { Wish } from "src/wishes/entities/wish.entity";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Participant } from 'src/participants/entities/participant.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -19,4 +21,8 @@ export class User extends BaseEntity {
 
   @Column('text', { select: false, nullable: true })
   password: string;
+
+  participated: Participant[];
+
+  wishes: Wish[];
 }

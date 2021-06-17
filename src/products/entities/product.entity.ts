@@ -1,4 +1,5 @@
 import { Category } from "src/categories/entities/category.entity";
+import { Wish } from "src/wishes/entities/wish.entity";
 import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('products')
@@ -35,4 +36,7 @@ export class Product extends BaseEntity {
 
   @Column('text')
   website: string;
+
+  @OneToMany(() => Wish, wish => wish.product)
+  wishes: Wish[]
 }

@@ -22,7 +22,7 @@ import { join } from 'path';
     AuthModule,
     ProductsModule,
     CategoriesModule,
-    EventsModule
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [],

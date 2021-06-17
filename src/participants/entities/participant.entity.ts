@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from 'typeorm';
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { Event } from 'src/events/entities/event.entity';
@@ -26,12 +26,12 @@ export class Participant extends BaseEntity {
   @Column('boolean')
   accepted: boolean = false;
 
-  @OneToOne(() => Event, event => event.participants)
+  @ManyToOne(() => Event, event => event.participants)
   event: Event;
 
-  @OneToOne(() => User, user => user.participated)
+  @ManyToOne(() => User, user => user.participated)
   user: User;
 
-  @OneToMany(() => Wish, wish => wish.participant)
+  @ManyToMany(() => Wish, wish => wish.participant)
   wishes: Wish[];
 }

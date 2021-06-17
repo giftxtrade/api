@@ -10,6 +10,7 @@ import { EventsModule } from './events/events.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ParticipantsModule } from './participants/participants.module';
+import { WishesModule } from './wishes/wishes.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ParticipantsModule } from './participants/participants.module';
     CategoriesModule,
     EventsModule,
     ParticipantsModule,
+    WishesModule,
   ],
   controllers: [AppController],
   providers: [],

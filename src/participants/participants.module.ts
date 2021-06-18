@@ -11,6 +11,7 @@ import { Participant } from './entities/participant.entity';
     ])
   ],
   controllers: [ParticipantsController],
-  providers: [ParticipantsService]
+  providers: [ParticipantsService],
+  exports: [ParticipantsService]
 })
 export class ParticipantsModule {}

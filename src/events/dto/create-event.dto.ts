@@ -1,3 +1,5 @@
+import { CreateParticipantDto } from "src/participants/dto/create-participant.dto";
+
 export class CreateEventDto {
   name: string;
   description: string;
@@ -5,5 +7,5 @@ export class CreateEventDto {
   invitationMessage: string;
   drawAt: Date;
   closeAt: Date;
-  participants: { name: string, email: string }[]
+  participants: CreateParticipantDto[]
 }

@@ -24,11 +24,22 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
-  async findOne(email: string): Promise<User> {
+  async findById(id: number): Promise<User> {
+    return await this.usersRepository
+      .findOne({
+        where: { id }
+      });
+  }
+
+  async findByEmail(email: string): Promise<User> {
     return await this.usersRepository
       .findOne({
         where: { email: email }
       });
+  }
+
+  async findOne(email: string): Promise<User> {
+    return await this.findByEmail(email);
   }
 
   async findOneOrCreate(user: CreateUserDto): Promise<User> {

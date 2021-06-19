@@ -7,11 +7,6 @@ import { UpdateParticipantDto } from './dto/update-participant.dto';
 export class ParticipantsController {
   constructor(private readonly participantsService: ParticipantsService) {}
 
-  @Post()
-  create(@Body() createParticipantDto: CreateParticipantDto) {
-    return this.participantsService.create(createParticipantDto);
-  }
-
   @Get()
   findAll() {
     return this.participantsService.findAll();

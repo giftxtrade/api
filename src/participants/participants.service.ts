@@ -14,7 +14,7 @@ export class ParticipantsService {
     private readonly participantRepository: Repository<Participant>,
   ) { }
 
-  async create(createParticipantDto: CreateParticipantDto, user: User, event: Event): Promise<Participant> {
+  async create(createParticipantDto: CreateParticipantDto, event: Event, user?: User): Promise<Participant> {
     const participant = new Participant();
     participant.name = createParticipantDto.name;
     participant.email = createParticipantDto.email;
@@ -22,7 +22,8 @@ export class ParticipantsService {
     participant.organizer = createParticipantDto.organizer;
     participant.participates = createParticipantDto.participates;
     participant.accepted = createParticipantDto.accepted;
-    participant.user = user;
+    if (user)
+      participant.user = user;
     participant.event = event;
 
     return await participant.save();

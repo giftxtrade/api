@@ -22,7 +22,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/my-events')
+  @Get()
   async findAll(@Request() req) {
     const user = await this.usersService.findByEmail(req.user.user.email);
     return await this.eventsService.findAllForUser(user);

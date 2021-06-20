@@ -60,15 +60,15 @@ export class ParticipantsService {
     return await participant.save();
   }
 
+  async declineEvent(event: Event, user: User): Promise<Participant> {
+    const participant = await this.getPendingParticipantForEvent(event, user)
     if (!participant) {
       throw new HttpException({
         message: 'Event already accepted by user/participant'
       }, HttpStatus.BAD_REQUEST);
     }
 
-    participant.accepted = true;
-    participant.user = user;
-    return await participant.save();
+    return await participant.remove();
   }
 
   update(id: number, updateParticipantDto: UpdateParticipantDto) {

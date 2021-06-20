@@ -38,6 +38,10 @@ export class EventsService {
     return `This action returns all events`;
   }
 
+  async findOne(id: number): Promise<Event> {
+    return await this.eventsRepository.findOne(id);
+  }
+
   async findOneForUser(id: number, user: User): Promise<Event> {
     return await this.eventsRepository
       .createQueryBuilder('e')

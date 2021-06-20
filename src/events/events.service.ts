@@ -42,6 +42,15 @@ export class EventsService {
     return `This action returns a #${id} event`;
   }
 
+  async findAllForUser(user: User): Promise<Event[]> {
+    return await this.eventsRepository
+      .createQueryBuilder('e')
+      .innerJoinAndSelect('e.participants', 'p')
+      .where('p.userId = :userId', { userId: user.id })
+      .orderBy('e.createdAt', 'DESC')
+      .getMany();
+  }
+
   update(id: number, updateEventDto: UpdateEventDto) {
     return `This action updates a #${id} event`;
   }

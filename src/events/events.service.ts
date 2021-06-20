@@ -51,6 +51,16 @@ export class EventsService {
       .getMany();
   }
 
+  async findAllInvitesForUser(user: User): Promise<Event[]> {
+    return await this.eventsRepository
+      .createQueryBuilder('e')
+      .innerJoinAndSelect('e.participants', 'p')
+      .where('p.accepted = 0 AND p.email = :email', {
+        email: user.email
+      })
+      .getMany();
+  }
+
   update(id: number, updateEventDto: UpdateEventDto) {
     return `This action updates a #${id} event`;
   }

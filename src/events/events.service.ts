@@ -28,10 +28,8 @@ export class EventsService {
 
     const newEvent = await event.save();
 
-
     const participants = await this.addAllParticipants(createEventDto.participants, organizer, newEvent);
-    // TODO: Email all participants
-    return newEvent;
+    return await this.findOneForUser(newEvent.id, organizer);
   }
 
   findAll() {
@@ -105,20 +103,16 @@ export class EventsService {
 
     // Add all participants
     const participants = Array<Participant>();
-    createParticipants.forEach(async (p: CreateParticipantDto) => {
-      let participant: Participant;
+    for (const p of createParticipants) {
       if (p.email === organizer.email) {
         // The main organizer must have to have a valid account. 
         // Therefore, set accepted to true
         p.accepted = true;
-
-        participant = await this.participantsService.create(p, event, organizer);
+        participants.push(await this.participantsService.create(p, event, organizer));
       } else {
-        participant = await this.participantsService.create(p, event);
+        participants.push(await this.participantsService.create(p, event));
       }
-
-      participants.push(participant)
-    })
+    }
     return participants;
   }
 }

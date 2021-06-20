@@ -53,6 +53,20 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/invites/decline/:eventId')
+  async declineInvite(@Request() req, @Param('eventId') eventId: number): Promise<boolean> {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    const event = await this.eventsService.findOne(eventId);
+    if (!event) {
+      throw new HttpException({
+        message: 'Event not found'
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    return await this.participantsService.declineEvent(event, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Request() req, @Param('eventId') eventId: number): Promise<Event> {
     const user = await this.usersService.findByEmail(req.user.user.email);

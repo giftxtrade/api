@@ -51,7 +51,7 @@ export class ParticipantsService {
     const participant = await this.getPendingParticipantForEvent(event, user)
     if (!participant) {
       throw new HttpException({
-        message: 'Event already accepted by user/participant'
+        message: 'Operation failed'
       }, HttpStatus.BAD_REQUEST);
     }
 
@@ -60,15 +60,16 @@ export class ParticipantsService {
     return await participant.save();
   }
 
-  async declineEvent(event: Event, user: User): Promise<Participant> {
+  async declineEvent(event: Event, user: User): Promise<boolean> {
     const participant = await this.getPendingParticipantForEvent(event, user)
     if (!participant) {
       throw new HttpException({
-        message: 'Event already accepted by user/participant'
+        message: 'Operation failed'
       }, HttpStatus.BAD_REQUEST);
     }
 
-    return await participant.remove();
+    await this.participantRepository.delete({ id: participant.id });
+    return true;
   }
 
   update(id: number, updateParticipantDto: UpdateParticipantDto) {

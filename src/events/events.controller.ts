@@ -28,6 +28,13 @@ export class EventsController {
     return await this.eventsService.findAllForUser(user);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('/invites')
+  async findAllInvites(@Request() req) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    return await this.eventsService.findAllInvitesForUser(user);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.eventsService.findOne(+id);

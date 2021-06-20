@@ -37,14 +37,28 @@ export class ParticipantsService {
     return await this.participantRepository.findOne({ id });
   }
 
-  async acceptEvent(event: Event, user: User): Promise<Participant> {
-    const participant = await this.participantRepository
+  async getPendingParticipantForEvent(event: Event, user: User): Promise<Participant> {
+    return await this.participantRepository
       .createQueryBuilder('p')
       .where('p.eventId = :eventId AND p.email = :email AND p.accepted = false', {
         eventId: event.id,
         email: user.email
       })
       .getOne();
+  }
+
+  async acceptEvent(event: Event, user: User): Promise<Participant> {
+    const participant = await this.getPendingParticipantForEvent(event, user)
+    if (!participant) {
+      throw new HttpException({
+        message: 'Event already accepted by user/participant'
+      }, HttpStatus.BAD_REQUEST);
+    }
+
+    participant.accepted = true;
+    participant.user = user;
+    return await participant.save();
+  }
 
     if (!participant) {
       throw new HttpException({

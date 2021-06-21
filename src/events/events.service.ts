@@ -122,6 +122,9 @@ export class EventsService {
     // Add all participants
     const participants = Array<Participant>();
     for (const p of createParticipants) {
+      if (p.email === '' || p.name === '')
+        continue;
+
       if (p.email === organizer.email) {
         // The main organizer must have to have a valid account. 
         // Therefore, set accepted to true

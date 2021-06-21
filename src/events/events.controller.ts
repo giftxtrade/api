@@ -91,9 +91,31 @@ export class EventsController {
     if (!link) {
       throw new HttpException({
         message: 'Invalid or expired invitation code.'
-      }, HttpStatus.NOT_FOUND)
+      }, HttpStatus.NOT_FOUND);
     }
     return link;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('invite-code/:inviteCode')
+  async inviteCode(@Request() req, @Param('inviteCode') inviteCode: string) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    const link = await this.linksService.findOne(inviteCode);
+    if (!link) {
+      throw new HttpException({
+        message: 'Invalid or expired invitation code.'
+      }, HttpStatus.NOT_FOUND);
+    }
+    const event = await this.eventsService.findOneByLink(link);
+    const participant = await this.participantsService.create({
+      name: user.name,
+      email: user.email,
+      address: '',
+      participates: true,
+      organizer: false,
+      accepted: true
+    }, event, user);
+    return await this.eventsService.findOneForUser(event.id, user);
   }
 
   @Patch(':id')

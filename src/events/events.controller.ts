@@ -67,7 +67,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
+  @Get(':eventId')
   async findOne(@Request() req, @Param('eventId') eventId: number): Promise<Event> {
     const user = await this.usersService.findByEmail(req.user.user.email);
     return await this.eventsService.findOneForUser(eventId, user);

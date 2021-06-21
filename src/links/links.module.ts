@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LinkService } from './link.service';
+import { LinkService } from './links.service';
 import Link from './entity/link.entity';
 
 @Module({

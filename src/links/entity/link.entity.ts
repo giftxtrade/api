@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Event } from 'src/events/entities/event.entity';
 
-@Entity('link')
+@Entity('links')
 export default class Link extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;

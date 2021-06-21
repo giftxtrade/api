@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Participant } from 'src/participants/entities/participant.entity';
-import Link from 'src/link/entity/link.entity';
+import Link from 'src/links/entity/link.entity';
 
 @Entity('events')
 export class Event extends BaseEntity {

@@ -11,7 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ParticipantsModule } from './participants/participants.module';
 import { WishesModule } from './wishes/wishes.module';
-import { LinkModule } from './link/link.module';
+import { LinkModule } from './links/links.module';
 
 @Module({
   imports: [

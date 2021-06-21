@@ -36,7 +36,13 @@ export class EventsService {
   }
 
   async findOne(id: number): Promise<Event> {
-    return await this.eventsRepository.findOne(id);
+    return await this.eventsRepository
+      .createQueryBuilder('e')
+      .innerJoinAndSelect('e.participants', 'p')
+      .where('e.id = :eventId', {
+        eventId: id
+      })
+      .getOne();
   }
 
   async findOneForUser(id: number, user: User): Promise<Event> {

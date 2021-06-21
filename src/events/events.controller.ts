@@ -72,8 +72,13 @@ export class EventsController {
   @UseGuards(JwtAuthGuard)
   @Get(':eventId')
   async findOne(@Request() req, @Param('eventId') eventId: number): Promise<Event> {
-    const user = await this.usersService.findByEmail(req.user.user.email);
-    return await this.eventsService.findOneForUser(eventId, user);
+    const event = await this.eventsService.findOne(eventId);
+    if (!event) {
+      throw new HttpException({
+        message: "Event not found"
+      }, HttpStatus.NOT_FOUND);
+    }
+    return event;
   }
 
   @UseGuards(JwtAuthGuard)

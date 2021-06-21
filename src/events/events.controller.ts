@@ -7,6 +7,7 @@ import { UsersService } from 'src/users/users.service';
 import { Event } from './entities/event.entity';
 import { ParticipantsService } from '../participants/participants.service';
 import Link from 'src/links/entity/link.entity';
+import { LinksService } from 'src/links/links.service';
 
 @Controller('events')
 export class EventsController {
@@ -14,6 +15,7 @@ export class EventsController {
     private readonly eventsService: EventsService,
     private readonly usersService: UsersService,
     private readonly participantsService: ParticipantsService,
+    private readonly linksService: LinksService,
   ) { }
 
   @UseGuards(JwtAuthGuard)
@@ -81,6 +83,17 @@ export class EventsController {
     const event = await this.eventsService.findOne(eventId);
     return await this.eventsService
       .createLinkForEvent(event, user, expirationDate);
+  }
+
+  @Get('verify-invite-code/:inviteCode')
+  async verifyInviteCode(@Param('inviteCode') inviteCode: string) {
+    const link = await this.linksService.findOne(inviteCode);
+    if (!link) {
+      throw new HttpException({
+        message: 'Invalid or expired invitation code.'
+      }, HttpStatus.NOT_FOUND)
+    }
+    return link;
   }
 
   @Patch(':id')

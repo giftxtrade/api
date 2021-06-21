@@ -15,7 +15,12 @@ export class LinksService {
   ) { }
 
   async findOne(code: string): Promise<Link> {
-    return await this.linksRepository.findOne({ code });
+    return await this.linksRepository
+      .createQueryBuilder('l')
+      .where('l.code = :code AND expirationDate > CURRENT_DATE()', {
+        code: `${code}`
+      })
+      .getOne();
   }
 
   async findByEvent(event: Event): Promise<Link> {

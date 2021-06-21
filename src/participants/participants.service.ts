@@ -56,6 +56,18 @@ export class ParticipantsService {
       .getOne();
   }
 
+  async findByEventAndShallowUser(event: Event, user: User): Promise<Participant> {
+    return await this.participantRepository
+      .createQueryBuilder('p')
+      .innerJoin('p.event', 'e')
+      .where('e.id = :eventId AND (p.userId = :userId OR p.email = :userEmail)', {
+        eventId: event.id,
+        userId: user.id,
+        userEmail: `${user.email}`
+      })
+      .getOne();
+  }
+
   async findByEventAndOrganizer(event: Event, user: User): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')

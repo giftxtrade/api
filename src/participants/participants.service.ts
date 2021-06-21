@@ -37,6 +37,36 @@ export class ParticipantsService {
     return await this.participantRepository.findOne({ id });
   }
 
+  async findAllByEvent(event: Event): Promise<Participant[]> {
+    return await this.participantRepository
+      .createQueryBuilder('p')
+      .innerJoin('p.event', 'e')
+      .where('e.id = :eventId', { eventId: event.id })
+      .getMany();
+  }
+
+  async findByEventAndUser(event: Event, user: User): Promise<Participant> {
+    return await this.participantRepository
+      .createQueryBuilder('p')
+      .innerJoin('p.event', 'e')
+      .where('e.id = :eventId AND p.userId = :userId', {
+        eventId: event.id,
+        userId: user.id
+      })
+      .getOne();
+  }
+
+  async findByEventAndOrganizer(event: Event, user: User): Promise<Participant> {
+    return await this.participantRepository
+      .createQueryBuilder('p')
+      .innerJoin('p.event', 'e')
+      .where('e.id = :eventId AND p.userId = :userId AND p.organizer = true', {
+        eventId: event.id,
+        userId: user.id
+      })
+      .getOne();
+  }
+
   async getPendingParticipantForEvent(event: Event, user: User): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')

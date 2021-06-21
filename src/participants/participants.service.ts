@@ -15,6 +15,11 @@ export class ParticipantsService {
   ) { }
 
   async create(createParticipantDto: CreateParticipantDto, event: Event, user?: User): Promise<Participant> {
+    const shallowParticipant = await this.findByEventAndShallowUser(event, user);
+    if (shallowParticipant) {
+      return shallowParticipant;
+    }
+
     const participant = new Participant();
     participant.name = createParticipantDto.name;
     participant.email = createParticipantDto.email;

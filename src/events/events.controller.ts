@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { Event } from './entities/event.entity';
 import { ParticipantsService } from '../participants/participants.service';
+import Link from 'src/links/entity/link.entity';
 
 @Controller('events')
 export class EventsController {
@@ -71,6 +72,15 @@ export class EventsController {
   async findOne(@Request() req, @Param('eventId') eventId: number): Promise<Event> {
     const user = await this.usersService.findByEmail(req.user.user.email);
     return await this.eventsService.findOneForUser(eventId, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('get-link/:eventId')
+  async createLink(@Request() req, @Param('eventId') eventId: number, @Body() { expirationDate }: { expirationDate: Date }): Promise<Link> {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    const event = await this.eventsService.findOne(eventId);
+    return await this.eventsService
+      .createLinkForEvent(event, user, expirationDate);
   }
 
   @Patch(':id')

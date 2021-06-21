@@ -8,6 +8,8 @@ import { Participant } from 'src/participants/entities/participant.entity';
 import { ParticipantsService } from '../participants/participants.service';
 import { User } from 'src/users/entities/user.entity';
 import { CreateParticipantDto } from 'src/participants/dto/create-participant.dto';
+import Link from 'src/links/entity/link.entity';
+import { LinksService } from '../links/links.service';
 
 @Injectable()
 export class EventsService {
@@ -15,6 +17,7 @@ export class EventsService {
     @InjectRepository(Event)
     private readonly eventsRepository: Repository<Event>,
     private readonly participantsService: ParticipantsService,
+    private readonly linksService: LinksService,
   ) { }
 
   async create(createEventDto: CreateEventDto, organizer: User): Promise<Event> {
@@ -30,10 +33,6 @@ export class EventsService {
 
     const participants = await this.addAllParticipants(createEventDto.participants, organizer, newEvent);
     return await this.findOneForUser(newEvent.id, organizer);
-  }
-
-  findAll() {
-    return `This action returns all events`;
   }
 
   async findOne(id: number): Promise<Event> {
@@ -68,6 +67,17 @@ export class EventsService {
         email: user.email
       })
       .getMany();
+  }
+
+  async createLinkForEvent(event: Event, user: User, expirationDate: Date): Promise<Link> {
+    const participant = await this.participantsService
+      .findByEventAndOrganizer(event, user);
+    if (!participant) {
+      throw new HttpException({
+        message: 'Could not perform operation'
+      }, HttpStatus.BAD_REQUEST)
+    }
+    return this.linksService.create(event, expirationDate);
   }
 
   update(id: number, updateEventDto: UpdateEventDto) {

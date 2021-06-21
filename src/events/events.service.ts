@@ -80,6 +80,13 @@ export class EventsService {
     return this.linksService.create(event, expirationDate);
   }
 
+  async findOneByLink(link: Link): Promise<Event> {
+    return await this.eventsRepository
+      .createQueryBuilder('e')
+      .innerJoin('e.links', 'l')
+      .getOne();
+  }
+
   update(id: number, updateEventDto: UpdateEventDto) {
     return `This action updates a #${id} event`;
   }

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LinkService } from './links.service';
+import { LinksService } from './links.service';
 import Link from './entity/link.entity';
 
 @Module({
@@ -9,7 +9,7 @@ import Link from './entity/link.entity';
       Link
     ])
   ],
-  providers: [LinkService],
-  exports: [LinkService]
+  providers: [LinksService],
+  exports: [LinksService]
 })
-export class LinkModule { }
+export class LinksModule { }

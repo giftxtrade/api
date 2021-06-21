@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { ParticipantsModule } from 'src/participants/participants.module';
 import { UsersModule } from 'src/users/users.module';
+import { LinksModule } from 'src/links/links.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { UsersModule } from 'src/users/users.module';
       Event
     ]),
     ParticipantsModule,
-    UsersModule
+    UsersModule,
+    LinksModule
   ],
   controllers: [EventsController],
   providers: [EventsService],

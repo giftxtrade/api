@@ -3,22 +3,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Link from './entity/link.entity';
 import { generate } from 'randomstring';
+import { Event } from 'src/events/entities/event.entity';
 
 @Injectable()
-export class LinkService {
+export class LinksService {
   private readonly codeLen = 15;
 
   constructor(
     @InjectRepository(Link)
-    private readonly linkRepository: Repository<Link>,
+    private readonly linksRepository: Repository<Link>,
   ) { }
 
   async findOne(code: string): Promise<Link> {
-    return await this.linkRepository.findOne({ code });
+    return await this.linksRepository.findOne({ code });
   }
 
   async findByEvent(event: Event): Promise<Link> {
-    return await this.linkRepository
+    return await this.linksRepository
       .createQueryBuilder('l')
       .innerJoin('l.event', 'e')
       .getOne();

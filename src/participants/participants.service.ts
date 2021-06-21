@@ -15,9 +15,16 @@ export class ParticipantsService {
   ) { }
 
   async create(createParticipantDto: CreateParticipantDto, event: Event, user?: User): Promise<Participant> {
-    const shallowParticipant = await this.findByEventAndShallowUser(event, user);
-    if (shallowParticipant) {
-      return shallowParticipant;
+    if (user) {
+      const participant = await this.findByEventAndUser(event, user);
+      if (participant) {
+        return participant;
+      }
+    } else {
+      const shallowParticipant = await this.findByEventAndShallowUser(event, createParticipantDto.email);
+      if (shallowParticipant) {
+        return shallowParticipant;
+      }
     }
 
     const participant = new Participant();
@@ -61,14 +68,13 @@ export class ParticipantsService {
       .getOne();
   }
 
-  async findByEventAndShallowUser(event: Event, user: User): Promise<Participant> {
+  async findByEventAndShallowUser(event: Event, email: string): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')
       .innerJoin('p.event', 'e')
-      .where('e.id = :eventId AND (p.userId = :userId OR p.email = :userEmail)', {
+      .where('e.id = :eventId AND p.email = :email', {
         eventId: event.id,
-        userId: user.id,
-        userEmail: `${user.email}`
+        email: `${email}`
       })
       .getOne();
   }

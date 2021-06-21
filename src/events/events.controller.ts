@@ -113,8 +113,8 @@ export class EventsController {
       address: '',
       participates: true,
       organizer: false,
-      accepted: true
-    }, event, user);
+      accepted: false
+    }, event);
     return await this.eventsService.findOneForUser(event.id, user);
   }
 

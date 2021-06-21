@@ -38,6 +38,7 @@ export class LinksService {
   async create(event: Event, expirationDate?: Date): Promise<Link> {
     const link = new Link();
     link.code = await this.generateValidCode();
+    link.event = event;
     if (expirationDate)
       link.expirationDate = expirationDate;
     return await link.save();

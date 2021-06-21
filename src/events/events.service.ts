@@ -84,6 +84,7 @@ export class EventsService {
     return await this.eventsRepository
       .createQueryBuilder('e')
       .innerJoin('e.links', 'l')
+      .where('l.code = :linkCode', { linkCode: `${link.code}` })
       .getOne();
   }
 

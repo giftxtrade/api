@@ -57,6 +57,15 @@ export class ParticipantsService {
       .getMany();
   }
 
+  async findAllByEventWithUser(event: Event): Promise<Participant[]> {
+    return await this.participantRepository
+      .createQueryBuilder('p')
+      .innerJoin('p.event', 'e')
+      .leftJoinAndSelect('p.user', 'u')
+      .where('e.id = :eventId', { eventId: event.id })
+      .getMany();
+  }
+
   async findByEventAndUser(event: Event, user: User): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')

@@ -8,6 +8,7 @@ import { Event } from './entities/event.entity';
 import { ParticipantsService } from '../participants/participants.service';
 import Link from 'src/links/entity/link.entity';
 import { LinksService } from 'src/links/links.service';
+import { Participant } from 'src/participants/entities/participant.entity';
 
 @Controller('events')
 export class EventsController {
@@ -71,14 +72,21 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':eventId')
-  async findOne(@Request() req, @Param('eventId') eventId: number): Promise<Event> {
+  async findOne(@Request() req, @Param('eventId') eventId: number): Promise<{
+    event: Event,
+    participants: Participant[],
+    link: Link | null
+  }> {
     const event = await this.eventsService.findOne(eventId);
     if (!event) {
       throw new HttpException({
         message: "Event not found"
       }, HttpStatus.NOT_FOUND);
     }
-    return event;
+
+    const participants = await this.participantsService.findAllByEventWithUser(event);
+    const link = await this.linksService.findByEvent(event);
+    return { event, participants, link: link ? link : null };
   }
 
   @UseGuards(JwtAuthGuard)

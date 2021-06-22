@@ -77,11 +77,19 @@ export class EventsController {
     participants: Participant[],
     link: Link | null
   }> {
+    const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOne(eventId);
     if (!event) {
       throw new HttpException({
         message: "Event not found"
       }, HttpStatus.NOT_FOUND);
+    }
+
+    const isPartOfEvent = await this.eventsService.isUserPartOfEvent(event, user);
+    if (!isPartOfEvent) {
+      throw new HttpException({
+        message: "Can't access event unless you have accepted the invite"
+      }, HttpStatus.BAD_REQUEST);
     }
 
     const participants = await this.participantsService.findAllByEventWithUser(event);

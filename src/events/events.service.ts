@@ -94,6 +94,16 @@ export class EventsService {
       .getOne();
   }
 
+  async isUserPartOfEvent(event: Event, user: User): Promise<boolean> {
+    const participant = await this.participantsService.findByEventAndUser(event, user);
+    return participant ? true : false;
+  }
+
+  async isUserPartOfEventShallow(event: Event, user: User): Promise<boolean> {
+    const participant = await this.participantsService.findByEventAndShallowUser(event, user.email);
+    return participant ? true : false;
+  }
+
   update(id: number, updateEventDto: UpdateEventDto) {
     return `This action updates a #${id} event`;
   }

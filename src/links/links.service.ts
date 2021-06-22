@@ -26,7 +26,7 @@ export class LinksService {
   async findByEvent(event: Event): Promise<Link> {
     return await this.linksRepository
       .createQueryBuilder('l')
-      .innerJoin('l.event', 'e')
+      .where('l.eventId = :eventId', { eventId: event.id })
       .getOne();
   }
 

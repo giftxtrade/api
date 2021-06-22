@@ -69,8 +69,7 @@ export class ParticipantsService {
   async findByEventAndUser(event: Event, user: User): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')
-      .innerJoin('p.event', 'e')
-      .where('e.id = :eventId AND p.userId = :userId', {
+      .where('p.eventId = :eventId AND p.userId = :userId', {
         eventId: event.id,
         userId: user.id
       })
@@ -80,8 +79,7 @@ export class ParticipantsService {
   async findByEventAndShallowUser(event: Event, email: string): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')
-      .innerJoin('p.event', 'e')
-      .where('e.id = :eventId AND p.email = :email', {
+      .where('p.eventId = :eventId AND p.email = :email', {
         eventId: event.id,
         email: `${email}`
       })

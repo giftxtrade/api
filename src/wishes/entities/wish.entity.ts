@@ -2,11 +2,15 @@ import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne } from 't
 import { User } from 'src/users/entities/user.entity';
 import { Participant } from 'src/participants/entities/participant.entity';
 import { Product } from 'src/products/entities/product.entity';
+import { Event } from 'src/events/entities/event.entity';
 
 @Entity('wishes')
 export class Wish extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column('datetime')
+  createdAt: Date = new Date(Date.now());
 
   @ManyToOne(() => User, user => user.wishes)
   user: User;
@@ -16,4 +20,7 @@ export class Wish extends BaseEntity {
 
   @ManyToOne(() => Product, product => product.wishes)
   product: Product;
+
+  @ManyToOne(() => Event, event => event.wishes)
+  event: Event;
 }

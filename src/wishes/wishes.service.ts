@@ -45,7 +45,18 @@ export class WishesService {
       .getMany();
   }
 
-  async remove(user: User, wishId: number, createWishDto: CreateWishDto) {
+  async findOneByUserProductEvent(user: User, product: Product, event: Event) {
+    return this.wishRepository
+      .createQueryBuilder('w')
+      .where('w.userId = :userId AND w.eventId = :eventId AND w.productId = :productId', {
+        userId: user.id,
+        eventId: event.id,
+        productId: product.id
+      })
+      .getOne();
+  }
+
+  async remove(user: User, createWishDto: CreateWishDto) {
     const { product, event, participant } = await this
       .getWishItems(user, createWishDto.eventId, createWishDto.productId, createWishDto.participantId);
 
@@ -54,7 +65,14 @@ export class WishesService {
         message: 'Something went wrong'
       }, HttpStatus.BAD_REQUEST);
     }
-    return this.wishRepository.delete(wishId);
+
+    const wish = await this.findOneByUserProductEvent(user, product, event);
+    if (!wish) {
+      throw new HttpException({
+        message: 'Could not delete wish item'
+      }, HttpStatus.BAD_REQUEST);
+    }
+    return await wish.remove();
   }
 
   private async getWishItems(user: User, eventId: number, productId: number, participantId: number) {

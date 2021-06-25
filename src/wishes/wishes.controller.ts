@@ -36,9 +36,9 @@ export class WishesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async remove(@Request() req, @Param('id') id: number, @Body() createWishDto: CreateWishDto) {
+  @Delete()
+  async remove(@Request() req, @Body() createWishDto: CreateWishDto) {
     const user = await this.usersService.findByEmail(req.user.user.email);
-    return await this.wishesService.remove(user, id, createWishDto);
+    return await this.wishesService.remove(user, createWishDto);
   }
 }

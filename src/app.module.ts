@@ -12,6 +12,7 @@ import { join } from 'path';
 import { ParticipantsModule } from './participants/participants.module';
 import { WishesModule } from './wishes/wishes.module';
 import { LinksModule } from './links/links.module';
+import { DrawsModule } from './draws/draws.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LinksModule } from './links/links.module';
     ParticipantsModule,
     WishesModule,
     LinksModule,
+    DrawsModule,
   ],
   controllers: [AppController],
   providers: [],

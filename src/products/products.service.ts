@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { CategoriesService } from '../categories/categories.service';
@@ -77,7 +76,7 @@ export class ProductsService {
 
       if (search) {
         where += ' AND (title LIKE :search OR categories.name LIKE :search)';
-        whereValues = { minPrice, maxPrice, search: `%${search}%` };
+        whereValues = { minPrice, maxPrice, search: `${search}%` };
       }
     }
 

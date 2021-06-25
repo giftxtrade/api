@@ -41,6 +41,7 @@ export class WishesService {
         userId: user.id,
         eventId: event.id
       })
+      .orderBy("w.id", "DESC")
       .getMany();
   }
 

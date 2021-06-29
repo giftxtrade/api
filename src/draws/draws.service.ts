@@ -12,15 +12,45 @@ export class DrawsService {
     return `This action returns all draws`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} draw`;
-  }
+  getDraws() {
+    const participants = [];
+    const N = participants.length;
 
-  update(id: number, updateDrawDto: UpdateDrawDto) {
-    return `This action updates a #${id} draw`;
-  }
+    for (let i = 0; i < N; i++) {
+      const drawn = new Set<number>();
+      const pairs = new Map<number, number>();
+      const start = i + 1;
 
-  remove(id: number) {
-    return `This action removes a #${id} draw`;
+      for (let j = 0; j < N; j++) {
+        const index = j + 1;
+        let draw = start + index;
+        if (draw == index)
+          draw++;
+        if (draw > N)
+          draw %= N;
+        if (draw === 0)
+          draw++;
+
+        if (drawn.has(draw)) {
+          pairs.clear();
+          break;
+        }
+        drawn.add(draw);
+        pairs.set(index, draw);
+      }
+      if (pairs.size == 0)
+        continue;
+      participants.push(pairs);
+    }
+
+    participants.forEach(p => {
+      let str = "";
+      let i = 0;
+      p.forEach((v, k) => {
+        str += `${k}->${v}${i == (p.size - 1) ? '' : ', '}`;
+        i++;
+      })
+      console.log(str);
+    });
   }
 }

@@ -1,34 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, HttpException, HttpStatus } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { EventsService } from 'src/events/events.service';
+import { UsersService } from 'src/users/users.service';
 import { DrawsService } from './draws.service';
-import { CreateDrawDto } from './dto/create-draw.dto';
-import { UpdateDrawDto } from './dto/update-draw.dto';
 
 @Controller('draws')
 export class DrawsController {
-  constructor(private readonly drawsService: DrawsService) {}
+  constructor(
+    private readonly drawsService: DrawsService,
+    private readonly usersService: UsersService,
+    private readonly eventsService: EventsService,
+  ) { }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createDrawDto: CreateDrawDto) {
-    return this.drawsService.create(createDrawDto);
+  async create(@Request() res, @Body() body: { eventId: number }) {
+    const user = await this.usersService.findByEmail(res.user.user.email);
+    const event = await this.eventsService.findOneForOrganizerUser(body.eventId, user);
+    if (!event) {
+      throw new HttpException({
+        message: 'Something went wrong'
+      }, HttpStatus.BAD_REQUEST);
+    }
+    return await this.drawsService.create(event, user);
   }
 
   @Get()
   findAll() {
     return this.drawsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.drawsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDrawDto: UpdateDrawDto) {
-    return this.drawsService.update(+id, updateDrawDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.drawsService.remove(+id);
   }
 }

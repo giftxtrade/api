@@ -1,20 +1,59 @@
 import { Injectable } from '@nestjs/common';
-import { CreateDrawDto } from './dto/create-draw.dto';
-import { UpdateDrawDto } from './dto/update-draw.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Draw } from './entities/draw.entity';
+import { Repository } from 'typeorm';
+import { Participant } from 'src/participants/entities/participant.entity';
+import { ParticipantsService } from 'src/participants/participants.service';
+import { User } from 'src/users/entities/user.entity';
+import { Event } from 'src/events/entities/event.entity';
+import { shuffle } from 'src/util/shuffle';
 
 @Injectable()
 export class DrawsService {
-  create(createDrawDto: CreateDrawDto) {
-    return 'This action adds a new draw';
+  constructor(
+    @InjectRepository(Draw)
+    private readonly drawsRepository: Repository<Draw>,
+    private readonly participantsService: ParticipantsService
+  ) { }
+
+  async create(event: Event, user: User) {
+    const allParticipants = await this.participantsService.findAllByEvent(event);
+    const participants = shuffle(
+      allParticipants
+        .filter(p => p.accepted && p.participates)
+    );
+    return await this.generateDraw(participants, event);
   }
 
   findAll() {
     return `This action returns all draws`;
   }
 
-  getDraws() {
-    const participants = [];
-    const N = participants.length;
+  private async generateDraw(participants: Participant[], event: Event) {
+    await this.drawsRepository.createQueryBuilder()
+      .where('eventId = :eventId', { eventId: event.id })
+      .delete()
+      .execute();
+
+    const allDraws = this.getDraws(participants.length);
+    const randomDraw = allDraws[Math.floor(Math.random() * allDraws.length)];
+    const draws: Array<Draw> = [];
+
+    for (let [key, val] of randomDraw) {
+      const drawer = participants[key - 1];
+      const drawee = participants[val - 1];
+
+      const draw = new Draw();
+      draw.event = event;
+      draw.drawer = drawer;
+      draw.drawee = drawee;
+      draws.push(await draw.save());
+    }
+    return draws;
+  }
+
+  private getDraws(N: number): Array<Map<number, number>> {
+    const allParticipantsMaps = [];
 
     for (let i = 0; i < N; i++) {
       const drawn = new Set<number>();
@@ -31,7 +70,7 @@ export class DrawsService {
         if (draw === 0)
           draw++;
 
-        if (drawn.has(draw)) {
+        if (drawn.has(draw) || draw === index) {
           pairs.clear();
           break;
         }
@@ -40,17 +79,8 @@ export class DrawsService {
       }
       if (pairs.size == 0)
         continue;
-      participants.push(pairs);
+      allParticipantsMaps.push(pairs);
     }
-
-    participants.forEach(p => {
-      let str = "";
-      let i = 0;
-      p.forEach((v, k) => {
-        str += `${k}->${v}${i == (p.size - 1) ? '' : ', '}`;
-        i++;
-      })
-      console.log(str);
-    });
+    return allParticipantsMaps;
   }
 }

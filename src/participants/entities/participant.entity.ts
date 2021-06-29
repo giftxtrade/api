@@ -2,6 +2,7 @@ import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMa
 import { User } from 'src/users/entities/user.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { Event } from 'src/events/entities/event.entity';
+import { Draw } from 'src/draws/entities/draw.entity';
 
 @Entity('participants')
 export class Participant extends BaseEntity {
@@ -34,4 +35,10 @@ export class Participant extends BaseEntity {
 
   @ManyToMany(() => Wish, wish => wish.participant)
   wishes: Wish[];
+
+  @ManyToMany(() => Draw, draw => draw.drawer)
+  drawers: Draw[];
+
+  @ManyToMany(() => Draw, draw => draw.drawee)
+  drawees: Draw[];
 }

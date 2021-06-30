@@ -25,8 +25,26 @@ export class DrawsService {
     return await this.generateDraw(participants, event);
   }
 
-  findAll() {
-    return `This action returns all draws`;
+  async findAll(event: Event): Promise<Draw[]> {
+    return await this.drawsRepository
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.drawer', 'p1')
+      .leftJoinAndSelect('d.drawee', 'p2')
+      .where('d.eventId = :eventId', { eventId: event.id })
+      .getMany();
+  }
+
+  async findForParticipant(event: Event, participant: Participant): Promise<Draw[]> {
+    return await this.drawsRepository
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.drawer', 'p1')
+      .leftJoinAndSelect('d.drawee', 'p2')
+      .where('d.eventId = :eventId AND d.drawerId = :drawerId',
+        {
+          eventId: event.id,
+          drawerId: participant.id
+        })
+      .getMany();
   }
 
   private async generateDraw(participants: Participant[], event: Event) {

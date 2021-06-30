@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Draw } from './entities/draw.entity';
 import { Repository } from 'typeorm';
@@ -56,6 +56,12 @@ export class DrawsService {
     const allDraws = this.getDraws(participants.length);
     const randomDraw = allDraws[Math.floor(Math.random() * allDraws.length)];
     const draws: Array<Draw> = [];
+
+    if (!randomDraw || randomDraw.size === 0) {
+      throw new HttpException({
+        message: 'Could not process request'
+      }, HttpStatus.BAD_REQUEST);
+    }
 
     for (let [key, val] of randomDraw) {
       const drawer = participants[key - 1];

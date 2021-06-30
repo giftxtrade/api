@@ -37,7 +37,7 @@ export class DrawsController {
         message: 'Something went wrong'
       }, HttpStatus.BAD_REQUEST);
     }
-    return this.drawsService.findAll(event);
+    return await this.drawsService.findAll(event);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -47,7 +47,7 @@ export class DrawsController {
     const event = await this.eventsService.findOneForUser(eventId, user);
     if (!event) {
       throw new HttpException({
-        message: 'Something went wrong'
+        message: 'Event not found'
       }, HttpStatus.BAD_REQUEST);
     }
 
@@ -58,6 +58,12 @@ export class DrawsController {
       }, HttpStatus.BAD_REQUEST);
     }
 
-    return this.drawsService.findForParticipant(event, participant);
+    const draw = await this.drawsService.findForParticipant(event, participant);
+    if (!draw) {
+      throw new HttpException({
+        message: 'No draws found for user'
+      }, HttpStatus.NOT_FOUND);
+    }
+    return draw;
   }
 }

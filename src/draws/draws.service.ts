@@ -34,7 +34,7 @@ export class DrawsService {
       .getMany();
   }
 
-  async findForParticipant(event: Event, participant: Participant): Promise<Draw[]> {
+  async findForParticipant(event: Event, participant: Participant): Promise<Draw> {
     return await this.drawsRepository
       .createQueryBuilder('d')
       .leftJoinAndSelect('d.drawer', 'p1')
@@ -44,7 +44,7 @@ export class DrawsService {
           eventId: event.id,
           drawerId: participant.id
         })
-      .getMany();
+      .getOne();
   }
 
   private async generateDraw(participants: Participant[], event: Event) {

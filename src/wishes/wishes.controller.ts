@@ -5,6 +5,7 @@ import { UpdateWishDto } from './dto/update-wish.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { EventsService } from 'src/events/events.service';
+import { ParticipantsService } from 'src/participants/participants.service';
 
 @Controller('wishes')
 export class WishesController {
@@ -12,6 +13,7 @@ export class WishesController {
     private readonly wishesService: WishesService,
     private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
+    private readonly participantService: ParticipantsService,
   ) { }
 
   @UseGuards(JwtAuthGuard)
@@ -33,6 +35,21 @@ export class WishesController {
     }
 
     return await this.wishesService.findAllByUserEvent(user, event);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':eventId/:participantId')
+  async findAllForParticipant(@Request() req, @Param('eventId') eventId, @Param('participantId') participantId) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    const participant = await this.participantService.findOneWithUser(participantId);
+    const event = await this.eventsService.findOneForUser(eventId, user);
+
+    if (!participant || !event) {
+      throw new HttpException({
+        message: 'Invalid participant or event'
+      }, HttpStatus.NOT_FOUND);
+    }
+    return await this.wishesService.findAllByUserEvent(participant.user, event);
   }
 
   @UseGuards(JwtAuthGuard)

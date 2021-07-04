@@ -23,9 +23,14 @@ export class ParticipantsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
 
     const participant = await this.participantsService.findOneWithUser(participantId);
-    if (!participant && participant.user.id !== user.id) {
+    if (!participant) {
       throw new HttpException({
-        message: 'Could not delete participant'
+        message: 'Participant does not exist'
+      }, HttpStatus.NOT_FOUND);
+    }
+    if (participant.user.id !== user.id || participant.organizer) {
+      throw new HttpException({
+        message: 'Could not delete'
       }, HttpStatus.BAD_REQUEST);
     }
     return await this.participantsService.remove(participantId);

@@ -18,15 +18,16 @@ export class ParticipantsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async remove(@Request() req, @Param('id') id: number) {
+  @Delete(':participantId')
+  async remove(@Request() req, @Param('participantId') participantId: number) {
     const user = await this.usersService.findByEmail(req.user.user.email);
-    const participant = await this.participantsService.findOne(id);
-    if (!participant || participant.user.id !== user.id) {
+
+    const participant = await this.participantsService.findOneWithUser(participantId);
+    if (!participant && participant.user.id !== user.id) {
       throw new HttpException({
         message: 'Could not delete participant'
       }, HttpStatus.BAD_REQUEST);
     }
-    return await this.participantsService.remove(id);
+    return await this.participantsService.remove(participantId);
   }
 }

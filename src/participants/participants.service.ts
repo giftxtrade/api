@@ -145,6 +145,6 @@ export class ParticipantsService {
   }
 
   async remove(id: number) {
-    return await this.participantRepository.softDelete(id);
+    return await this.participantRepository.delete({ id });
   }
 }

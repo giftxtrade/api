@@ -27,10 +27,10 @@ export class Participant extends BaseEntity {
   @Column('boolean')
   accepted: boolean = false;
 
-  @ManyToOne(() => Event, event => event.participants)
+  @ManyToOne(() => Event, event => event.participants, { onDelete: 'CASCADE' })
   event: Event;
 
-  @ManyToOne(() => User, user => user.participated)
+  @ManyToOne(() => User, user => user.participated, { onDelete: 'CASCADE' })
   user: User;
 
   @ManyToMany(() => Wish, wish => wish.participant)

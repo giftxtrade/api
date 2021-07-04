@@ -31,7 +31,7 @@ export class Product extends BaseEntity {
   @Column('datetime')
   modified: Date = new Date(Date.now());
 
-  @ManyToOne(() => Category, category => category.products)
+  @ManyToOne(() => Category, category => category.products, { onDelete: 'CASCADE' })
   category: Category;
 
   @Column('text')

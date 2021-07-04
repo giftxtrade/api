@@ -10,12 +10,12 @@ export class Draw extends BaseEntity {
   @Column('datetime')
   createAt: Date = new Date(Date.now());
 
-  @ManyToOne(() => Participant, participant => participant.drawers)
+  @ManyToOne(() => Participant, participant => participant.drawers, { onDelete: 'CASCADE' })
   drawer: Participant;
 
-  @ManyToOne(() => Participant, participant => participant.drawees)
+  @ManyToOne(() => Participant, participant => participant.drawees, { onDelete: 'CASCADE' })
   drawee: Participant;
 
-  @ManyToOne(() => Event, event => event.draws)
+  @ManyToOne(() => Event, event => event.draws, { onDelete: 'CASCADE' })
   event: Event;
 }

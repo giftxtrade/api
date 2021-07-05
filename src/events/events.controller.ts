@@ -145,7 +145,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
+  @Delete(':eventId')
   async remove(@Request() req, @Param('eventId') eventId: number) {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOneForUser(eventId, user);
@@ -161,6 +161,9 @@ export class EventsController {
         message: "Delete not allowed for non-organizer users"
       }, HttpStatus.BAD_REQUEST);
     }
-    return await this.eventsService.remove(eventId);
+    const deleteStatus = await this.eventsService.remove(eventId);
+    return {
+      message: 'Event deleted'
+    };
   }
 }

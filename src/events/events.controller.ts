@@ -139,9 +139,24 @@ export class EventsController {
     return await this.eventsService.findOneForUser(event.id, user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
+  @UseGuards(JwtAuthGuard)
+  @Patch(':eventId')
+  async update(@Request() req, @Param('eventId') eventId: number, @Body() updateEventDto: UpdateEventDto) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    const event = await this.eventsService.findOneForUser(eventId, user);
+    if (!event) {
+      throw new HttpException({
+        message: "Event not found"
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    const participant = await this.participantsService.findByEventAndOrganizer(event, user);
+    if (!participant) {
+      throw new HttpException({
+        message: "Operation not allowed for non-organizer users"
+      }, HttpStatus.BAD_REQUEST);
+    }
+    return await this.eventsService.update(event, updateEventDto);
   }
 
   @UseGuards(JwtAuthGuard)

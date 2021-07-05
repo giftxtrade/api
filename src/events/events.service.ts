@@ -119,8 +119,8 @@ export class EventsService {
     return `This action updates a #${id} event`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async remove(id: number) {
+    return await this.eventsRepository.delete({ id: id });
   }
 
   private checkForMainOrganizer(createParticipants: CreateParticipantDto[], organizer: User): boolean {

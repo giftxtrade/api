@@ -144,8 +144,23 @@ export class EventsController {
     return this.eventsService.update(+id, updateEventDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
+  async remove(@Request() req, @Param('eventId') eventId: number) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+    const event = await this.eventsService.findOneForUser(eventId, user);
+    if (!event) {
+      throw new HttpException({
+        message: "Event not found"
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    const participant = await this.participantsService.findByEventAndOrganizer(event, user);
+    if (!participant) {
+      throw new HttpException({
+        message: "Delete not allowed for non-organizer users"
+      }, HttpStatus.BAD_REQUEST);
+    }
+    return await this.eventsService.remove(eventId);
   }
 }

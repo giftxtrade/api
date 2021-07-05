@@ -115,20 +115,9 @@ export class EventsService {
     return participant ? true : false;
   }
 
-  async update(event: Event, { name, description, budget, drawAt }: UpdateEventDto) {
-    if (name && name !== event.name) {
-      event.name = name;
-    }
-    if (description && description !== event.description) {
-      event.description = description;
-    }
-    if (budget && budget !== event.budget) {
-      event.budget = budget;
-    }
-    if (drawAt && drawAt !== event.drawAt) {
-      event.drawAt = drawAt;
-    }
-    return await event.save();
+  async update(event: Event, updateEventDto: UpdateEventDto) {
+    const updated = await this.eventsRepository.update({ id: event.id }, updateEventDto);
+    return await this.eventsRepository.findOne(event.id);
   }
 
   async remove(id: number) {

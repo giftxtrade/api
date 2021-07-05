@@ -115,8 +115,20 @@ export class EventsService {
     return participant ? true : false;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async update(event: Event, { name, description, budget, drawAt }: UpdateEventDto) {
+    if (name && name !== event.name) {
+      event.name = name;
+    }
+    if (description && description !== event.description) {
+      event.description = description;
+    }
+    if (budget && budget !== event.budget) {
+      event.budget = budget;
+    }
+    if (drawAt && drawAt !== event.drawAt) {
+      event.drawAt = drawAt;
+    }
+    return await event.save();
   }
 
   async remove(id: number) {

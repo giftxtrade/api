@@ -47,7 +47,8 @@ export class ParticipantsController {
     const participant = await this.participantsService.findOneWithUser(participantId);
     if (!participant)
       throw BAD_REQUEST('Participant does not exist');
-    if (participant?.event.id !== event.id) {
+    const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, participant.email)
+    if (!shallowParticipant) {
       throw BAD_REQUEST('Could not remove participant');
     }
 

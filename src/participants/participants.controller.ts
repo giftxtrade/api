@@ -47,7 +47,7 @@ export class ParticipantsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':participantId')
-  async update(@Request() req, @Param('participantId') participantId: number, @Body() { address }: { address: string }) {
+  async updateParticipantAddress(@Request() req, @Param('participantId') participantId: number, @Body() { address }: { address: string }) {
     const user = await this.usersService.findByEmail(req.user.user.email);
 
     const participant = await this.participantsService.findOneWithUser(participantId);

@@ -35,10 +35,10 @@ export class ParticipantsController {
     @Query('eventId') eventId: number,
     @Body() { organizer }: { organizer: boolean }
   ) {
-    const { event, participant } = await this.validateEventAndParticipant(req.user.user.email, eventId, participantId);
+    const { event, participant, organizerUser } = await this.validateEventAndParticipant(req.user.user.email, eventId, participantId);
 
     const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, participant.email)
-    if (!shallowParticipant || participant.organizer)
+    if (!shallowParticipant || participant.email === organizerUser.email)
       throw BAD_REQUEST('Could not update participant');
 
     await this.participantsService.update(participantId, { organizer: organizer });

@@ -23,7 +23,25 @@ export class ParticipantsController {
       throw BAD_REQUEST('Could not remove participant');
 
     await this.participantsService.remove(participantId);
-    return { message: 'Participant removed' }
+    return { message: 'Participant removed' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('manage')
+  async changeParticipantOrganizerStatus(
+    @Request() req,
+    @Query('participantId') participantId: number,
+    @Query('eventId') eventId: number,
+    @Body() { organizer }: { organizer: boolean }
+  ) {
+    const { event, participant } = await this.validateEventAndParticipant(req.user.user.email, eventId, participantId);
+
+    const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, participant.email)
+    if (!shallowParticipant)
+      throw BAD_REQUEST('Could not remove participant');
+
+    await this.participantsService.update(participantId, { organizer: organizer });
+    return await this.participantsService.findOne(participantId);
   }
 
   @UseGuards(JwtAuthGuard)

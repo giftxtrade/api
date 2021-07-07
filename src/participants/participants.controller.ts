@@ -4,6 +4,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { EventsService } from 'src/events/events.service';
 import { BAD_REQUEST, NOT_FOUND } from 'src/util/exceptions';
+import { UpdateParticipantDto } from './dto/update-participant.dto';
 
 @Controller('participants')
 export class ParticipantsController {
@@ -19,7 +20,7 @@ export class ParticipantsController {
     const { event, participant } = await this.validateEventAndParticipant(req.user.user.email, eventId, participantId);
 
     const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, participant.email)
-    if (!shallowParticipant)
+    if (!shallowParticipant || participant.organizer)
       throw BAD_REQUEST('Could not remove participant');
 
     await this.participantsService.remove(participantId);
@@ -37,8 +38,8 @@ export class ParticipantsController {
     const { event, participant } = await this.validateEventAndParticipant(req.user.user.email, eventId, participantId);
 
     const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, participant.email)
-    if (!shallowParticipant)
-      throw BAD_REQUEST('Could not remove participant');
+    if (!shallowParticipant || participant.organizer)
+      throw BAD_REQUEST('Could not update participant');
 
     await this.participantsService.update(participantId, { organizer: organizer });
     return await this.participantsService.findOne(participantId);
@@ -89,8 +90,8 @@ export class ParticipantsController {
 
     const participant = await this.participantsService.findOneWithUser(participantId);
     if (!participant)
-      throw BAD_REQUEST('Participant does not exist');
+      throw NOT_FOUND('Participant does not exist');
 
-    return { event, participant };
+    return { event, organizerUser, organizer, participant };
   }
 }

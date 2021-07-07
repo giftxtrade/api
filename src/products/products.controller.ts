@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { BAD_REQUEST, NOT_FOUND } from 'src/util/exceptions';
 
 @Controller('products')
 export class ProductsController {
@@ -22,31 +23,25 @@ export class ProductsController {
     @Query('max_price') maxPrice: number,
     @Query('search') search: string
   ) {
-    try {
-      const prevPage = page - 1;
-      return await this.productsService
-        .findAllWithLimit(
-          limit,
-          prevPage * limit,
-          minPrice,
-          maxPrice,
-          search
-        );
-    } catch (e) {
-      throw new HttpException({
-        message: 'Page not available'
-      }, HttpStatus.BAD_REQUEST)
-    }
+    const prevPage = page - 1;
+    const results = await this.productsService
+      .findAllWithLimit(
+        limit,
+        prevPage * limit,
+        minPrice,
+        maxPrice,
+        search
+      );
+    if (results.length === 0)
+      throw BAD_REQUEST('No results');
+    return results;
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const product = await this.productsService.findOne(+id);
-    if (!product) {
-      throw new HttpException({
-        messsage: 'Product not found'
-      }, HttpStatus.NOT_FOUND)
-    }
+    if (!product)
+      throw NOT_FOUND('Product not found')
     return product;
   }
 }

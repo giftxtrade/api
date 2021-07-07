@@ -7,20 +7,6 @@ import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ProductsService {
-  private static readonly selectAll = [
-    'products.id AS id',
-    'products.title AS title',
-    'products.description AS description',
-    'products.productKey AS productKey',
-    'products.imageUrl AS imageUrl',
-    'products.rating AS rating',
-    'products.price AS price',
-    'products.currency AS currency',
-    'products.modified AS modified',
-    'categories.name AS category',
-    'products.website AS website',
-  ];
-
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -82,13 +68,12 @@ export class ProductsService {
 
     return await this.productRepository
       .createQueryBuilder('products')
-      .select(ProductsService.selectAll)
       .where(where, whereValues)
-      .leftJoin('products.category', 'categories')
+      .leftJoinAndSelect('products.category', 'categories')
       .limit(limit)
       .offset(offset)
-      .orderBy('products.id, products.rating', 'DESC')
-      .getRawMany();
+      .orderBy('products.rating', 'DESC')
+      .getMany();
   }
 
   async findOne(id: number): Promise<Product> {

@@ -88,7 +88,7 @@ export class ParticipantsController {
     if (!organizer || !organizer?.organizer)
       throw BAD_REQUEST("Illegal action");
 
-    const participant = await this.participantsService.findOneWithUser(participantId);
+    const participant = await this.participantsService.findOne(participantId);
     if (!participant)
       throw NOT_FOUND('Participant does not exist');
 

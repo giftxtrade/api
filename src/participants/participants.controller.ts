@@ -29,19 +29,6 @@ export class ParticipantsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':participantId')
-  async remove(@Request() req, @Param('participantId') participantId: number) {
-    const user = await this.usersService.findByEmail(req.user.user.email);
-
-    const participant = await this.participantsService.findOneWithUser(participantId);
-    if (!participant)
-      throw NOT_FOUND('Participant does not exist');
-    if (participant.user.id !== user.id || participant.organizer)
-      throw BAD_REQUEST('Could not delete');
-    return await this.participantsService.remove(participantId);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Delete('manage')
   async organizerRemove(@Request() req, @Query('participantId') participantId: number, @Query('eventId') eventId: number) {
     const organizerUser = await this.usersService.findByEmail(req.user.user.email);
@@ -66,5 +53,18 @@ export class ParticipantsController {
 
     const removedParticipant = await this.participantsService.remove(participantId);
     return { message: 'Participant removed' }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':participantId')
+  async remove(@Request() req, @Param('participantId') participantId: number) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+
+    const participant = await this.participantsService.findOneWithUser(participantId);
+    if (!participant)
+      throw NOT_FOUND('Participant does not exist');
+    if (participant.user.id !== user.id || participant.organizer)
+      throw BAD_REQUEST('Could not delete');
+    return await this.participantsService.remove(participantId);
   }
 }

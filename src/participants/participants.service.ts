@@ -140,8 +140,8 @@ export class ParticipantsService {
     return true;
   }
 
-  update(id: number, updateParticipantDto: UpdateParticipantDto) {
-    return `This action updates a #${id} participant`;
+  async update(id: number, updateParticipantDto: UpdateParticipantDto) {
+    return await this.participantRepository.update({ id }, updateParticipantDto);
   }
 
   async remove(id: number) {

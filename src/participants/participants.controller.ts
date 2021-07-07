@@ -14,21 +14,6 @@ export class ParticipantsController {
   ) { }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':participantId')
-  async update(@Request() req, @Param('participantId') participantId: number, @Body() { address }: { address: string }) {
-    const user = await this.usersService.findByEmail(req.user.user.email);
-
-    const participant = await this.participantsService.findOneWithUser(participantId);
-    if (!participant)
-      throw NOT_FOUND('Participant does not exist');
-    if (participant.user.id !== user.id)
-      throw BAD_REQUEST('Could not update address');
-
-    participant.address = address;
-    return await participant.save();
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Delete('manage')
   async organizerRemove(@Request() req, @Query('participantId') participantId: number, @Query('eventId') eventId: number) {
     const organizerUser = await this.usersService.findByEmail(req.user.user.email);
@@ -54,6 +39,21 @@ export class ParticipantsController {
 
     const removedParticipant = await this.participantsService.remove(participantId);
     return { message: 'Participant removed' }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':participantId')
+  async update(@Request() req, @Param('participantId') participantId: number, @Body() { address }: { address: string }) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+
+    const participant = await this.participantsService.findOneWithUser(participantId);
+    if (!participant)
+      throw NOT_FOUND('Participant does not exist');
+    if (participant.user.id !== user.id)
+      throw BAD_REQUEST('Could not update address');
+
+    participant.address = address;
+    return await participant.save();
   }
 
   @UseGuards(JwtAuthGuard)

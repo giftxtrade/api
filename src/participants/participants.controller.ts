@@ -16,28 +16,13 @@ export class ParticipantsController {
   @UseGuards(JwtAuthGuard)
   @Delete('manage')
   async organizerRemove(@Request() req, @Query('participantId') participantId: number, @Query('eventId') eventId: number) {
-    const organizerUser = await this.usersService.findByEmail(req.user.user.email);
+    const { event, participant } = await this.validateEventAndParticipant(req.user.user.email, eventId, participantId);
 
-    // Find event
-    const event = await this.eventsService.findOne(eventId);
-    if (!event) {
-      throw NOT_FOUND("Event not found");
-    }
-
-    // Get auth user as participant and check if they are an organizer 
-    const organizer = await this.participantsService.findByEventAndUser(event, organizerUser);
-    if (!organizer || !organizer?.organizer)
-      throw BAD_REQUEST("Illegal action");
-
-    const participant = await this.participantsService.findOneWithUser(participantId);
-    if (!participant)
-      throw BAD_REQUEST('Participant does not exist');
     const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, participant.email)
-    if (!shallowParticipant) {
+    if (!shallowParticipant)
       throw BAD_REQUEST('Could not remove participant');
-    }
 
-    const removedParticipant = await this.participantsService.remove(participantId);
+    await this.participantsService.remove(participantId);
     return { message: 'Participant removed' }
   }
 
@@ -66,6 +51,28 @@ export class ParticipantsController {
       throw NOT_FOUND('Participant does not exist');
     if (participant.user.id !== user.id || participant.organizer)
       throw BAD_REQUEST('Could not delete');
-    return await this.participantsService.remove(participantId);
+    await this.participantsService.remove(participantId)
+    return { message: 'Removed from event' };
+  }
+
+  private async validateEventAndParticipant(email: string, eventId: number, participantId: number) {
+    const organizerUser = await this.usersService.findByEmail(email);
+
+    // Find event
+    const event = await this.eventsService.findOne(eventId);
+    if (!event) {
+      throw NOT_FOUND("Event not found");
+    }
+
+    // Get auth user as participant and check if they are an organizer 
+    const organizer = await this.participantsService.findByEventAndUser(event, organizerUser);
+    if (!organizer || !organizer?.organizer)
+      throw BAD_REQUEST("Illegal action");
+
+    const participant = await this.participantsService.findOneWithUser(participantId);
+    if (!participant)
+      throw BAD_REQUEST('Participant does not exist');
+
+    return { event, participant };
   }
 }

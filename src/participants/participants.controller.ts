@@ -56,6 +56,9 @@ export class ParticipantsController {
     if (participant.user.id !== user.id)
       throw BAD_REQUEST('Could not update address');
 
+    if (participant.address === address)
+      return participant;
+
     participant.address = address;
     return await participant.save();
   }

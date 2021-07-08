@@ -1,4 +1,6 @@
-export const frontend_base = 'http://localhost:3000/';
+import { FRONTEND_BASE } from '../../auth-tokens.json';
+
+export const frontend_base = FRONTEND_BASE;
 
 export const frontend = {
   home: frontend_base,

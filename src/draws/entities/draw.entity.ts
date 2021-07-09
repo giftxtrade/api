@@ -1,9 +1,10 @@
 import { Event } from 'src/events/entities/event.entity';
 import { Participant } from 'src/participants/entities/participant.entity';
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity('draws')
 export class Draw extends BaseEntity {
+  @Index({ unique: true })
   @PrimaryGeneratedColumn()
   id: number;
 

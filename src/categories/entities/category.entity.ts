@@ -1,8 +1,9 @@
 import { Product } from "src/products/entities/product.entity";
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity('categories')
 export class Category extends BaseEntity {
+  @Index({ unique: true })
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany } from 'typeorm';
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, Index } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { Event } from 'src/events/entities/event.entity';
@@ -6,12 +6,14 @@ import { Draw } from 'src/draws/entities/draw.entity';
 
 @Entity('participants')
 export class Participant extends BaseEntity {
+  @Index({ unique: true })
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   name: string;
 
+  @Index()
   @Column()
   email: string;
 

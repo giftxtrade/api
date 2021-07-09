@@ -1,11 +1,13 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Index } from 'typeorm';
 import { Event } from 'src/events/entities/event.entity';
 
 @Entity('links')
 export default class Link extends BaseEntity {
+  @Index({ unique: true })
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index({ unique: true })
   @Column({ unique: true })
   code: string;
 

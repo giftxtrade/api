@@ -61,8 +61,8 @@ export class ProductsService {
       whereValues = { minPrice, maxPrice };
 
       if (search) {
-        where += ' AND (title LIKE :search OR categories.name LIKE :search)';
-        whereValues = { minPrice, maxPrice, search: `${search}%` };
+        where += " AND (MATCH(title) AGAINST (:search IN BOOLEAN MODE))";
+        whereValues = { minPrice, maxPrice, search: `+${search}` };
       }
     }
 

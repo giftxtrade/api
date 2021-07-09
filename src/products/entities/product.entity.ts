@@ -36,6 +36,7 @@ export class Product extends BaseEntity {
   @Column('datetime')
   modified: Date = new Date(Date.now());
 
+  @Index()
   @ManyToOne(() => Category, category => category.products, { onDelete: 'CASCADE' })
   category: Category;
 

@@ -29,9 +29,11 @@ export class Participant extends BaseEntity {
   @Column('boolean')
   accepted: boolean = false;
 
+  @Index()
   @ManyToOne(() => Event, event => event.participants, { onDelete: 'CASCADE' })
   event: Event;
 
+  @Index()
   @ManyToOne(() => User, user => user.participated, { onDelete: 'CASCADE' })
   user: User;
 

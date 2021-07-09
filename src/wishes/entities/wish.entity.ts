@@ -13,15 +13,19 @@ export class Wish extends BaseEntity {
   @Column('datetime')
   createdAt: Date = new Date(Date.now());
 
+  @Index()
   @ManyToOne(() => User, user => user.wishes, { onDelete: 'CASCADE' })
   user: User;
 
+  @Index()
   @ManyToOne(() => Participant, participant => participant.wishes, { onDelete: 'CASCADE' })
   participant: Participant;
 
+  @Index()
   @ManyToOne(() => Product, product => product.wishes, { onDelete: 'CASCADE' })
   product: Product;
 
+  @Index()
   @ManyToOne(() => Event, event => event.wishes, { onDelete: 'CASCADE' })
   event: Event;
 }

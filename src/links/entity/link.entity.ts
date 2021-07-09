@@ -17,6 +17,7 @@ export default class Link extends BaseEntity {
   @Column('datetime')
   expirationDate: Date;
 
+  @Index()
   @ManyToOne(() => Event, event => event.links, { onDelete: 'CASCADE' })
   event: Event;
 }

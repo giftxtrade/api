@@ -57,11 +57,11 @@ export class ProductsService {
     let where = ''
     let whereValues = {}
     if (minPrice && maxPrice) {
-      where = 'price >= :minPrice AND price <= :maxPrice';
+      where = 'price BETWEEN :minPrice AND :maxPrice';
       whereValues = { minPrice, maxPrice };
 
       if (search) {
-        where += " AND (MATCH(title) AGAINST (:search IN BOOLEAN MODE))";
+        where += " AND MATCH(title) AGAINST (:search IN BOOLEAN MODE)";
         whereValues = { minPrice, maxPrice, search: `+${search}` };
       }
     }

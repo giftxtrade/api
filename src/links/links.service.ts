@@ -30,6 +30,7 @@ export class LinksService {
     return await this.linksRepository
       .createQueryBuilder('l')
       .leftJoinAndSelect('l.event', 'e')
+      .where('l.code = :code', { code: `${code}` })
       .getOne();
   }
 

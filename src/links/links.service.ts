@@ -23,6 +23,16 @@ export class LinksService {
       .getOne();
   }
 
+  /**
+   * Find link with a join on event
+   */
+  async findOneWithEvent(code: string): Promise<Link> {
+    return await this.linksRepository
+      .createQueryBuilder('l')
+      .leftJoinAndSelect('l.event', 'e')
+      .getOne();
+  }
+
   async findByEvent(event: Event): Promise<Link> {
     return await this.linksRepository
       .createQueryBuilder('l')

@@ -9,6 +9,7 @@ import { ParticipantsService } from '../participants/participants.service';
 import Link from 'src/links/entity/link.entity';
 import { LinksService } from 'src/links/links.service';
 import { Participant } from 'src/participants/entities/participant.entity';
+import { BAD_REQUEST, NOT_FOUND } from 'src/util/exceptions';
 
 @Controller('events')
 export class EventsController {
@@ -47,9 +48,7 @@ export class EventsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOne(eventId);
     if (!event) {
-      throw new HttpException({
-        message: 'Event not found'
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND('Event not found');
     }
 
     const participant = await this.participantsService.acceptEvent(event, user)
@@ -62,9 +61,7 @@ export class EventsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOne(eventId);
     if (!event) {
-      throw new HttpException({
-        message: 'Event not found'
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND('Event not found');
     }
 
     return await this.participantsService.declineEvent(event, user);
@@ -80,16 +77,12 @@ export class EventsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOne(eventId);
     if (!event) {
-      throw new HttpException({
-        message: "Event not found"
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND("Event not found");
     }
 
     const isPartOfEvent = await this.eventsService.isUserPartOfEvent(event, user);
     if (!isPartOfEvent) {
-      throw new HttpException({
-        message: "Can't access event unless you have accepted the invite"
-      }, HttpStatus.BAD_REQUEST);
+      throw BAD_REQUEST("Can't access event unless you have accepted the invite");
     }
 
     const participants = await this.participantsService.findAllByEventWithUser(event);
@@ -110,9 +103,7 @@ export class EventsController {
   async verifyInviteCode(@Param('inviteCode') inviteCode: string) {
     const link = await this.linksService.findOne(inviteCode);
     if (!link) {
-      throw new HttpException({
-        message: 'Invalid or expired invitation code.'
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND('Invalid or expired invitation code.');
     }
     return link;
   }
@@ -123,9 +114,7 @@ export class EventsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const link = await this.linksService.findOne(inviteCode);
     if (!link) {
-      throw new HttpException({
-        message: 'Invalid or expired invitation code.'
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND('Invalid or expired invitation code.');
     }
     const event = await this.eventsService.findOneByLink(link);
     const participant = await this.participantsService.create({
@@ -145,16 +134,12 @@ export class EventsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOneForUser(eventId, user);
     if (!event) {
-      throw new HttpException({
-        message: "Event not found"
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND("Event not found");
     }
 
     const participant = await this.participantsService.findByEventAndOrganizer(event, user);
     if (!participant) {
-      throw new HttpException({
-        message: "Operation not allowed for non-organizer users"
-      }, HttpStatus.BAD_REQUEST);
+      throw BAD_REQUEST("Operation not allowed for non-organizer users");
     }
     return await this.eventsService.update(event, updateEventDto);
   }
@@ -165,16 +150,12 @@ export class EventsController {
     const user = await this.usersService.findByEmail(req.user.user.email);
     const event = await this.eventsService.findOneForUser(eventId, user);
     if (!event) {
-      throw new HttpException({
-        message: "Event not found"
-      }, HttpStatus.NOT_FOUND);
+      throw NOT_FOUND("Event not found");
     }
 
     const participant = await this.participantsService.findByEventAndOrganizer(event, user);
     if (!participant) {
-      throw new HttpException({
-        message: "Delete not allowed for non-organizer users"
-      }, HttpStatus.BAD_REQUEST);
+      throw BAD_REQUEST("Delete not allowed for non-organizer users");
     }
     const deleteStatus = await this.eventsService.remove(eventId);
     return {

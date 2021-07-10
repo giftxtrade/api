@@ -181,4 +181,16 @@ export class EventsController {
       message: 'Event deleted'
     };
   }
+
+  @Get('get-details/:linkCode')
+  async getEventDetailsFromCode(@Param('linkCode') linkCode: string): Promise<{ name: string, description: string }> {
+    const link = await this.linksService.findOneWithEvent(linkCode.trim());
+    if (!link)
+      throw BAD_REQUEST('Invalid invite code');
+
+    return {
+      name: link.event.name,
+      description: link.event.description
+    };
+  }
 }

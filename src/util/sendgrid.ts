@@ -22,15 +22,15 @@ export function sendMail(to: string, subject: string, templateId: string, templa
     });
 }
 
-export function newParticipantMail(user: User, event: Event, participant: Participant) {
-  const subject = `${participant.name} Has Joined ${event.name} - GiftTrade`;
+export function newParticipantMail(user: User, event: Event, newParticipant: Participant) {
+  const subject = `${newParticipant.name} Has Joined ${event.name} - GiftTrade`;
 
   sendMail(user.email, subject, mailingTemplates.newParticipant, {
     year: new Date().getFullYear().toString(),
     user: user,
     event: event,
-    participant: participant
+    participant: newParticipant
   })
-    .then(_ => console.log("Email sent to " + user.email))
-    .catch(_ => console.log("Could not send email"));
+    .then((res: any) => { })
+    .catch((res: any) => { });
 }

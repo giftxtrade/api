@@ -10,6 +10,7 @@ import Link from 'src/links/entity/link.entity';
 import { LinksService } from 'src/links/links.service';
 import { Participant } from 'src/participants/entities/participant.entity';
 import { BAD_REQUEST, NOT_FOUND } from 'src/util/exceptions';
+import { newParticipantMail } from '../util/sendgrid';
 
 @Controller('events')
 export class EventsController {
@@ -51,8 +52,16 @@ export class EventsController {
       throw NOT_FOUND('Event not found');
     }
 
-    const participant = await this.participantsService.acceptEvent(event, user)
-    return await this.eventsService.findOneForUser(eventId, user);
+    const newParticipant = await this.participantsService.acceptEvent(event, user);
+    const finalEvent = await this.eventsService.findOneForUser(eventId, user);
+
+    // Send mail to all participants - newParticipant
+    const allParticipants = await this.participantsService.findAllByEventWithUser(event);
+    newParticipant.user = user; // Set user field so template can access imageUrl
+    allParticipants.filter(p => p.email != newParticipant.email).forEach(p => {
+      newParticipantMail(p.user, event, newParticipant);
+    })
+    return finalEvent;
   }
 
   @UseGuards(JwtAuthGuard)

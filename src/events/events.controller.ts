@@ -11,6 +11,8 @@ import { LinksService } from 'src/links/links.service';
 import { Participant } from 'src/participants/entities/participant.entity';
 import { BAD_REQUEST, NOT_FOUND } from 'src/util/exceptions';
 import { newParticipantMail } from '../util/sendgrid';
+import { User } from 'src/users/entities/user.entity';
+import { FRONTEND_BASE } from '../../auth-tokens.json'
 
 @Controller('events')
 export class EventsController {
@@ -59,8 +61,18 @@ export class EventsController {
     const allParticipants = await this.participantsService.findAllByEventWithUser(event);
     newParticipant.user = user; // Set user field so template can access imageUrl
     allParticipants.filter(p => p.email != newParticipant.email).forEach(p => {
-      newParticipantMail(p.user, event, newParticipant);
+      if (!p.accepted) {
+        // Create fake user data if participant has not accepted invite yet
+        const fakeUser = new User();
+        fakeUser.imageUrl = `${FRONTEND_BASE}default.jpg`
+        fakeUser.email = p.email;
+        fakeUser.name = p.name;
+        newParticipantMail(fakeUser, event, newParticipant);
+      } else {
+        newParticipantMail(p.user, event, newParticipant);
+      }
     })
+
     return finalEvent;
   }
 

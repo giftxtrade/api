@@ -89,9 +89,9 @@ export class EventsController {
       throw NOT_FOUND("Event not found");
     }
 
-    const isPartOfEvent = await this.eventsService.isUserPartOfEvent(event, user);
-    if (!isPartOfEvent) {
-      throw BAD_REQUEST("Can't access event unless you have accepted the invite");
+    const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, user.email);
+    if (!shallowParticipant) {
+      throw BAD_REQUEST("Not authorized");
     }
 
     const participants = await this.participantsService.findAllByEventWithUser(event);

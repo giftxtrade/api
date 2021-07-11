@@ -117,7 +117,7 @@ export class ParticipantsService {
 
   async acceptEvent(event: Event, user: User): Promise<Participant> {
     const participant = await this.getPendingParticipantForEvent(event, user)
-    if (!participant) {
+    if (!participant || participant.accepted) {
       throw new HttpException({
         message: 'Operation failed'
       }, HttpStatus.BAD_REQUEST);
@@ -130,7 +130,7 @@ export class ParticipantsService {
 
   async declineEvent(event: Event, user: User): Promise<boolean> {
     const participant = await this.getPendingParticipantForEvent(event, user)
-    if (!participant) {
+    if (!participant || participant.accepted) {
       throw new HttpException({
         message: 'Operation failed'
       }, HttpStatus.BAD_REQUEST);

@@ -73,6 +73,7 @@ export class ProductsService {
       .limit(limit)
       .offset(offset)
       .orderBy('products.rating', 'DESC')
+      .orderBy('products.id', 'DESC')
       .getMany();
   }
 

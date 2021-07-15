@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Request, HttpStatus, HttpException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { BAD_REQUEST, NOT_FOUND } from 'src/util/exceptions';
+import { UNAUTHORIZED } from '../util/exceptions';
 
 @Controller('products')
 export class ProductsController {
@@ -11,7 +12,11 @@ export class ProductsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createProductDto: CreateProductDto) {
+  async create(@Request() req, @Body() createProductDto: CreateProductDto) {
+    const { user } = req.user;
+    if (user.email !== 'moahammedayaan.dev@gmail.com')
+      throw UNAUTHORIZED('You are not authorized to perform this action');
+
     return await this.productsService.create(createProductDto);
   }
 

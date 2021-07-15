@@ -11,3 +11,9 @@ export function NOT_FOUND(message: string) {
     message: message
   }, HttpStatus.NOT_FOUND);
 }
+
+export function UNAUTHORIZED(message: string) {
+  return new HttpException({
+    message: message
+  }, HttpStatus.UNAUTHORIZED);
+}

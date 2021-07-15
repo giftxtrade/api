@@ -34,6 +34,17 @@ export class DrawsService {
       .getMany();
   }
 
+  async findAllWithUser(event: Event): Promise<Draw[]> {
+    return await this.drawsRepository
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.drawer', 'p1')
+      .leftJoinAndSelect('d.drawee', 'p2')
+      .leftJoinAndSelect('p1.user', 'p1User')
+      .leftJoinAndSelect('p2.user', 'p2User')
+      .where('d.eventId = :eventId', { eventId: event.id })
+      .getMany();
+  }
+
   async findForParticipant(event: Event, participant: Participant): Promise<Draw> {
     return await this.drawsRepository
       .createQueryBuilder('d')

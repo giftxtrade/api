@@ -34,3 +34,16 @@ export function newParticipantMail(user: User, event: Event, newParticipant: Par
     .then((res: any) => { })
     .catch((res: any) => { });
 }
+
+export function namesDrawnMail(user: User, event: Event, drawee: Participant) {
+  const subject = `Names were drawn for ${event.name} - GiftTrade`;
+
+  sendMail(user.email, subject, mailingTemplates.namesDrawn, {
+    year: new Date().getFullYear().toString(),
+    user: user,
+    event: event,
+    drawee: drawee
+  })
+    .then((res: any) => { })
+    .catch((res: any) => { });
+}

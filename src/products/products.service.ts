@@ -7,7 +7,9 @@ import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ProductsService {
-  private static readonly exactKeywords = new Set<string>(['men', 'women', 'adidas', 'kids', 'tees', 'nike', 'toys']);
+  private static readonly exactKeywords = new Set<string>(
+    ['men', 'women', 'kids', 'girls', 'boys', 'man', 'woman', 'boy', 'girl', 'baby', 'babies']
+  );
 
   constructor(
     @InjectRepository(Product)

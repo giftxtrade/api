@@ -7,6 +7,8 @@ import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ProductsService {
+  private static readonly exactKeywords = new Set<string>(['men', 'women', 'adidas', 'kids', 'tees', 'nike', 'toys']);
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -60,7 +62,8 @@ export class ProductsService {
       where = 'price BETWEEN :minPrice AND :maxPrice';
       whereValues = { minPrice, maxPrice };
 
-      if (search) {
+      if (search && search !== '') {
+        this.createSearchQuery(search);
         where += " AND MATCH(title) AGAINST (:search IN BOOLEAN MODE)";
         whereValues = { minPrice, maxPrice, search: `+${search}` };
       }
@@ -83,5 +86,22 @@ export class ProductsService {
 
   async findByProductKey(productKey: string): Promise<Product> {
     return await this.productRepository.findOne({ productKey })
+  }
+
+  private createSearchQuery(query: string) {
+    const exact = ProductsService.exactKeywords;
+    const queryWords = query.split(' ');
+
+    let searchQuery = '';
+
+    queryWords.forEach(w => {
+      const wLower = w.toLowerCase();
+      if (exact.has(wLower)) {
+        searchQuery += `'${w}' `
+      } else {
+        searchQuery += `+${w} `
+      }
+    });
+    return searchQuery.trim();
   }
 }

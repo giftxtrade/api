@@ -12,11 +12,12 @@ export class GoogleService {
     lastName: string,
     picture: string
   }) {
+    const fullname = user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
     return await this.authServices
       .login(
         {
           email: user.email,
-          name: `${user.firstName} ${user.lastName}`,
+          name: fullname,
           imageUrl: user.picture
         },
         user.accessToken

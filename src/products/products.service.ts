@@ -57,7 +57,7 @@ export class ProductsService {
     return await this.productRepository.find();
   }
 
-  async findAllWithLimit(limit: number, offset: number, minPrice?: number, maxPrice?: number, search?: string): Promise<Product[]> {
+  async findAllWithLimit(limit: number, offset: number, minPrice?: number, maxPrice?: number, search?: string, sort?: string): Promise<Product[]> {
     let where = ''
     let whereValues = {}
     if (minPrice && maxPrice) {
@@ -71,15 +71,26 @@ export class ProductsService {
       }
     }
 
-    return await this.productRepository
+    const products = this.productRepository
       .createQueryBuilder('products')
       .where(where, whereValues)
       .leftJoinAndSelect('products.category', 'categories')
       .limit(limit)
       .offset(offset)
-      .orderBy('products.rating', 'DESC')
-      .orderBy('products.id', 'ASC')
-      .getMany();
+      .orderBy('products.id', 'ASC');
+
+    if (sort && sort !== '') {
+      if (sort === 'rating') {
+        return await products
+          .orderBy(`products.rating`, 'DESC')
+          .getMany();
+      } else if (sort === 'price') {
+        return await products
+          .orderBy(`products.price`, 'DESC')
+          .getMany();
+      }
+    }
+    return await products.getMany();
   }
 
   async findOne(id: number): Promise<Product> {

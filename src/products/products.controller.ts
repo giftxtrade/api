@@ -26,7 +26,8 @@ export class ProductsController {
     @Query('page') page: number = 1,
     @Query('min_price') minPrice: number,
     @Query('max_price') maxPrice: number,
-    @Query('search') search: string
+    @Query('search') search: string,
+    @Query('sort') sort: string,
   ) {
     const prevPage = page - 1;
     const results = await this.productsService
@@ -35,7 +36,8 @@ export class ProductsController {
         prevPage * limit,
         minPrice,
         maxPrice,
-        search
+        search ? search.trim() : undefined,
+        sort ? sort.trim().toLowerCase() : undefined
       );
     if (results.length === 0)
       throw BAD_REQUEST('No results');

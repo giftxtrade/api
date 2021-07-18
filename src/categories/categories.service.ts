@@ -18,6 +18,10 @@ export class CategoriesService {
     return await category.save();
   }
 
+  async findAll(): Promise<Category[]> {
+    return await this.categoryRepository.find();
+  }
+
   async findOne(name: string): Promise<Category> {
     return await this.categoryRepository
       .findOne({ where: { name: name } });

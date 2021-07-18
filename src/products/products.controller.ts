@@ -39,8 +39,17 @@ export class ProductsController {
         search ? search.trim() : undefined,
         sort ? sort.trim().toLowerCase() : undefined
       );
-    if (results.length === 0)
+
+    // If result is empty then check assume search is a product key
+    // if no products are found then throw HTTP Exception
+    if (results.length === 0) {
+      const productFromKey = await this.productsService.findByProductKey(search.trim());
+      if (productFromKey) {
+        return [productFromKey];
+      }
+
       throw BAD_REQUEST('No results');
+    }
     return results;
   }
 

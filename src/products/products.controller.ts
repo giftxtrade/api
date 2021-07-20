@@ -44,7 +44,7 @@ export class ProductsController {
     // if no products are found then throw HTTP Exception
     if (results.length === 0) {
       const productFromKey = await this.productsService.findByProductKey(search.trim());
-      if (productFromKey) {
+      if (productFromKey && page == 1) {
         return [productFromKey];
       }
 

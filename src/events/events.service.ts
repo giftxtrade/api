@@ -117,6 +117,12 @@ export class EventsService {
 
   async update(event: Event, updateEventDto: UpdateEventDto) {
     const updated = await this.eventsRepository.update({ id: event.id }, updateEventDto);
+
+    // If draw date is updated then also update link expiration
+    if (updateEventDto.drawAt) {
+      // No need to use await since we don't return the value
+      this.linksService.updateExpriationDate(event, updateEventDto.drawAt);
+    }
     return await this.eventsRepository.findOne(event.id);
   }
 

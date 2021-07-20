@@ -59,4 +59,9 @@ export class LinksService {
       link.expirationDate = expirationDate;
     return await link.save();
   }
+
+  async updateExpriationDate(event: Event, newExpirationDate: Date) {
+    const link = await this.findByEvent(event);
+    return await this.linksRepository.update(link, { expirationDate: newExpirationDate });
+  }
 }

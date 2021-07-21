@@ -65,9 +65,8 @@ export class ProductsService {
       whereValues = { minPrice, maxPrice };
 
       if (search && search !== '') {
-        this.createSearchQuery(search);
         where += " AND MATCH(title) AGAINST (:search IN BOOLEAN MODE)";
-        whereValues = { minPrice, maxPrice, search: `+${search}` };
+        whereValues = { minPrice, maxPrice, search: this.createSearchQuery(search) };
       }
     }
 
@@ -110,9 +109,9 @@ export class ProductsService {
     queryWords.forEach(w => {
       const wLower = w.toLowerCase();
       if (exact.has(wLower)) {
-        searchQuery += `'${w}' `
+        searchQuery += `${w} `;
       } else {
-        searchQuery += `+${w} `
+        searchQuery += `+${w} `;
       }
     });
     return searchQuery.trim();

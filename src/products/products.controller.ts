@@ -40,10 +40,11 @@ export class ProductsController {
         sort ? sort.trim().toLowerCase() : undefined
       );
 
-    // If result is empty then check assume search is a product key
+    // If result is empty then check assume search is a product key or URL
     // if no products are found then throw HTTP Exception
     if (results.length === 0) {
-      const productFromKey = await this.productsService.findByProductKey(search.trim());
+      const productKey = this.amazonProductKeyFromSearchOrUrl(search.trim())
+      const productFromKey = await this.productsService.findByProductKey(productKey);
       if (productFromKey && page == 1) {
         return [productFromKey];
       }
@@ -59,5 +60,22 @@ export class ProductsController {
     if (!product)
       throw NOT_FOUND('Product not found')
     return product;
+  }
+
+  private amazonProductKeyFromSearchOrUrl(search: string) {
+    // Check if search is a URL
+    if (search.includes('amazon.com') && search.includes('dp')) {
+      // Assume productKey is a URL and then split by '/'
+      const splitBySlash = search.split('/');
+      // Amazon product URL format: https://www.amazon.com/dp/[PRODUCT_KEY]...
+      // So if 'dp' is found then this is a valid products URL
+      const dpIndex = splitBySlash.findIndex(v => v === 'dp');
+
+      if (dpIndex > -1) {
+        const key = splitBySlash[dpIndex + 1]; // [..., 'dp', 'KEY?...']
+        return key.split('?')[0];
+      }
+    }
+    return search;
   }
 }

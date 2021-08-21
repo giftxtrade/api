@@ -2,6 +2,7 @@ import { SENDGRID } from '../../auth-tokens.json'
 import { Event } from 'src/events/entities/event.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Participant } from 'src/participants/entities/participant.entity';
+import generateSlug from './slug';
 
 const sgMail = require('@sendgrid/mail')
 
@@ -29,7 +30,8 @@ export function newParticipantMail(user: User, event: Event, newParticipant: Par
     year: new Date().getFullYear().toString(),
     user: user,
     event: event,
-    participant: newParticipant
+    participant: newParticipant,
+    slug: generateSlug(event.name)
   })
     .then((res: any) => { })
     .catch((res: any) => { });
@@ -42,7 +44,8 @@ export function namesDrawnMail(user: User, event: Event, drawee: Participant) {
     year: new Date().getFullYear().toString(),
     user: user,
     event: event,
-    drawee: drawee
+    drawee: drawee,
+    slug: generateSlug(event.name)
   })
     .then((res: any) => { })
     .catch((res: any) => { });

@@ -47,6 +47,11 @@ export class ProductsController {
       const productFromKey = await this.productsService.findByProductKey(productKey);
       if (productFromKey && page == 1) {
         return [productFromKey];
+      } else if (!productFromKey && page == 1) {
+        const url = `https://amazon.com/s?k=${productKey}`;
+
+        // TODO: Find product by Amazon product key search
+
       }
 
       throw BAD_REQUEST('No results');

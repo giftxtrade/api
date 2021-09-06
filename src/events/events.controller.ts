@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, HttpStatus, HttpException, Query } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -33,8 +33,13 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Request() req): Promise<Event[]> {
+  async findAll(@Request() req, @Query('user') u: boolean): Promise<Event[]> {
     const user = await this.usersService.findByEmail(req.user.user.email);
+
+    if (u) {
+      return await this.eventsService.findAllForUserWithParticipantUser(user);
+    }
+    console.log("User field not requested")
     return await this.eventsService.findAllForUser(user);
   }
 

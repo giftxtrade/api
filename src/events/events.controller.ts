@@ -36,10 +36,8 @@ export class EventsController {
   async findAll(@Request() req, @Query('user') u: boolean): Promise<Event[]> {
     const user = await this.usersService.findByEmail(req.user.user.email);
 
-    if (u) {
+    if (u)
       return await this.eventsService.findAllForUserWithParticipantUser(user);
-    }
-    console.log("User field not requested")
     return await this.eventsService.findAllForUser(user);
   }
 

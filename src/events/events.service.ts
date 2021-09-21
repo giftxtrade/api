@@ -86,13 +86,13 @@ export class EventsService {
   }
 
   async findAllForUserWithParticipantUser(user: User) {
-    const events = await this.findAllForUserNoParticipants(user);
-    const eventsWithParticipants = new Array<Event>();
-    for (const e of events) {
-      e.participants = await this.participantsService.findAllByEventWithUser(e);
-      eventsWithParticipants.push(e);
-    };
-    return eventsWithParticipants;
+    return await this.eventsRepository
+      .createQueryBuilder('e')
+      .innerJoinAndSelect('e.participants', 'p1')
+      .leftJoinAndSelect('e.participants', 'p2')
+      .where('p1.userId = :userId', { userId: user.id })
+      .orderBy('e.drawAt', 'DESC')
+      .getMany();
   }
 
   async findAllInvitesForUser(user: User): Promise<Event[]> {

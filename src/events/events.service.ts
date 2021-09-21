@@ -90,6 +90,7 @@ export class EventsService {
       .createQueryBuilder('e')
       .innerJoinAndSelect('e.participants', 'p1')
       .leftJoinAndSelect('e.participants', 'p2')
+      .innerJoinAndSelect('p2.user', 'p2User')
       .where('p1.userId = :userId', { userId: user.id })
       .orderBy('e.drawAt', 'DESC')
       .getMany();

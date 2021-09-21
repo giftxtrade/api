@@ -59,7 +59,7 @@ export class DrawsController {
     if (!event) {
       throw BAD_REQUEST('Something went wrong');
     }
-    return await this.drawsService.findAll(event);
+    return await this.drawsService.findAllWithUser(event);
   }
 
   @UseGuards(JwtAuthGuard)

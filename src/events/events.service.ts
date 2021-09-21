@@ -67,15 +67,6 @@ export class EventsService {
       .getOne();
   }
 
-  async findAllForUserNoParticipants(user: User): Promise<Event[]> {
-    return await this.eventsRepository
-      .createQueryBuilder('e')
-      .innerJoin('e.participants', 'p')
-      .where('p.userId = :userId', { userId: user.id })
-      .orderBy('e.drawAt', 'DESC')
-      .getMany();
-  }
-
   async findAllForUser(user: User): Promise<Event[]> {
     return await this.eventsRepository
       .createQueryBuilder('e')

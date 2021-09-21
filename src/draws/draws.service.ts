@@ -50,6 +50,8 @@ export class DrawsService {
       .createQueryBuilder('d')
       .leftJoinAndSelect('d.drawer', 'p1')
       .leftJoinAndSelect('d.drawee', 'p2')
+      .leftJoinAndSelect('p1.user', 'p1User')
+      .leftJoinAndSelect('p2.user', 'p2User')
       .where('d.eventId = :eventId AND d.drawerId = :drawerId',
         {
           eventId: event.id,

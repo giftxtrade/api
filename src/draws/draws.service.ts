@@ -17,7 +17,7 @@ export class DrawsService {
   ) { }
 
   async create(event: Event, user: User) {
-    const allParticipants = await this.participantsService.findAllByEvent(event);
+    const allParticipants = await this.participantsService.findAllByEventWithUser(event);
     const participants = shuffle(
       allParticipants
         .filter(p => p.accepted && p.participates)

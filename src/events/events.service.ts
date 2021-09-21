@@ -53,13 +53,31 @@ export class EventsService {
       })
       .getOneOrFail();
   }
+
+  /**
+   * Returns an a full event with authentication, if user is provided (i.e. participants, link).
+   * If user is not provided, this method returns an event with no joins (i.e. no participants, link, etc. + no authentication)
+   * 
+   * @param id
+   * @param user
+   * @returns 
+   */
+  async findOne(id: number, user?: User): Promise<Event> {
+    if (!user)
+      return await this.eventsRepository.findOne(id);
+
     return await this.eventsRepository
       .createQueryBuilder('e')
-      .innerJoinAndSelect('e.participants', 'p')
-      .where('e.id = :eventId', {
+      .innerJoin('e.participants', 'p1')
+      .leftJoinAndSelect('e.participants', 'p2')
+      .leftJoinAndSelect('p2.user', 'u')
+      .leftJoinAndSelect('e.links', 'l')
+      .where('e.id = :eventId AND (p1.userId = :userId OR p1.email = :userEmail)', {
+        userId: user.id,
+        userEmail: user.email,
         eventId: id
       })
-      .getOne();
+      .getOneOrFail();
   }
 
   async findOneForUser(id: number, user: User): Promise<Event> {

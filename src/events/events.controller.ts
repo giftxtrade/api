@@ -92,29 +92,6 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':eventId')
-  async findOne(@Request() req, @Param('eventId') eventId: number): Promise<{
-    event: Event,
-    participants: Participant[],
-    link: Link | null
-  }> {
-    const user = await this.usersService.findByEmail(req.user.user.email);
-    const event = await this.eventsService.findOne(eventId);
-    if (!event) {
-      throw NOT_FOUND("Event not found");
-    }
-
-    const shallowParticipant = await this.participantsService.findByEventAndShallowUser(event, user.email);
-    if (!shallowParticipant) {
-      throw BAD_REQUEST("Not authorized");
-    }
-
-    const participants = await this.participantsService.findAllByEventWithUser(event);
-    const link = await this.linksService.findByEvent(event);
-    return { event, participants, link: link ? link : null };
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post('get-link/:eventId')
   async createLink(@Request() req, @Param('eventId') eventId: number, @Body() { expirationDate }: { expirationDate: Date }): Promise<Link> {
     const user = await this.usersService.findByEmail(req.user.user.email);
@@ -150,6 +127,31 @@ export class EventsController {
       accepted: false
     }, event);
     return await this.eventsService.findOneForUser(event.id, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':eventId')
+  async findOne(@Request() req, @Param('eventId') eventId: number, @Query('verify') verify: boolean) {
+    const user = await this.usersService.findByEmail(req.user.user.email);
+
+    if (verify) {
+      try {
+        const eventInfo = await this.eventsService.findEventDetails(eventId, user);
+        return {
+          id: eventInfo.id,
+          name: eventInfo.name,
+          description: eventInfo.description
+        }
+      } catch (e) {
+        throw NOT_FOUND("Event not found");
+      }
+    }
+
+    try {
+      return await this.eventsService.findOne(eventId, user);
+    } catch (e) {
+      throw NOT_FOUND("Event not found");
+    }
   }
 
   @UseGuards(JwtAuthGuard)

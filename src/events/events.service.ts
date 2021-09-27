@@ -18,9 +18,12 @@ export class EventsService {
     private readonly eventsRepository: Repository<Event>,
     private readonly participantsService: ParticipantsService,
     private readonly linksService: LinksService,
-  ) { }
+  ) {}
 
-  async create(createEventDto: CreateEventDto, organizer: User): Promise<Event> {
+  async create(
+    createEventDto: CreateEventDto,
+    organizer: User,
+  ): Promise<Event> {
     const event = new Event();
     event.name = createEventDto.name;
     event.description = createEventDto.description;
@@ -31,7 +34,11 @@ export class EventsService {
 
     const newEvent = await event.save();
 
-    const participants = await this.addAllParticipants(createEventDto.participants, organizer, newEvent);
+    const participants = await this.addAllParticipants(
+      createEventDto.participants,
+      organizer,
+      newEvent,
+    );
     return await this.findOneForUser(newEvent.id, organizer);
   }
 
@@ -39,32 +46,34 @@ export class EventsService {
    * Returns an event with only the id, name, and description
    * @param id Event id
    * @param user
-   * @returns 
+   * @returns
    */
   async findEventDetails(id: number, user: User) {
     return await this.eventsRepository
       .createQueryBuilder('e')
       .select(['e.id', 'e.name', 'e.description'])
       .innerJoin('e.participants', 'p')
-      .where('e.id = :eventId AND (p.userId = :userId OR p.email = :userEmail)', {
-        userId: user.id,
-        userEmail: user.email,
-        eventId: id
-      })
+      .where(
+        'e.id = :eventId AND (p.userId = :userId OR p.email = :userEmail)',
+        {
+          userId: user.id,
+          userEmail: user.email,
+          eventId: id,
+        },
+      )
       .getOneOrFail();
   }
 
   /**
    * Returns an a full event with authentication, if user is provided (i.e. participants, link).
    * If user is not provided, this method returns an event with no joins (i.e. no participants, link, etc. + no authentication)
-   * 
+   *
    * @param id
    * @param user
-   * @returns 
+   * @returns
    */
   async findOne(id: number, user?: User): Promise<Event> {
-    if (!user)
-      return await this.eventsRepository.findOne(id);
+    if (!user) return await this.eventsRepository.findOne(id);
 
     return await this.eventsRepository
       .createQueryBuilder('e')
@@ -72,11 +81,14 @@ export class EventsService {
       .leftJoinAndSelect('e.participants', 'p2')
       .leftJoinAndSelect('p2.user', 'u')
       .leftJoinAndSelect('e.links', 'l')
-      .where('e.id = :eventId AND (p1.userId = :userId OR p1.email = :userEmail)', {
-        userId: user.id,
-        userEmail: user.email,
-        eventId: id
-      })
+      .where(
+        'e.id = :eventId AND (p1.userId = :userId OR p1.email = :userEmail)',
+        {
+          userId: user.id,
+          userEmail: user.email,
+          eventId: id,
+        },
+      )
       .getOneOrFail();
   }
 
@@ -86,7 +98,7 @@ export class EventsService {
       .innerJoinAndSelect('e.participants', 'p')
       .where('e.id = :eventId AND p.userId = :userId', {
         userId: user.id,
-        eventId: id
+        eventId: id,
       })
       .getOne();
   }
@@ -97,7 +109,7 @@ export class EventsService {
       .innerJoinAndSelect('e.participants', 'p')
       .where('e.id = :eventId AND p.userId = :userId AND p.organizer = true', {
         userId: user.id,
-        eventId: id
+        eventId: id,
       })
       .getOne();
   }
@@ -127,18 +139,27 @@ export class EventsService {
       .createQueryBuilder('e')
       .innerJoinAndSelect('e.participants', 'p')
       .where('p.accepted = 0 AND p.email = :email', {
-        email: user.email
+        email: user.email,
       })
       .getMany();
   }
 
-  async createLinkForEvent(event: Event, user: User, expirationDate: Date): Promise<Link> {
-    const participant = await this.participantsService
-      .findByEventAndOrganizer(event, user);
+  async createLinkForEvent(
+    event: Event,
+    user: User,
+    expirationDate: Date,
+  ): Promise<Link> {
+    const participant = await this.participantsService.findByEventAndOrganizer(
+      event,
+      user,
+    );
     if (!participant) {
-      throw new HttpException({
-        message: 'Could not perform operation'
-      }, HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        {
+          message: 'Could not perform operation',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.linksService.create(event, expirationDate);
   }
@@ -152,64 +173,88 @@ export class EventsService {
   }
 
   async isUserPartOfEvent(event: Event, user: User): Promise<boolean> {
-    const participant = await this.participantsService.findByEventAndUser(event, user);
+    const participant = await this.participantsService.findByEventAndUser(
+      event,
+      user,
+    );
     return participant ? true : false;
   }
 
   async isUserPartOfEventShallow(event: Event, user: User): Promise<boolean> {
-    const participant = await this.participantsService.findByEventAndShallowUser(event, user.email);
+    const participant =
+      await this.participantsService.findByEventAndShallowUser(
+        event,
+        user.email,
+      );
     return participant ? true : false;
   }
 
-  async update(event: Event, updateEventDto: UpdateEventDto) {
-    const updated = await this.eventsRepository.update({ id: event.id }, updateEventDto);
+  async update(event: Event, updateEventDto: UpdateEventDto, user?: User) {
+    const updated = await this.eventsRepository.update(
+      { id: event.id },
+      updateEventDto,
+    );
 
     // If draw date is updated then also update link expiration
     if (updateEventDto.drawAt) {
       // No need to use await since we don't return the value
       this.linksService.updateExpriationDate(event, updateEventDto.drawAt);
     }
-    return await this.eventsRepository.findOne(event.id);
+    return await this.findOne(event.id, user);
   }
 
   async remove(id: number) {
     return await this.eventsRepository.delete({ id: id });
   }
 
-  private checkForMainOrganizer(createParticipants: CreateParticipantDto[], organizer: User): boolean {
+  private checkForMainOrganizer(
+    createParticipants: CreateParticipantDto[],
+    organizer: User,
+  ): boolean {
     let found = false;
-    createParticipants.forEach(p => {
+    createParticipants.forEach((p) => {
       if (p.email === organizer.email) {
         found = true;
 
         if (!p.organizer) {
-          throw new HttpException({
-            message: `${organizer.name} (${organizer.email}) must have organizer set as \`true\``
-          }, HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            {
+              message: `${organizer.name} (${organizer.email}) must have organizer set as \`true\``,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
         }
       }
     });
-    return found
+    return found;
   }
 
-  private async addAllParticipants(createParticipants: CreateParticipantDto[], organizer: User, event: Event): Promise<Participant[]> {
+  private async addAllParticipants(
+    createParticipants: CreateParticipantDto[],
+    organizer: User,
+    event: Event,
+  ): Promise<Participant[]> {
     if (!this.checkForMainOrganizer(createParticipants, organizer)) {
-      throw new HttpException({
-        message: `${organizer.name} (${organizer.email}) must be a participant. If you don't want to participate set participates to \`false\``
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          message: `${organizer.name} (${organizer.email}) must be a participant. If you don't want to participate set participates to \`false\``,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Add all participants
     const participants = Array<Participant>();
     for (const p of createParticipants) {
-      if (p.email === '' || p.name === '')
-        continue;
+      if (p.email === '' || p.name === '') continue;
 
       if (p.email === organizer.email) {
-        // The main organizer must have to have a valid account. 
+        // The main organizer must have to have a valid account.
         // Therefore, set accepted to true
         p.accepted = true;
-        participants.push(await this.participantsService.create(p, event, organizer));
+        participants.push(
+          await this.participantsService.create(p, event, organizer),
+        );
       } else {
         participants.push(await this.participantsService.create(p, event));
       }

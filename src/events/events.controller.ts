@@ -167,7 +167,7 @@ export class EventsController {
     if (!participant) {
       throw BAD_REQUEST("Operation not allowed for non-organizer users");
     }
-    return await this.eventsService.update(event, updateEventDto);
+    return await this.eventsService.update(event, updateEventDto, user);
   }
 
   @UseGuards(JwtAuthGuard)

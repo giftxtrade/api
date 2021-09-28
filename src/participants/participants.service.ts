@@ -57,6 +57,27 @@ export class ParticipantsService {
       .getOne();
   }
 
+  /**
+   * Joins event and the participant user
+   * @param event
+   * @param participantId
+   * @returns
+   */
+  async findOneByEvent(
+    event: Event,
+    participantId: number,
+  ): Promise<Participant> {
+    return await this.participantRepository
+      .createQueryBuilder('p')
+      .innerJoin('p.event', 'e')
+      .innerJoinAndSelect('p.user', 'u')
+      .where('e.id = :eventId AND p.id = :participantId', {
+        eventId: event.id,
+        participantId,
+      })
+      .getOne();
+  }
+
   async findAllByEvent(event: Event): Promise<Participant[]> {
     return await this.participantRepository
       .createQueryBuilder('p')

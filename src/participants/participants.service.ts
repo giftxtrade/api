@@ -12,16 +12,23 @@ export class ParticipantsService {
   constructor(
     @InjectRepository(Participant)
     private readonly participantRepository: Repository<Participant>,
-  ) { }
+  ) {}
 
-  async create(createParticipantDto: CreateParticipantDto, event: Event, user?: User): Promise<Participant> {
+  async create(
+    createParticipantDto: CreateParticipantDto,
+    event: Event,
+    user?: User,
+  ): Promise<Participant> {
     if (user) {
       const participant = await this.findByEventAndUser(event, user);
       if (participant) {
         return participant;
       }
     } else {
-      const shallowParticipant = await this.findByEventAndShallowUser(event, createParticipantDto.email);
+      const shallowParticipant = await this.findByEventAndShallowUser(
+        event,
+        createParticipantDto.email,
+      );
       if (shallowParticipant) {
         return shallowParticipant;
       }
@@ -34,8 +41,7 @@ export class ParticipantsService {
     participant.organizer = createParticipantDto.organizer;
     participant.participates = createParticipantDto.participates;
     participant.accepted = createParticipantDto.accepted;
-    if (user)
-      participant.user = user;
+    if (user) participant.user = user;
     participant.event = event;
 
     return await participant.save();
@@ -100,48 +106,63 @@ export class ParticipantsService {
       .createQueryBuilder('p')
       .where('p.eventId = :eventId AND p.userId = :userId', {
         eventId: event.id,
-        userId: user.id
+        userId: user.id,
       })
       .getOne();
   }
 
-  async findByEventAndShallowUser(event: Event, email: string): Promise<Participant> {
+  async findByEventAndShallowUser(
+    event: Event,
+    email: string,
+  ): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')
       .where('p.eventId = :eventId AND p.email = :email', {
         eventId: event.id,
-        email: `${email}`
+        email: `${email}`,
       })
       .getOne();
   }
 
-  async findByEventAndOrganizer(event: Event, user: User): Promise<Participant> {
+  async findByEventAndOrganizer(
+    event: Event,
+    user: User,
+  ): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')
       .innerJoin('p.event', 'e')
       .where('e.id = :eventId AND p.userId = :userId AND p.organizer = true', {
         eventId: event.id,
-        userId: user.id
+        userId: user.id,
       })
       .getOne();
   }
 
-  async getPendingParticipantForEvent(event: Event, user: User): Promise<Participant> {
+  async getPendingParticipantForEvent(
+    event: Event,
+    user: User,
+  ): Promise<Participant> {
     return await this.participantRepository
       .createQueryBuilder('p')
-      .where('p.eventId = :eventId AND p.email = :email AND p.accepted = false', {
-        eventId: event.id,
-        email: user.email
-      })
+      .where(
+        'p.eventId = :eventId AND p.email = :email AND p.accepted = false',
+        {
+          eventId: event.id,
+          email: user.email,
+        },
+      )
       .getOne();
   }
 
   async acceptEvent(event: Event, user: User): Promise<Participant> {
-    const participant = await this.getPendingParticipantForEvent(event, user)
+    const participant = await this.getPendingParticipantForEvent(event, user);
     if (!participant || participant.accepted) {
-      throw new HttpException({
-        message: 'Operation failed'
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          message: 'Operation failed',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     participant.accepted = true;
@@ -150,11 +171,14 @@ export class ParticipantsService {
   }
 
   async declineEvent(event: Event, user: User): Promise<boolean> {
-    const participant = await this.getPendingParticipantForEvent(event, user)
+    const participant = await this.getPendingParticipantForEvent(event, user);
     if (!participant || participant.accepted) {
-      throw new HttpException({
-        message: 'Operation failed'
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          message: 'Operation failed',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     await this.participantRepository.delete({ id: participant.id });
@@ -162,7 +186,10 @@ export class ParticipantsService {
   }
 
   async update(id: number, updateParticipantDto: UpdateParticipantDto) {
-    return await this.participantRepository.update({ id }, updateParticipantDto);
+    return await this.participantRepository.update(
+      { id },
+      updateParticipantDto,
+    );
   }
 
   async remove(id: number) {

@@ -14,6 +14,15 @@
 ## Description
 The GiftTrade API repository serves as the REST API for the [giftxtrade.com](https://giftxtrade.com) web app. This repo is designed to work with a fully working MySQL database.
 
+## API endpoints
+| Endpoint                       | Request Method | Auth | Query Param(s)  | Body           |
+| ------------------------------ | -------------- | ---- | --------------- | -------------- |
+| `/`                            | `GET`          | NO   | `n/a`           | `n/a`          |
+| `/auth/google`                 | `GET`          | NO   | `n/a`           | `n/a`          |
+| `/auth/google/redirect`        | `GET`          | NO   | `n/a`           | `n/a`          |
+| `/auth/profile`                | `GET`          | YES  | `n/a`           | `n/a`          |
+| `/products`                    | `GET`          | YES  | `n/a`           | `n/a`          |
+| `/events`                      | `GET`, `POST`  | YES  | `n/a`           | `` |
 
 ## Set up
 
@@ -29,6 +38,7 @@ npm install
 
 ### Configure database connection
 This repo requires a working connection with a MySQL database and uses TypeORM to manage models and connections with the database.
+
 To set up the config file with the connection details, create a file named `ormconfig.json` in the root of the project directory, then copy the code below, replacing all `<...>` with the appropriate values for you local database.
 ```json
 {

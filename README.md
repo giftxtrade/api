@@ -15,14 +15,15 @@
 The GiftTrade API repository serves as the REST API for the [giftxtrade.com](https://giftxtrade.com) web app. This repo is designed to work with a fully working MySQL database.
 
 ## API endpoints
-| Endpoint                       | Request Method | Auth | Query Param(s)  | Body           |
-| ------------------------------ | -------------- | ---- | --------------- | -------------- |
-| `/`                            | `GET`          | NO   | `n/a`           | `n/a`          |
-| `/auth/google`                 | `GET`          | NO   | `n/a`           | `n/a`          |
-| `/auth/google/redirect`        | `GET`          | NO   | `n/a`           | `n/a`          |
-| `/auth/profile`                | `GET`          | YES  | `n/a`           | `n/a`          |
-| `/products`                    | `GET`          | YES  | `n/a`           | `n/a`          |
-| `/events`                      | `GET`, `POST`  | YES  | `n/a`           | `` |
+| Endpoint                            | Request Method           | Auth | Description                      |
+| ----------------------------------- | ------------------------ | ---- | -------------------------------- |
+| `/`                                 | `GET`                    | NO   | `n/a` |
+| `/auth/google`                      | `GET`                    | NO   | Redirects to Google oauth endpoint |
+| `/auth/google/redirect`             | `GET`                    | NO   | Generates a token given the Google oauth callback |
+| `/auth/profile`                     | `GET`                    | YES  | Given a token, returns the profile details for the authenticated user |
+| `/products`                         | `GET`                    | YES  | Returns a list of products with given a set of query parameters |
+| `/events`                           | `GET`, `POST`            | YES  | Create and fetch events for an authenticated user |
+| `/events/:id`                       | `GET`, `PATCH`, `DELETE` | YES  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
 
 ## Set up
 

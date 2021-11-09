@@ -17,13 +17,13 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 ## API endpoints
 | Endpoint                            | Request Method           | Auth | Description                      |
 | ----------------------------------- | ------------------------ | ---- | -------------------------------- |
-| `/`                                 | `GET`                    | NO   | `n/a` |
-| `/auth/google`                      | `GET`                    | NO   | Redirects to Google oauth endpoint |
-| `/auth/google/redirect`             | `GET`                    | NO   | Generates a token given the Google oauth callback |
-| `/auth/profile`                     | `GET`                    | YES  | Given a token, returns the profile details for the authenticated user |
-| `/products`                         | `GET`                    | YES  | Returns a list of products with given a set of query parameters |
-| `/events`                           | `GET`, `POST`            | YES  | Create and fetch events for an authenticated user |
-| `/events/:id`                       | `GET`, `PATCH`, `DELETE` | YES  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
+| `/`                                 | `GET`                    | no   | `n/a` |
+| `/auth/google`                      | `GET`                    | no   | Redirects to Google oauth endpoint |
+| `/auth/google/redirect`             | `GET`                    | no   | Generates a token given the Google oauth callback |
+| `/auth/profile`                     | `GET`                    | yes  | Given a token, returns the profile details for the authenticated user |
+| `/products`                         | `GET`                    | yes  | Returns a list of products with given a set of query parameters |
+| `/events`                           | `GET`, `POST`            | yes  | Create and fetch events for an authenticated user |
+| `/events/:id`                       | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
 
 ## Set up
 

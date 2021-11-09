@@ -15,17 +15,23 @@
 The GiftTrade API repository serves as the REST API for the [giftxtrade.com](https://giftxtrade.com) web app. This repo is designed to work with a fully working MySQL database.
 
 ## API endpoints
-| Endpoint                            | Request Method           | Auth | Description                      |
-| ----------------------------------- | ------------------------ | ---- | -------------------------------- |
-| `/`                                 | `GET`                    | no   | `n/a` |
-| `/auth/google`                      | `GET`                    | no   | Redirects to Google oauth endpoint |
-| `/auth/google/redirect`             | `GET`                    | no   | Generates a token given the Google oauth callback |
-| `/auth/profile`                     | `GET`                    | yes  | Given a token, returns the profile details for the authenticated user |
-| `/products`                         | `GET`                    | no   | Returns a list of products with given a set of query parameters to tune the results |
-| `/events`                           | `GET`, `POST`            | yes  | Create and fetch events for an authenticated user |
-| `/events/:id`                       | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
-| `/get-details/:linkCode`            | `GET`                    | yes  | Returns the name and description (if exists) for a specific event |
-| `/invites`                          | `GET`                    | yes  | Returns a list of all pending invites for an authenticated user |
+| Endpoint                                   | Request Method           | Auth | Description                      |
+| ------------------------------------------ | ------------------------ | ---- | -------------------------------- |
+| `/`                                        | `GET`                    | no   | `n/a` |
+| `/auth/google`                             | `GET`                    | no   | Redirects to Google oauth endpoint |
+| `/auth/google/redirect`                    | `GET`                    | no   | Generates a token given the Google oauth callback |
+| `/auth/profile`                            | `GET`                    | yes  | Given a token, returns the profile details for the authenticated user |
+| `/products`                                | `GET`                    | no   | Returns a list of products with given a set of query parameters to tune the results |
+| `/events`                                  | `GET`, `POST`            | yes  | Create and fetch events for an authenticated user |
+| `/events/:id`                              | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
+| `/events/get-details/:linkCode`            | `GET`                    | yes  | Returns the name and description (if exists) for a specific event |
+| `/events/invites`                          | `GET`                    | yes  | Returns a list of all pending invites for an authenticated user |
+| `/events/invites/accept/:eventId`          | `GET`                    | yes  | Accepts the event invite for an authenticated user |
+| `/events/invites/decline/:eventId`         | `GET`                    | yes  | Declines the event invite for an authenticated user |
+| `/events/get-link/:eventId`                | `GET`                    | yes  | Generates the invite link to a specific event |
+| `/events/get-link/:eventId`                | `GET`                    | yes  | Generates the invite link to a specific event |
+| `/events/verify-invite-code/:inviteCode`   | `GET`                    | yes  | Verify the invite code for a specific event |
+| `/events/invite-code/:inviteCode`          | `GET`                    | yes  | Add the event to the user's pending invites list |
 
 ## Set up
 

@@ -24,6 +24,8 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 | `/products`                         | `GET`                    | no   | Returns a list of products with given a set of query parameters to tune the results |
 | `/events`                           | `GET`, `POST`            | yes  | Create and fetch events for an authenticated user |
 | `/events/:id`                       | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
+| `/get-details/:linkCode`            | `GET`                    | yes  | Returns the name and description (if exists) for a specific event |
+| `/invites`                          | `GET`                    | yes  | Returns a list of all pending invites for an authenticated user |
 
 ## Set up
 

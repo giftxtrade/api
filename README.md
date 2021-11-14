@@ -38,6 +38,10 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 | `/wishes`                                  | `POST`, `DELETE`         | yes  | Creates or removes a wishlist item |
 | `/wishes/:id`                              | `GET`                    | yes  | Fetch all wishlist items from the user participant given an event id |
 | `/wishes/:eventId/:participantId`          | `GET`                    | yes  | Fetch all wishlist items from a participant given the participant's id and an event id |
+| `/draws`                                   | `POST`                   | yes  | Creates randomized pairings from the active participants. Requires that user is an organizer |
+| `/draws/confirm/:eventId`                  | `GET`                    | yes  | Confirms the generated draws and sends emails to all the participants. Requires that user is an organizer |
+| `/draws/:eventId`                          | `GET`                    | yes  | Fetch all pairings for a given event. Requires that user is an organizer |
+| `/me/:eventId`                             | `GET`                    | yes  | Fetch user's draw for a given event |
 
 ## Set up
 

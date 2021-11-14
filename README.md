@@ -42,6 +42,7 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 | `/draws/confirm/:eventId`                  | `GET`                    | yes  | Confirms the generated draws and sends emails to all the participants. Requires that user is an organizer |
 | `/draws/:eventId`                          | `GET`                    | yes  | Fetch all pairings for a given event. Requires that user is an organizer |
 | `/me/:eventId`                             | `GET`                    | yes  | Fetch user's draw for a given event |
+| `/categories`                              | `GET`                    | no   | Fetches all product categories |
 
 ## Set up
 

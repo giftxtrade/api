@@ -32,6 +32,9 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 | `/events/get-link/:eventId`                | `GET`                    | yes  | Generates the invite link to a specific event |
 | `/events/verify-invite-code/:inviteCode`   | `GET`                    | yes  | Verify the invite code for a specific event |
 | `/events/invite-code/:inviteCode`          | `GET`                    | yes  | Add the event to the user's pending invites list |
+| `/participants/manage`                     | `PATCH`, `DELETE`        | yes  | Update participant details, or remove them from event. Requires that the participant is also an organizer |
+| `/participants/:eventId/:participantId`    | `GET`                    | yes  | Fetch participant information, given the user is part of the same event |
+| `/participants/:participantId`             | `PATCH`, `DELETE`        | yes  | Allows user to manage their participant information, including leaving event, and updating address |
 
 ## Set up
 

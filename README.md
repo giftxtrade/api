@@ -35,6 +35,9 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 | `/participants/manage`                     | `PATCH`, `DELETE`        | yes  | Update participant details, or remove them from event. Requires that the participant is also an organizer |
 | `/participants/:eventId/:participantId`    | `GET`                    | yes  | Fetch participant information, given the user is part of the same event |
 | `/participants/:participantId`             | `PATCH`, `DELETE`        | yes  | Allows user to manage their participant information, including leaving event, and updating address |
+| `/wishes`                                  | `POST`, `DELETE`         | yes  | Creates or removes a wishlist item |
+| `/wishes/:id`                              | `GET`                    | yes  | Fetch all wishlist items from the user participant given an event id |
+| `/wishes/:eventId/:participantId`          | `GET`                    | yes  | Fetch all wishlist items from a participant given the participant's id and an event id |
 
 ## Set up
 

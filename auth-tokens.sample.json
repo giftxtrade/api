@@ -1,0 +1,13 @@
+{
+    "FRONTEND_BASE": "http://localhost:3000/",
+    "JWT": {
+        "SECRET": "[YOUR_SECURE_GENERATED_TOKEN]"
+    },
+    "GOOGLE": {
+        "CLIENT_ID": "[GOOGLE_OAUTH_CLIENT_ID]",
+        "CLIENT_SECRET": "[GOOGLE_OAUTH_CLIENT_SECRET]"
+    },
+    "SENDGRID": {
+        "API_KEY": "[SENDGRID_API_KEY]"
+    }
+}

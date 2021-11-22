@@ -23,7 +23,7 @@ The GiftTrade API repository serves as the REST API for the [giftxtrade.com](htt
 | `/auth/profile`                            | `GET`                    | yes  | Given a token, returns the profile details for the authenticated user |
 | `/products`                                | `GET`                    | no   | Returns a list of products with given a set of query parameters to tune the results |
 | `/events`                                  | `GET`, `POST`            | yes  | Create and fetch events for an authenticated user |
-| `/events/:id`                              | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event orgranizer |
+| `/events/:id`                              | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event organizer |
 | `/events/get-details/:linkCode`            | `GET`                    | yes  | Returns the name and description (if exists) for a specific event |
 | `/events/invites`                          | `GET`                    | yes  | Returns a list of all pending invites for an authenticated user |
 | `/events/invites/accept/:eventId`          | `GET`                    | yes  | Accepts the event invite for an authenticated user |
@@ -74,6 +74,13 @@ To set up the config file with the connection details, create a file named `ormc
     "synchronize": true
 }
 ```
+
+### Configure API keys
+GiftTrade API requires a number of API keys from Google, Sendgrid, (and possible from Amazon in the near future). To configure the authentication tokens file, copy `auth-tokens.sample.json` file from the root of the project, then rename the file to `auth-tokens.json`, or use the following command in the terminal:
+```
+cp auth-tokens.sample.json ./auth-tokens.json
+```
+Once `auth-tokens.json` is present, make sure to replace all values with the appropriate values, if working locally, you can leave `FRONTEND_BASE` and `JWT.SECRET` as it is. However, it is essential that at the very least you create an account on [Google Console](https://console.cloud.google.com/) and set up an OAuth key and paste the appropriate keys on the `GOOGLE` section. Do the same for [SendGrid](https://sendgrid.com) and use the free tier to get access to the appropriate API tokens.
 
 ### Start server in watch-mode
 ```

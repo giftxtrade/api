@@ -23,3 +23,9 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.JsonResponse(w, types.Response{Message: "Hello, " + user.Name})
 }
+
+// AUTH REQUIRED - [GET] /auth/profile
+func (app *AppBase) Profile(w http.ResponseWriter, r *http.Request) {
+	auth := r.Context().Value(types.AuthKey).(types.Auth)
+	utils.JsonResponse(w, auth.User)
+}

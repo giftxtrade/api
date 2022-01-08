@@ -37,7 +37,7 @@ type User struct {
 	Base
 	Email string `gorm:"varchar(255); not null; index; unique" json:"email"`
 	Name string `gorm:"varchar(255); not null" json:"name"`
-	ImageUrl string `gorm:"varchar(255); json:"image_url"`
+	ImageUrl string `gorm:"varchar(255);" json:"image_url"`
 	IsAdmin bool `gorm:"default: false" json:"-"`
 	IsActive bool `gorm:"default: false" json:"is_active"`
 }

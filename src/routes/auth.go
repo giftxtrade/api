@@ -5,6 +5,7 @@ import (
 
 	"github.com/ayaanqui/go-rest-server/src/types"
 	"github.com/ayaanqui/go-rest-server/src/utils"
+	"github.com/google/uuid"
 	"github.com/markbates/goth/gothic"
 )
 
@@ -21,7 +22,23 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 		utils.JsonResponse(w, types.Response{Message: "Could not complete authentication"})
 		return
 	}
-	utils.JsonResponse(w, types.Response{Message: "Hello, " + user.Name})
+
+	// Handle user
+	user_from_db := types.User{}
+	app.DB.Table("users").Find(&user_from_db, "email = ?", user.Email)
+	if user_from_db.ID == uuid.Nil {
+		// user not found, so create the new user
+		new_user := types.User{
+			Name: user.Name,
+			Email: user.Email,
+			ImageUrl: user.AvatarURL,
+			IsActive: true,
+			IsAdmin: false,
+		}
+		app.DB.Create(&new_user)
+		user_from_db = new_user
+	}
+	utils.JsonResponse(w, user_from_db)
 }
 
 // AUTH REQUIRED - [GET] /auth/profile

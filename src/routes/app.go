@@ -32,7 +32,6 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	app.Tokens = tokens
 
 	err := conn.AutoMigrate(
-		&types.Post{},
 		&types.User{},
 	)
 	if err != nil {
@@ -48,9 +47,6 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 	goth.UseProviders(twitter.New(app.Tokens.Twitter.ApiKey, app.Tokens.Twitter.ApiKeySecret, "http://localhost:3001/auth/twitter/callback"))
 
 	router.HandleFunc("/", app.Home).Methods("GET")
-	router.HandleFunc("/posts", app.CreatePost).Methods("POST")
-	router.HandleFunc("/posts", app.GetPosts).Methods("GET")
-	router.HandleFunc("/posts/{id}", app.GetPostFromId).Methods("GET")
 	router.HandleFunc("/auth/{provider}", app.Auth).Methods("GET")
 	router.HandleFunc("/auth/{provider}/callback", app.AuthCallback).Methods("GET")
 	router.Handle("/auth/profile", UseJwtAuth(app, http.HandlerFunc(app.Profile))).Methods("GET")

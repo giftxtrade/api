@@ -25,14 +25,6 @@ func (base *Base) BeforeUpdate(tx *gorm.DB) error {
 	return nil
 }
 
-type Post struct {
-	Base
-	Title string `gorm:"not null" json:"title"`
-	Slug string `gorm:"not null" json:"slug"`
-	Content string `gorm:"type:text; not null" json:"content"`
-	Summary string `gorm:"not null; default: ''" json:"summary"`
-}
-
 type User struct {
 	Base
 	Email string `gorm:"varchar(255); not null; index; unique" json:"email"`

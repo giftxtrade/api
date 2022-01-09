@@ -47,9 +47,11 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 	goth.UseProviders(twitter.New(app.Tokens.Twitter.ApiKey, app.Tokens.Twitter.ApiKeySecret, "http://localhost:3001/auth/twitter/callback"))
 
 	router.HandleFunc("/", app.Home).Methods("GET")
+	
+	// Auth routes
+	router.Handle("/auth/profile", UseJwtAuth(app, http.HandlerFunc(app.Profile))).Methods("GET")
 	router.HandleFunc("/auth/{provider}", app.Auth).Methods("GET")
 	router.HandleFunc("/auth/{provider}/callback", app.AuthCallback).Methods("GET")
-	router.Handle("/auth/profile", UseJwtAuth(app, http.HandlerFunc(app.Profile))).Methods("GET")
 	return app
 }
 

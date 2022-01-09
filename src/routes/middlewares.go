@@ -49,9 +49,8 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 		user := types.User{}
 		app.DB.Table("users").Find(
 			&user, 
-			"id = ? AND username = ? AND email = ?", 
+			"id = ? AND email = ?", 
 			claims["id"],
-			claims["username"],
 			claims["email"],
 		)
 		if user.ID == uuid.Nil {

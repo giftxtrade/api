@@ -1,6 +1,15 @@
-# 🖥 Go REST API
+<p align="center">
+    <a href="http://giftxtrade.com/" target="blank">
+        <!-- <img src="https://giftxtrade.com/logos/logo_profile_rounded.svg" width='50' alt="GiftTrade Logo" /> -->
+        <img src="https://giftxtrade.com/logos/logotype_rounded_color.svg" width='250' alt="GiftTrade Logo" />
+    </a>
+</p>
 
-A simple REST API made using the standard Go library [`net/http`](https://pkg.go.dev/net/http) and PostgreSQL as the database. 
+<p align="center">
+    The platform that aims to simplify your online gift exchange and secret santa for <i>free</i>.
+</p>
+
+<br />
 
 ## Tech stack
 - [PostgreSQL](https://www.postgresql.org/) - Primary database

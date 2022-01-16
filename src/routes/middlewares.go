@@ -17,35 +17,23 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authorization := r.Header.Get("Authorization")
-		parsed_authorization := strings.Split(authorization, " ")
-		if parsed_authorization[0] != "Bearer" || len(parsed_authorization) < 2 {
+		// Parse bearer token
+		raw_token, err := get_bearer_token(authorization)
+		if err != nil {
 			w.WriteHeader(401)
 			utils.JsonResponse(w, types.Response{Message: AUTH_REQ})
 			return
 		}
-		raw_token := parsed_authorization[1]
 
 		// Parse JWT
-		token, token_err := jwt.Parse(raw_token, func(t *jwt.Token) (interface{}, error) {
-			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("invalid signing method")
-			}
-			return []byte(app.Tokens.JwtKey), nil
-		})
-		if token_err != nil {
+		claims, err := get_jwt_claims(raw_token, app.Tokens.JwtKey)
+		if err != nil {
 			w.WriteHeader(401)
 			utils.JsonResponse(w, types.Response{Message: AUTH_REQ})
 			return
 		}
 		
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			w.WriteHeader(401)
-			utils.JsonResponse(w, types.Response{Message: "Could not fetch JWT claims"})
-			return
-		}
-
-		// Get user from id, username, email
+		// Get user from claims
 		user := types.User{}
 		app.DB.Table("users").Find(
 			&user, 
@@ -65,4 +53,34 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 		// Serve handler with updated request
 		next.ServeHTTP(w, r)
 	})
+}
+
+// Given a bearer token ("Bearer <TOKEN>") returns the token or an error if parsing was unsuccessful
+func get_bearer_token(authorization string) (string, error) {
+	parsed_authorization := strings.Split(authorization, " ")
+	if parsed_authorization[0] != "Bearer" || len(parsed_authorization) < 2 {
+		return "", fmt.Errorf("could not parse bearer token")
+	}
+	token := parsed_authorization[1]
+	return token, nil
+}
+
+// Given a raw jwt token and an encryption key return the mapped jwt claims or an error
+func get_jwt_claims(jwt_token string, key string) (jwt.MapClaims, error) {
+	token, token_err := jwt.Parse(jwt_token, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("invalid signing method")
+		}
+		return []byte(key), nil
+	})
+	if token_err != nil {
+		return nil, fmt.Errorf("could not parse jwt token")
+	}
+	
+	// Get claims stored in parsed JWT token
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("could not fetch jwt claims")
+	}
+	return claims, nil
 }

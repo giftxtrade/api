@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/ayaanqui/go-rest-server/src/types"
+	"github.com/giftxtrade/api/src/types"
 )
 
 func DbConfig() (types.DbConnection, error) {

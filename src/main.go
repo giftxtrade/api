@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ayaanqui/go-rest-server/src/routes"
-	"github.com/ayaanqui/go-rest-server/src/utils"
+	"github.com/giftxtrade/api/src/routes"
+	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
 )
 

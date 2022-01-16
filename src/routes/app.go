@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ayaanqui/go-rest-server/src/types"
-	"github.com/ayaanqui/go-rest-server/src/utils"
+	"github.com/giftxtrade/api/src/types"
+	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/twitter"

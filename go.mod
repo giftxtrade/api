@@ -1,4 +1,4 @@
-module github.com/ayaanqui/go-rest-server
+module github.com/giftxtrade/api
 
 go 1.16
 

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ayaanqui/go-rest-server/src/types"
+	"github.com/giftxtrade/api/src/types"
 )
 
 func JsonResponse(w http.ResponseWriter, data interface{}) {

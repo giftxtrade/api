@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/ayaanqui/go-rest-server/src/types"
-	"github.com/ayaanqui/go-rest-server/src/utils"
+	"github.com/giftxtrade/api/src/types"
+	"github.com/giftxtrade/api/src/utils"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/markbates/goth/gothic"

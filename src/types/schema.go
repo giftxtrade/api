@@ -33,3 +33,15 @@ type User struct {
 	IsAdmin bool `gorm:"default: false" json:"-"`
 	IsActive bool `gorm:"default: false" json:"is_active"`
 }
+
+type Category struct {
+	Base
+	Name string `gorm:"type:varchar(30); not null; index; unique" json:"name"`
+	Description string `gorm:"type:text; default: ''" json:"description"`
+	Url string `gorm:"type:text; not null" json:"url"`
+}
+
+type Product struct {
+	Base
+	Title string `gorm:"type:text; " json:"title"`
+}

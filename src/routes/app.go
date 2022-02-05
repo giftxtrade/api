@@ -52,6 +52,10 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 	router.Handle("/auth/profile", UseJwtAuth(app, http.HandlerFunc(app.Profile))).Methods("GET")
 	router.HandleFunc("/auth/{provider}", app.Auth).Methods("GET")
 	router.HandleFunc("/auth/{provider}/callback", app.AuthCallback).Methods("GET")
+
+	router.Handle("/admin", AdminOnly(app, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		utils.JsonResponse(w, types.Response{Message: "Admin only page"})
+	}))).Methods("GET")
 	return app
 }
 

@@ -32,7 +32,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			utils.JsonResponse(w, types.Response{Message: AUTH_REQ})
 			return
 		}
-		
+
 		// Get user from claims
 		user := types.User{}
 		app.DB.Table("users").Find(
@@ -83,4 +83,12 @@ func get_jwt_claims(jwt_token string, key string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("could not fetch jwt claims")
 	}
 	return claims, nil
+}
+
+func AdminOnly(app *AppBase, next http.Handler) http.Handler {
+	return UseJwtAuth(app, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// user := r.Context().Value(types.AuthKey)
+		// fmt.Println(user)
+		next.ServeHTTP(w, r)
+	}))
 }

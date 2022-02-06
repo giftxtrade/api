@@ -72,9 +72,9 @@ func GetJwtClaims(jwt_token string, key string) (jwt.MapClaims, error) {
 func GenerateJWT(key string, user *types.User) (string, error) {
 	jwt := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id": user.ID,
-		"username": user.Username,
+		"name": user.Name,
 		"email": user.Email,
-		"is_active": user.IsActive,
+		"image_url": user.ImageUrl,
 	})
 	token, err := jwt.SignedString([]byte(key))
 	if err != nil {

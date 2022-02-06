@@ -6,3 +6,6 @@ run:
 
 watch:
 	nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run src/main.go
+
+test:
+	go test ./src/tests

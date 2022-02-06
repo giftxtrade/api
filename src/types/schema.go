@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -25,23 +26,31 @@ func (base *Base) BeforeUpdate(tx *gorm.DB) error {
 	return nil
 }
 
+type Post struct {
+	Base
+	Title string `gorm:"not null" json:"title"`
+	Slug string `gorm:"not null" json:"slug"`
+	Content string `gorm:"type:text; not null" json:"content"`
+	Summary string `gorm:"not null; default: ''" json:"summary"`
+}
+
 type User struct {
 	Base
+	Username string `gorm:"varchar(30); not null; index; unique" json:"username"`
 	Email string `gorm:"varchar(255); not null; index; unique" json:"email"`
-	Name string `gorm:"varchar(255); not null" json:"name"`
-	ImageUrl string `gorm:"varchar(255);" json:"image_url"`
-	IsAdmin bool `gorm:"default: false" json:"-"`
+	// Ignore password field from json output
+	Password string `gorm:"varchar(255); index" json:"-"`
+	IsAdmin bool `gorm:"default: false" json:"is_admin"`
 	IsActive bool `gorm:"default: false" json:"is_active"`
 }
 
-type Category struct {
-	Base
-	Name string `gorm:"type:varchar(30); not null; index; unique" json:"name"`
-	Description string `gorm:"type:text; default: ''" json:"description"`
-	Url string `gorm:"type:text; not null" json:"url"`
-}
-
-type Product struct {
-	Base
-	Title string `gorm:"type:text; " json:"title"`
+// Hashes password using the bcrypt library
+func (user *User) BeforeCreate(tx *gorm.DB) error {
+	user.Base.BeforeCreate(tx) // Call base BeforeCreate first
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hash)
+	return nil
 }

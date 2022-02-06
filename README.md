@@ -28,9 +28,11 @@ This project also uses a PostgreSQL database in order to run. To start, create a
 
 ```json
 {
+    "host": "localhost",
     "db_name": "[database name]",
     "username": "[database username]",
-    "password": "[database password]"
+    "password": "[database password]",
+    "port": "5432"
 }
 ```
 

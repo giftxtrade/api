@@ -1,0 +1,40 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  semantic-release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: set up node.js
+        uses: actions/setup-node@v2.5.1
+        with:
+          node-version: 16.13.1
+      - name: check out code
+        uses: actions/checkout@v2
+      - name: build
+        run: make build
+      - name: test
+        run: make test
+      
+      - name: install npm dependencies
+        run: yarn install
+      - name: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn create-release
+  
+  merge:
+    needs: semantic-release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: merge to develop
+        uses: devmasx/merge-branch@1.4.0
+        with:
+          type: now
+          from_branch: master
+          target_branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}

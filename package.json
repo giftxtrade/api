@@ -1,0 +1,25 @@
+{
+    "name": "@giftxtrade/api",
+    "version": "2.0.0",
+    "scripts": {
+        "create-release": "semantic-release"
+    },
+    "devDependencies": {
+        "@semantic-release/changelog": "^6.0.1",
+        "@semantic-release/commit-analyzer": "^9.0.2",
+        "@semantic-release/git": "^10.0.1",
+        "@semantic-release/github": "^8.0.2",
+        "@semantic-release/release-notes-generator": "^10.0.3",
+        "semantic-release": "^19.0.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ayaanqui/go-rest.git"
+    },
+    "author": "Ayaan Siddiqui",
+    "license": "CC Attribution-NonCommercial-NoDerivatives 4.0",
+    "bugs": {
+        "url": "https://github.com/ayaanqui/go-rest/issues"
+    },
+    "homepage": "https://github.com/ayaanqui/go-rest#readme"
+}

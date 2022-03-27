@@ -76,7 +76,6 @@ func TestGenerateTokens(t *testing.T) {
                 ID: uuid.New(),
             },
             Email: "johndoe@example.com",
-            Name: "John Doe",
         }
         jwt1, err1 := utils.GenerateJWT("123", &user)
         jwt2, err2 := utils.GenerateJWT("1234", &user)

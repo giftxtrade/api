@@ -11,6 +11,7 @@ func (app *AppBase) CreateSchemas() {
 		&types.User{},
 		&types.Category{},
 		&types.Product{},
+		&types.Event{},
 	)
 	if err != nil {
 		log.Fatal("Could not generate schema.\n")

@@ -56,3 +56,13 @@ type Product struct {
 	CategoryId uuid.UUID `gorm:"type:uuid; index" json:"_"`
 	Category Category `json:"category"`
 }
+
+type Event struct {
+	Base
+	Name string `gorm:"type:varchar(255); not null" json:"name"`
+	Description string `gorm:"type:text" json:"description"`
+	Budget float32 `gorm:"type:float(2); not null; index" json:"budget"`
+	InviteMessage string `gorm:"type:text" json:"invite_message"`
+	DrawAt time.Time `gorm:"index; not null" json:"draw_at"`
+	CloseAt time.Time `gorm:"index; not null" json:"close_at"`
+}

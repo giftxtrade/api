@@ -9,8 +9,8 @@ import (
 
 type Base struct {
 	ID uuid.UUID `gorm:"type:uuid; primary key" json:"id"`
-	CreatedAt time.Time `gorm:"not null" json:"created_at"`
-	UpdatedAt time.Time `gorm:"not null" json:"updated_at"`
+	CreatedAt time.Time `gorm:"index; not null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"index; not null" json:"updated_at"`
 }
 
 func (base *Base) BeforeCreate(tx *gorm.DB) error {
@@ -30,7 +30,7 @@ type User struct {
 	Email string `gorm:"varchar(255); not null; index; unique" json:"email"`
 	Name string `gorm:"varchar(255); not null" json:"name"`
 	ImageUrl string `gorm:"varchar(255);" json:"image_url"`
-	IsAdmin bool `gorm:"default: false" json:"is_admin"`
+	IsAdmin bool `gorm:"default: false" json:"_"`
 	IsActive bool `gorm:"default: false" json:"is_active"`
 }
 
@@ -39,6 +39,7 @@ type Category struct {
 	Name string `gorm:"type:varchar(30); not null; index; unique" json:"name"`
 	Description string `gorm:"type:text; default: ''" json:"description"`
 	Url string `gorm:"type:text" json:"url"`
+	Products []Product `json:"prodcuts"`
 }
 
 type Product struct {
@@ -52,4 +53,6 @@ type Product struct {
 	OriginalUrl string `gorm:"type:text; not null" json:"original_url"`
 	WebsiteOrigin string `gorm:"type:varchar(255); not null" json:"website_origin"`
 	TotalReviews int `gorm:"not null" json:"total_reviews"`
+	CategoryId uuid.UUID `gorm:"type:uuid; index" json:"_"`
+	Category Category `json:"category"`
 }

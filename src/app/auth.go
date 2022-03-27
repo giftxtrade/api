@@ -5,11 +5,24 @@ import (
 
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
+	"github.com/gorilla/mux"
+	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 )
 
 // [GET] /auth/{provider}
 func (app *AppBase) Auth(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	provider := params["provider"]
+	callback_url := r.URL.Query().Get("callback_url")
+
+	if callback_url != "" {
+		switch provider {
+		case "google":
+			goth.UseProviders(app.CreateGoogleProvider(callback_url))
+		}
+	}
+
 	gothic.BeginAuthHandler(w, r)
 }
 
@@ -21,5 +34,5 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 		utils.JsonResponse(w, types.Response{Message: "Could not complete authentication"})
 		return
 	}
-	utils.JsonResponse(w, types.Response{Message: "Hello, " + user.Name})
+	utils.JsonResponse(w, user)
 }

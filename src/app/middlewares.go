@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/google/uuid"
@@ -33,13 +34,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			}
 
 			// Get user from id, username, email
-			user := types.User{}
-			app.DB.Table("users").Find(
-				&user,
-				"id = ? AND email = ?",
-				claims["id"],
-				claims["email"],
-			)
+			user := services.GetUserByIdAndEmail(app.DB, claims["id"].(string), claims["email"].(string))
 			if user.ID == uuid.Nil {
 				w.WriteHeader(401)
 				utils.JsonResponse(w, types.Response{Message: AUTH_REQ})

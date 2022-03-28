@@ -34,6 +34,12 @@ type User struct {
 	IsActive bool `gorm:"default: false" json:"is_active"`
 }
 
+func (user *User) BeforeCreate(tx *gorm.DB) error {
+	user.Base.BeforeCreate(tx)
+	user.IsActive = true
+	return nil
+}
+
 type Category struct {
 	Base
 	Name string `gorm:"type:varchar(30); not null; index; unique" json:"name"`

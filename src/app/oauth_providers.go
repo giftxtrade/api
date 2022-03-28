@@ -20,5 +20,5 @@ func (app *AppBase) CreateTwitterProvider(callback_url string) *twitter.Provider
 
 func (app *AppBase) CreateGoogleProvider(callback_url string) *google.Provider {
 	tokens := app.Tokens.Google
-	return google.New(tokens.ClientId, tokens.ClientSecret, callback_url, "profile")
+	return google.New(tokens.ClientId, tokens.ClientSecret, callback_url, "profile", "email")
 }

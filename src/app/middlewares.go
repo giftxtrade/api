@@ -51,3 +51,21 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// Admin only access middleware (uses UseJwtAuth)
+func UseAdminOnly(app *AppBase, next http.Handler) http.Handler {
+	return UseJwtAuth(
+		app, 
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				user := r.Context().Value(types.AuthKey).(types.User)
+				if !user.IsAdmin {
+					w.WriteHeader(401)
+					utils.JsonResponse(w, types.Response{Message: "Access for admin users only"})
+					return
+				}
+				next.ServeHTTP(w, r)
+			},
+		),
+	)
+}

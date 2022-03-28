@@ -34,5 +34,8 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 		utils.JsonResponse(w, types.Response{Message: "Could not complete authentication"})
 		return
 	}
-	utils.JsonResponse(w, user)
+// Auth required [GET] /auth/me
+func (app *AppBase) GetProfile(w http.ResponseWriter, r *http.Request) {
+	auth := r.Context().Value(types.AuthKey).(types.Auth)
+	utils.JsonResponse(w, &auth)
 }

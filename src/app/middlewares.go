@@ -20,24 +20,21 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			// Parse bearer token
 			raw_token, err := utils.GetBearerToken(authorization)
 			if err != nil {
-				w.WriteHeader(401)
-				utils.FailResponse(w, AUTH_REQ)
+				utils.FailResponseUnauthorized(w, "authorization required")
 				return
 			}
 
 			// Parse JWT
 			claims, err := utils.GetJwtClaims(raw_token, app.Tokens.JwtKey)
 			if err != nil {
-				w.WriteHeader(401)
-				utils.FailResponse(w, AUTH_REQ)
+				utils.FailResponseUnauthorized(w, "authorization required")
 				return
 			}
 
 			// Get user from id, username, email
 			user := services.GetUserByIdAndEmail(app.DB, claims["id"].(string), claims["email"].(string))
 			if user.ID == uuid.Nil {
-				w.WriteHeader(401)
-				utils.FailResponse(w, AUTH_REQ)
+				utils.FailResponseUnauthorized(w, "authorization required")
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), types.AuthKey, types.Auth{
@@ -58,8 +55,7 @@ func UseAdminOnly(app *AppBase, next http.Handler) http.Handler {
 			func(w http.ResponseWriter, r *http.Request) {
 				user := r.Context().Value(types.AuthKey).(types.User)
 				if !user.IsAdmin {
-					w.WriteHeader(401)
-					utils.FailResponse(w, "access for admin users only")
+					utils.FailResponseUnauthorized(w, "access for admin users only")
 					return
 				}
 				next.ServeHTTP(w, r)

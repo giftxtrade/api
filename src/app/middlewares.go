@@ -20,21 +20,21 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			// Parse bearer token
 			raw_token, err := utils.GetBearerToken(authorization)
 			if err != nil {
-				utils.FailResponseUnauthorized(w, "authorization required")
+				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 
 			// Parse JWT
 			claims, err := utils.GetJwtClaims(raw_token, app.Tokens.JwtKey)
 			if err != nil {
-				utils.FailResponseUnauthorized(w, "authorization required")
+				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 
 			// Get user from id, username, email
 			user := services.GetUserByIdAndEmail(app.DB, claims["id"].(string), claims["email"].(string))
 			if user.ID == uuid.Nil {
-				utils.FailResponseUnauthorized(w, "authorization required")
+				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), types.AuthKey, types.Auth{

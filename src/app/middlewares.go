@@ -53,7 +53,7 @@ func UseAdminOnly(app *AppBase, next http.Handler) http.Handler {
 		app, 
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				auth := r.Context().Value(types.AuthKey).(types.Auth)
+				auth := utils.ParseAuthContext(r.Context())
 				if !auth.User.IsAdmin {
 					utils.FailResponseUnauthorized(w, "access for admin users only")
 					return

@@ -9,6 +9,7 @@ import (
 
 	"github.com/giftxtrade/api/src/types"
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/net/context"
 )
 
 func DbConfig() (types.DbConnection, error) {
@@ -81,4 +82,10 @@ func GenerateJWT(key string, user *types.User) (string, error) {
 		return "", err
 	}
 	return token, nil
+}
+
+// Given a context, find and return the auth struct using the types.AuthKey key
+func ParseAuthContext(context context.Context) types.Auth {
+	auth := context.Value(types.AuthKey).(types.Auth)
+	return auth
 }

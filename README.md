@@ -46,8 +46,10 @@ In addition to the `db_config.json`, you will also need to create a `tokens.json
         "api_key": "[Twitter OAuth 1.0 API Key]",
         "api_key_secret": "[Twitter OAuth 1.0 API Secret]",
         "bearer_token": "[Twitter OAuth Bearer Token]",
-        "access_token": "[Twitter OAuth Access Token]",
-        "access_token_secret": "[Twitter OAuth Access Token Secret]"
+    },
+    "google": {
+        "client_id": "[Google Client Id]",
+        "client_secret": "[Google Secret Key]"
     }
 }
 ```
@@ -61,16 +63,16 @@ $ make build
 or 
 
 ```
-$ go build src/main.go
+$ go build src/server.go
 ```
 
-Creates an executable binary file called `main`. To run this file call `./main`, like so:
+Creates an executable binary file called `server`. To run this file call `./server`, like so:
 
 ```
-$ ./main
+$ ./server
 ```
 
-This should start the server on port `3001`.
+This should start the server on port `8080`.
 
 ### Run without Binary
 
@@ -80,4 +82,4 @@ Another way to run the server is by using the `make run` command.
 $ make run
 ```
 
-Running the command should also start the server on port `3001`. This command is equivalent to running `go run src/main.go`.
+Running the command should also start the server on port `8080`. This command is equivalent to running `go run src/server.go`.

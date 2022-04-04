@@ -8,6 +8,10 @@ type Result struct {
 	Data interface{} `json:"data"`
 }
 
+type Errors struct {
+	Errors interface{} `json:"errors"`
+}
+
 type DbConnection struct {
 	DbName string `json:"db_name"`
 	Username string `json:"username"`

@@ -12,7 +12,7 @@ import (
 
 // Authentication middleware. Saves user data in request context within types.AuthKey key
 func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
-	const AUTH_REQ string = "Authorization required"
+	const AUTH_REQ string = "authorization required"
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			raw_token, err := utils.GetBearerToken(authorization)
 			if err != nil {
 				w.WriteHeader(401)
-				utils.JsonResponse(w, types.Response{Message: AUTH_REQ})
+				utils.FailResponse(w, AUTH_REQ)
 				return
 			}
 
@@ -29,7 +29,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			claims, err := utils.GetJwtClaims(raw_token, app.Tokens.JwtKey)
 			if err != nil {
 				w.WriteHeader(401)
-				utils.JsonResponse(w, types.Response{Message: AUTH_REQ})
+				utils.FailResponse(w, AUTH_REQ)
 				return
 			}
 
@@ -37,7 +37,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			user := services.GetUserByIdAndEmail(app.DB, claims["id"].(string), claims["email"].(string))
 			if user.ID == uuid.Nil {
 				w.WriteHeader(401)
-				utils.JsonResponse(w, types.Response{Message: AUTH_REQ})
+				utils.FailResponse(w, AUTH_REQ)
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), types.AuthKey, types.Auth{
@@ -59,7 +59,7 @@ func UseAdminOnly(app *AppBase, next http.Handler) http.Handler {
 				user := r.Context().Value(types.AuthKey).(types.User)
 				if !user.IsAdmin {
 					w.WriteHeader(401)
-					utils.JsonResponse(w, types.Response{Message: "Access for admin users only"})
+					utils.FailResponse(w, "access for admin users only")
 					return
 				}
 				next.ServeHTTP(w, r)

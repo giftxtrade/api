@@ -12,5 +12,6 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 	router.Handle("/auth/profile", UseJwtAuth(app, http.HandlerFunc(app.GetProfile))).Methods("GET")
 	router.HandleFunc("/auth/{provider}", app.Auth).Methods("GET")
 	router.HandleFunc("/auth/{provider}/callback", app.AuthCallback).Methods("GET")
+	router.Handle("/products", UseAdminOnly(app, http.HandlerFunc(app.CreateProduct))).Methods("POST")
 	return app
 }

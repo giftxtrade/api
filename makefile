@@ -1,11 +1,11 @@
 build:
-	go build src/main.go
+	go build src/server.go
 
 run:
-	go run src/main.go
+	go run src/server.go
 
 watch:
-	nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run src/main.go
+	nodemon --watch './src/**/*.go' --signal SIGTERM --exec 'make' run
 
 test:
-	go test ./src/tests
+	go test -v ./src/tests

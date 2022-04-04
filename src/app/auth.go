@@ -55,6 +55,6 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 
 // Auth required [GET] /auth/profile
 func (app *AppBase) GetProfile(w http.ResponseWriter, r *http.Request) {
-	auth := r.Context().Value(types.AuthKey).(types.Auth)
+	auth := utils.ParseAuthContext(r.Context())
 	utils.DataResponse(w, &auth)
 }

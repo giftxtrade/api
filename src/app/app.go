@@ -23,7 +23,12 @@ type IAppBase interface {
 
 func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	app.DB = conn
-	app.UserServices = services.UserService{DB: conn}
+	app.UserServices = services.UserService{
+		Service: services.Service{
+			DB: conn,
+			TABLE: "users",
+		},
+	}
 	
 	tokens, tokens_err := utils.ParseTokens()
 	if tokens_err != nil {

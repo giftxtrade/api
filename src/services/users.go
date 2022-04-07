@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/giftxtrade/api/src/types"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -33,7 +32,7 @@ func GetUserByIdAndEmail(db *gorm.DB, id string, email string) types.User {
 
 func GetUserByEmailOrCreate(db *gorm.DB, email string, user *types.User) types.User {
 	search_user := GetUserByEmail(db, email)
-	if search_user.ID == uuid.Nil {
+	if search_user == (types.User{}) {
 		// create new user
 		db.Table("users").Create(user)
 		return *user

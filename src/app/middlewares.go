@@ -7,7 +7,6 @@ import (
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/google/uuid"
 )
 
 // Authentication middleware. Saves user data in request context within types.AuthKey key
@@ -33,7 +32,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 
 			// Get user from id, username, email
 			user := services.GetUserByIdAndEmail(app.DB, claims["id"].(string), claims["email"].(string))
-			if user.ID == uuid.Nil {
+			if user == (types.User{}) {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}

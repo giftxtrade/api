@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/giftxtrade/api/src/types"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -21,21 +20,21 @@ func GetUserByEmail(db *gorm.DB, email string) types.User {
 	return user
 }
 
-func GetUserById(db *gorm.DB, id uuid.UUID) types.User {
+func GetUserById(db *gorm.DB, id string) types.User {
 	var user types.User
 	db.Table(TABLE).Where("id = ?", id).First(&user)
 	return user
 }
 
-func GetUserByIdAndEmail(db *gorm.DB, id uuid.UUID, email string) types.User {
+func GetUserByIdAndEmail(db *gorm.DB, id string, email string) types.User {
 	var user types.User
-	db.Table(TABLE).Where("id = ? AND email = ?", id.String(), email).First(&user)
+	db.Table(TABLE).Where("id = ? AND email = ?", id, email).First(&user)
 	return user
 }
 
-func GetUserByIdOrEmail(db *gorm.DB, id uuid.UUID, email string) types.User {
+func GetUserByIdOrEmail(db *gorm.DB, id string, email string) types.User {
 	var user types.User
-	db.Table(TABLE).Where("id = ? OR email = ?", id.String, email).First(user)
+	db.Table(TABLE).Where("id = ? OR email = ?", id, email).First(user)
 	return user
 }
 

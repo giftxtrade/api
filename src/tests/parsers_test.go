@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"testing"
 
 	"github.com/giftxtrade/api/src/types"
@@ -81,6 +82,30 @@ func TestGenerateTokens(t *testing.T) {
         jwt2, err2 := utils.GenerateJWT("1234", &user)
 
         if err1 != nil || err2 != nil || jwt1 == jwt2 {
+            t.Fail()
+        }
+    }
+}
+
+func TestParseAuthContext(t *testing.T) {
+    {
+        ctx := context.Background()
+        user := types.User{
+            Base: types.Base{
+                ID: uuid.New(),
+            },
+            Email: "johndoe@example.com",
+            Name: "John Doe",
+        }
+        token := "my random token"
+        ctx = context.WithValue(ctx, types.AuthKey, types.Auth{Token: token, User: user})
+        parsed_auth := utils.ParseAuthContext(ctx)
+        
+        if parsed_auth.User != user {
+            t.Fail()
+        }
+
+        if parsed_auth.Token != token {
             t.Fail()
         }
     }

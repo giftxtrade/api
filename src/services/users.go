@@ -46,3 +46,13 @@ func GetUserOrCreate(db *gorm.DB, user *types.User) types.User {
 	}
 	return search_user
 }
+
+func CreateUser(db *gorm.DB, create_user *types.CreateUser) types.User {
+	user := types.User{
+		Name: create_user.Name,
+		Email: create_user.Email,
+		ImageUrl: create_user.ImageUrl,
+	}
+	db.Table("users").Create(&user)
+	return user
+}

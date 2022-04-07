@@ -6,6 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
+// Find user by either the id or email
+func GetUser(db *gorm.DB, key string) types.User {
+	var user types.User
+	db.Table("users").Where("id = ? OR email = ?", key, key).First(&user)
+	return user
+}
+
 func GetUserByEmail(db *gorm.DB, email string) types.User {
 	var user types.User
 	db.Table("users").Where("email = ?", email).First(&user)

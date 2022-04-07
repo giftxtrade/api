@@ -40,7 +40,7 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	user := services.GetUserByEmailOrCreate(app.DB, provider_user.Email, &check_user)
+	user := services.GetUserByEmailOrCreate(app.DB, &check_user)
 	token, err := utils.GenerateJWT(app.Tokens.JwtKey, &user)
 	if err != nil {
 		utils.FailResponse(w, "could not generate token")

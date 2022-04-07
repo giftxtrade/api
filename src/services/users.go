@@ -6,34 +6,36 @@ import (
 	"gorm.io/gorm"
 )
 
+const TABLE string = "users"
+
 // Find user by either the id or email
 func GetUser(db *gorm.DB, key string) types.User {
 	var user types.User
-	db.Table("users").Where("id = ? OR email = ?", key, key).First(&user)
+	db.Table(TABLE).Where("id = ? OR email = ?", key, key).First(&user)
 	return user
 }
 
 func GetUserByEmail(db *gorm.DB, email string) types.User {
 	var user types.User
-	db.Table("users").Where("email = ?", email).First(&user)
+	db.Table(TABLE).Where("email = ?", email).First(&user)
 	return user
 }
 
 func GetUserById(db *gorm.DB, id uuid.UUID) types.User {
 	var user types.User
-	db.Table("users").Where("id = ?", id).First(&user)
+	db.Table(TABLE).Where("id = ?", id).First(&user)
 	return user
 }
 
 func GetUserByIdAndEmail(db *gorm.DB, id uuid.UUID, email string) types.User {
 	var user types.User
-	db.Table("users").Where("id = ? AND email = ?", id.String(), email).First(&user)
+	db.Table(TABLE).Where("id = ? AND email = ?", id.String(), email).First(&user)
 	return user
 }
 
 func GetUserByIdOrEmail(db *gorm.DB, id uuid.UUID, email string) types.User {
 	var user types.User
-	db.Table("users").Where("id = ? OR email = ?", id.String, email).First(user)
+	db.Table(TABLE).Where("id = ? OR email = ?", id.String, email).First(user)
 	return user
 }
 
@@ -53,6 +55,6 @@ func CreateUser(db *gorm.DB, create_user *types.CreateUser) types.User {
 		Email: create_user.Email,
 		ImageUrl: create_user.ImageUrl,
 	}
-	db.Table("users").Create(&user)
+	db.Table(TABLE).Create(&user)
 	return user
 }

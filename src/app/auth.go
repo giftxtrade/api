@@ -3,7 +3,6 @@ package app
 import (
 	"net/http"
 
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
@@ -40,7 +39,7 @@ func (app *AppBase) AuthCallback(w http.ResponseWriter, r *http.Request) {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	user := services.GetUserOrCreate(app.DB, &check_user)
+	user := app.UserServices.FindOrCreate(&check_user)
 	token, err := utils.GenerateJWT(app.Tokens.JwtKey, &user)
 	if err != nil {
 		utils.FailResponse(w, "could not generate token")

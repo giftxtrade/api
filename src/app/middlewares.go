@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
@@ -31,7 +30,7 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 			}
 
 			// Get user from id, username, email
-			user := services.GetUserByIdAndEmail(app.DB, claims["id"].(string), claims["email"].(string))
+			user := app.UserServices.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
 			if user == (types.User{}) {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return

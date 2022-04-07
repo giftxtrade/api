@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
@@ -12,6 +13,7 @@ import (
 type AppBase struct {
 	DB *gorm.DB
 	Tokens types.Tokens
+	UserServices services.UserService
 }
 
 type IAppBase interface {
@@ -21,6 +23,8 @@ type IAppBase interface {
 
 func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	app.DB = conn
+	app.UserServices = services.UserService{DB: conn}
+	
 	tokens, tokens_err := utils.ParseTokens()
 	if tokens_err != nil {
 		panic(tokens_err)

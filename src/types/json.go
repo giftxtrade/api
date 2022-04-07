@@ -20,11 +20,6 @@ type DbConnection struct {
 	Port string `json:"port"`
 }
 
-type LoginUser struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type TwitterKeys struct {
 	ApiKey string `json:"api_key"`
 	ApiKeySecret string `json:"api_key_secret"`
@@ -52,4 +47,10 @@ type Tokens struct {
 type Auth struct {
 	User User `json:"user"`
 	Token string `json:"token"`
+}
+
+type CreateUser struct {
+	Name string `json:"name"`
+	Email string `json:"email"`
+	ImageUrl string `json:"image_url"`
 }

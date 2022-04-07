@@ -38,14 +38,12 @@ func GetUserByIdOrEmail(db *gorm.DB, id string, email string) types.User {
 	return user
 }
 
-func GetUserOrCreate(db *gorm.DB, user *types.User) types.User {
-	search_user := GetUserByIdOrEmail(db, user.ID, user.Email)
-	if search_user == (types.User{}) {
-		// create new user
-		db.Table("users").Create(&user)
-		return *user
+func GetUserOrCreate(db *gorm.DB, create_user *types.CreateUser) types.User {
+	user := GetUserByEmail(db, create_user.Email)
+	if user == (types.User{}) {
+		user = CreateUser(db, create_user)
 	}
-	return search_user
+	return user
 }
 
 func CreateUser(db *gorm.DB, create_user *types.CreateUser) types.User {

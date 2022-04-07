@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -12,31 +11,28 @@ import (
 	"golang.org/x/net/context"
 )
 
-func DbConfig() (types.DbConnection, error) {
-	db_config_file_data, err := ioutil.ReadFile("db_config.json")
+// Given a JSON file, map the contents into any struct dest
+func FileMapper(filename string, dest interface{}) error {
+	file, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return types.DbConnection{}, errors.New("db_config.json not found")
+		return fmt.Errorf("%s not found", filename)
 	}
+	if err = json.Unmarshal(file, dest); err != nil {
+		return err
+	}
+	return nil
+}
 
+func DbConfig() (types.DbConnection, error) {
 	var db_config types.DbConnection
-	err = json.Unmarshal([]byte(db_config_file_data), &db_config)
-	if err != nil {
-		return types.DbConnection{}, err
-	}
-	return db_config, nil
+	err := FileMapper("db_config.json", &db_config)
+	return db_config, err
 }
 
 func ParseTokens() (types.Tokens, error) {
-	tokens_file_data, err := ioutil.ReadFile("tokens.json")
-	if err != nil {
-		return types.Tokens{}, errors.New("tokens.json not found")
-	}
-	tokens := types.Tokens{}
-	err = json.Unmarshal([]byte(tokens_file_data), &tokens)
-	if err != nil {
-		return types.Tokens{}, err
-	}
-	return tokens, nil
+	var tokens types.Tokens
+	err := FileMapper("tokens.json", &tokens)
+	return tokens, err
 }
 
 // Given a bearer token ("Bearer <TOKEN>") returns the token or an error if parsing was unsuccessful

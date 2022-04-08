@@ -54,3 +54,9 @@ type CreateUser struct {
 	Email string `json:"email"`
 	ImageUrl string `json:"image_url"`
 }
+
+type CreateCategory struct {
+	Name string `json:"name"`
+	Description string `json:"description"`
+	Url string `json:"url"`
+}

@@ -9,7 +9,7 @@ import (
 )
 
 // Authentication middleware. Saves user data in request context within types.AuthKey key
-func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
+func (app *AppBase) UseJwtAuth(next http.Handler) http.Handler {
 	const AUTH_REQ string = "authorization required"
 
 	return http.HandlerFunc(
@@ -46,9 +46,8 @@ func UseJwtAuth(app *AppBase, next http.Handler) http.Handler {
 }
 
 // Admin only access middleware (uses UseJwtAuth)
-func UseAdminOnly(app *AppBase, next http.Handler) http.Handler {
-	return UseJwtAuth(
-		app, 
+func (app *AppBase) UseAdminOnly(next http.Handler) http.Handler {
+	return app.UseJwtAuth(
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 				auth := utils.ParseAuthContext(r.Context())

@@ -11,8 +11,7 @@ import (
 )
 
 type AppBase struct {
-	DB *gorm.DB
-	Tokens types.Tokens
+	types.AppContext
 	UserServices services.UserService
 	CategoryServices services.CategoryService
 }

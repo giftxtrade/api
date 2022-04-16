@@ -16,7 +16,7 @@ type ProductsController struct {
 }
 
 func (ctx *ProductsController) CreateRoutes(router *mux.Router) {
-	router.Handle("/products", services.UseAdminOnly(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.create_product))).Methods("POST")
+	router.Handle("/products", utils.UseAdminOnly(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.create_product))).Methods("POST")
 }
 
 func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Request) {

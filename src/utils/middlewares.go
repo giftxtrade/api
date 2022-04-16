@@ -1,38 +1,38 @@
-package services
+package utils
 
 import (
 	"context"
 	"net/http"
 
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
-	"github.com/giftxtrade/api/src/utils"
 )
 
 // Authentication middleware. Saves user data in request context within types.AuthKey key
-func UseJwtAuth(jwt_key string, user_services *UserService, next http.Handler) http.Handler {
+func UseJwtAuth(jwt_key string, user_services *services.UserService, next http.Handler) http.Handler {
 	const AUTH_REQ string = "authorization required"
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			authorization := r.Header.Get("Authorization")
 			// Parse bearer token
-			raw_token, err := utils.GetBearerToken(authorization)
+			raw_token, err := GetBearerToken(authorization)
 			if err != nil {
-				utils.FailResponseUnauthorized(w, AUTH_REQ)
+				FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 
 			// Parse JWT
-			claims, err := utils.GetJwtClaims(raw_token, jwt_key)
+			claims, err := GetJwtClaims(raw_token, jwt_key)
 			if err != nil {
-				utils.FailResponseUnauthorized(w, AUTH_REQ)
+				FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 
 			// Get user from id, username, email
 			user := user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
 			if user == (types.User{}) {
-				utils.FailResponseUnauthorized(w, AUTH_REQ)
+				FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), types.AuthKey, types.Auth{
@@ -46,15 +46,15 @@ func UseJwtAuth(jwt_key string, user_services *UserService, next http.Handler) h
 }
 
 // Admin only access middleware (uses UseJwtAuth)
-func UseAdminOnly(jwt_key string, user_services *UserService, next http.Handler) http.Handler {
+func UseAdminOnly(jwt_key string, user_services *services.UserService, next http.Handler) http.Handler {
 	return UseJwtAuth(
 		jwt_key, 
 		user_services,
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				auth := utils.ParseAuthContext(r.Context())
+				auth := ParseAuthContext(r.Context())
 				if !auth.User.IsAdmin {
-					utils.FailResponseUnauthorized(w, "access for admin users only")
+					FailResponseUnauthorized(w, "access for admin users only")
 					return
 				}
 				next.ServeHTTP(w, r)

@@ -12,8 +12,8 @@ import (
 
 type AppBase struct {
 	types.AppContext
-	UserServices services.UserService
-	CategoryServices services.CategoryService
+	UserServices *services.UserService
+	CategoryServices *services.CategoryService
 }
 
 type IAppBase interface {
@@ -23,13 +23,13 @@ type IAppBase interface {
 
 func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	app.DB = conn
-	app.UserServices = services.UserService{
+	app.UserServices = &services.UserService{
 		Service: services.Service{
 			DB: conn,
 			TABLE: "users",
 		},
 	}
-	app.CategoryServices = services.CategoryService{
+	app.CategoryServices = &services.CategoryService{
 		Service: services.Service{
 			DB: conn,
 			TABLE: "categories",
@@ -43,7 +43,7 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	app.Tokens = tokens
 
 	app.CreateSchemas() // create schemas
-	app.SetupOauthProviders() // oauth providers
+	utils.SetupOauthProviders(tokens) // oauth providers
 	return app
 }
 

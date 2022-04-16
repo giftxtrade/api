@@ -1,4 +1,4 @@
-package app
+package services
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 // Authentication middleware. Saves user data in request context within types.AuthKey key
-func (app *AppBase) UseJwtAuth(next http.Handler) http.Handler {
+func UseJwtAuth(jwt_key string, user_services *UserService, next http.Handler) http.Handler {
 	const AUTH_REQ string = "authorization required"
 
 	return http.HandlerFunc(
@@ -23,14 +23,14 @@ func (app *AppBase) UseJwtAuth(next http.Handler) http.Handler {
 			}
 
 			// Parse JWT
-			claims, err := utils.GetJwtClaims(raw_token, app.Tokens.JwtKey)
+			claims, err := utils.GetJwtClaims(raw_token, jwt_key)
 			if err != nil {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 
 			// Get user from id, username, email
-			user := app.UserServices.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
+			user := user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
 			if user == (types.User{}) {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
@@ -46,8 +46,10 @@ func (app *AppBase) UseJwtAuth(next http.Handler) http.Handler {
 }
 
 // Admin only access middleware (uses UseJwtAuth)
-func (app *AppBase) UseAdminOnly(next http.Handler) http.Handler {
-	return app.UseJwtAuth(
+func UseAdminOnly(jwt_key string, user_services *UserService, next http.Handler) http.Handler {
+	return UseJwtAuth(
+		jwt_key, 
+		user_services,
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 				auth := utils.ParseAuthContext(r.Context())

@@ -3,6 +3,7 @@ package app
 import (
 	"net/http"
 
+	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
@@ -14,13 +15,24 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 		utils.JsonResponse(w, types.Response{ Message: "GiftTrade REST API ⚡" })
 	}).Methods("GET")
 
-	// auth routes
-	router.Handle("/auth/profile", app.UseJwtAuth(http.HandlerFunc(app.GetProfile))).Methods("GET")
-	router.HandleFunc("/auth/{provider}", app.Auth).Methods("GET")
-	router.HandleFunc("/auth/{provider}/callback", app.AuthCallback).Methods("GET")
+	controller := controllers.Controller{
+		AppContext: types.AppContext{
+			DB: app.DB,
+			Tokens: app.Tokens,
+		},
+	}
 
-	// products routes
-	router.Handle("/products", app.UseAdminOnly(http.HandlerFunc(app.CreateProduct))).Methods("POST")
+	auth_controller := controllers.AuthController{
+		Controller: controller,
+		UserServices: app.UserServices,
+	}
+	auth_controller.CreateRoutes(router)
+
+	products_controller := controllers.ProductsController{
+		Controller: controller,
+		UserServices: app.UserServices,
+	}
+	products_controller.CreateRoutes(router)
 
 	return app
 }

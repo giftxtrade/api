@@ -61,8 +61,8 @@ type Product struct {
 	OriginalUrl string `gorm:"type:text; not null" json:"original_url"`
 	WebsiteOrigin string `gorm:"type:varchar(255); not null" json:"website_origin"`
 	TotalReviews int `gorm:"not null" json:"total_reviews"`
-	CategoryId uuid.UUID `gorm:"type:uuid; index" json:"_"`
-	Category Category `json:"category"`
+	CategoryId uuid.UUID `gorm:"type:uuid; index" json:"-"`
+	Category Category `gorm:"foreignKey:CategoryId" json:"category"`
 }
 
 type Event struct {

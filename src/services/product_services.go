@@ -1,6 +1,8 @@
 package services
 
-import "github.com/giftxtrade/api/src/types"
+import (
+	"github.com/giftxtrade/api/src/types"
+)
 
 type ProductServices struct {
 	Service
@@ -8,6 +10,7 @@ type ProductServices struct {
 }
 
 func (service *ProductServices) Create(create_product *types.CreateProduct) types.Product {
+	category := service.CategoryServices.FindOrCreate(create_product.Category)
 	new_product := types.Product{
 		Title: create_product.Title,
 		Description: create_product.Description,
@@ -18,10 +21,12 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) type
 		OriginalUrl: create_product.OriginalUrl,
 		WebsiteOrigin: create_product.WebsiteOrigin,
 		TotalReviews: create_product.TotalReviews,
-		CategoryId: service.CategoryServices.FindOrCreate(create_product.Category).ID,
+		CategoryId: category.ID,
+		Category: category,
 	}
 	service.DB.
 		Table(service.TABLE).
-		Create(&new_product)
+		Create(&new_product).
+		Joins(service.CategoryServices.TABLE)
 	return new_product
 }

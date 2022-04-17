@@ -1,6 +1,9 @@
 package services
 
-import "github.com/giftxtrade/api/src/types"
+import (
+	"github.com/giftxtrade/api/src/types"
+	"github.com/google/uuid"
+)
 
 type CategoryServices struct {
 	Service
@@ -33,4 +36,14 @@ func (service *CategoryServices) FindAll() *[]types.Category {
 		Table(service.TABLE).
 		Find(&categories)
 	return &categories
+}
+
+func (service *CategoryServices) FindOrCreate(name string) types.Category {
+	category := service.Find(name)
+	if category.ID == uuid.Nil {
+		category = service.Create(&types.CreateCategory{
+			Name: name,
+		})
+	}
+	return category
 }

@@ -31,6 +31,7 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 	products_controller := controllers.ProductsController{
 		Controller: controller,
 		UserServices: app.UserServices,
+		ProductServices: app.ProductServices,
 	}
 	products_controller.CreateRoutes(router)
 

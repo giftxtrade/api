@@ -60,3 +60,16 @@ type CreateCategory struct {
 	Description string `json:"description"`
 	Url string `json:"url"`
 }
+
+type CreateProduct struct {
+	Title string `json:"title"`
+	Description string `json:"description"`
+	ProductKey string `json:"product_key"`
+	ImageUrl string `json:"image_url"`
+	Rating float32 `json:"rating"`
+	Price float32 `json:"price"`
+	OriginalUrl string `json:"original_url"`
+	WebsiteOrigin string `json:"website_origin"`
+	TotalReviews int `json:"total_reviews"`
+	Category string `json:"category"`
+}

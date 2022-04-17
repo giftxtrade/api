@@ -14,6 +14,7 @@ type AppBase struct {
 	types.AppContext
 	UserServices *services.UserService
 	CategoryServices *services.CategoryServices
+	ProductServices *services.ProductServices
 }
 
 type IAppBase interface {
@@ -34,6 +35,13 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 			DB: conn,
 			TABLE: "categories",
 		},
+	}
+	app.ProductServices = &services.ProductServices{
+		Service: services.Service{
+			DB: conn,
+			TABLE: "products",
+		},
+		CategoryServices: app.CategoryServices,
 	}
 	
 	tokens, tokens_err := utils.ParseTokens()

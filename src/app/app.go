@@ -13,7 +13,7 @@ import (
 type AppBase struct {
 	types.AppContext
 	UserServices *services.UserService
-	CategoryServices *services.CategoryService
+	CategoryServices *services.CategoryServices
 }
 
 type IAppBase interface {
@@ -29,7 +29,7 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 			TABLE: "users",
 		},
 	}
-	app.CategoryServices = &services.CategoryService{
+	app.CategoryServices = &services.CategoryServices{
 		Service: services.Service{
 			DB: conn,
 			TABLE: "categories",

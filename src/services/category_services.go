@@ -2,11 +2,11 @@ package services
 
 import "github.com/giftxtrade/api/src/types"
 
-type CategoryService struct {
+type CategoryServices struct {
 	Service
 }
 
-func (service *CategoryService) Create(create_category *types.CreateCategory) types.Category {
+func (service *CategoryServices) Create(create_category *types.CreateCategory) types.Category {
 	category := types.Category{
 		Name: create_category.Name,
 		Description: create_category.Description,
@@ -18,7 +18,7 @@ func (service *CategoryService) Create(create_category *types.CreateCategory) ty
 	return category
 }
 
-func (service *CategoryService) Find(name string) types.Category {
+func (service *CategoryServices) Find(name string) types.Category {
 	var category types.Category
 	service.DB.
 		Table(service.TABLE).
@@ -27,7 +27,7 @@ func (service *CategoryService) Find(name string) types.Category {
 	return category
 }
 
-func (service *CategoryService) FindAll() *[]types.Category {
+func (service *CategoryServices) FindAll() *[]types.Category {
 	var categories []types.Category
 	service.DB.
 		Table(service.TABLE).

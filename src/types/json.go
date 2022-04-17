@@ -69,7 +69,6 @@ type CreateProduct struct {
 	Rating float32 `json:"rating"`
 	Price float32 `json:"price"`
 	OriginalUrl string `json:"originalUrl"`
-	WebsiteOrigin string `json:"websiteOrigin"`
 	TotalReviews int `json:"totalReviews"`
 	Category string `json:"category"`
 }

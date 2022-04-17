@@ -1,7 +1,10 @@
 package services
 
 import (
+	"net/url"
+
 	"github.com/giftxtrade/api/src/types"
+	"github.com/google/uuid"
 )
 
 type ProductServices struct {
@@ -19,10 +22,17 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) type
 		Rating: create_product.Rating,
 		Price: create_product.Price,
 		OriginalUrl: create_product.OriginalUrl,
-		WebsiteOrigin: create_product.WebsiteOrigin,
 		TotalReviews: create_product.TotalReviews,
 		CategoryId: category.ID,
 		Category: category,
+	}
+
+	// add website origin
+	if create_product.OriginalUrl != "" {
+		parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
+		if err == nil {
+			new_product.WebsiteOrigin = parsed_url.Host
+		}
 	}
 	service.DB.
 		Table(service.TABLE).
@@ -32,12 +42,13 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) type
 }
 
 func (service *ProductServices) Find(key string) types.Product {
+	id, _ := uuid.Parse(key)
 	var product types.Product
 	service.DB.
 		Table(service.TABLE).
 		Preload("Category").
 		Joins("JOIN categories ON categories.id = products.category_id").
-		Where("products.id = ? OR products.product_key = ?", key, key).
+		Where("products.product_key = ? OR products.id = ?", key, id).
 		Find(&product)
 	return product
 }

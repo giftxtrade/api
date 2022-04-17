@@ -13,7 +13,7 @@ type Errors struct {
 }
 
 type DbConnection struct {
-	DbName string `json:"db_name"`
+	DbName string `json:"dbName"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Host string `json:"host"`
@@ -21,22 +21,22 @@ type DbConnection struct {
 }
 
 type TwitterKeys struct {
-	ApiKey string `json:"api_key"`
-	ApiKeySecret string `json:"api_key_secret"`
-	BearerToken string `json:"bearer_token"`
+	ApiKey string `json:"apiKey"`
+	ApiKeySecret string `json:"apiKeySecret"`
+	BearerToken string `json:"bearerToken"`
 }
 
 type GoogleKeys struct {
-	ClientId string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	ClientId string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
 }
 
 type SendgridKeys struct {
-	ApiKey string `json:"api_key"`
+	ApiKey string `json:"apiKey"`
 }
 
 type Tokens struct {
-	JwtKey string `json:"jwt_key"`
+	JwtKey string `json:"jwtKey"`
 	Twitter TwitterKeys `json:"twitter"`
 	Google GoogleKeys `json:"google"`
 	Sendgrid SendgridKeys `json:"sendgrid"`
@@ -52,7 +52,7 @@ type Auth struct {
 type CreateUser struct {
 	Name string `json:"name"`
 	Email string `json:"email"`
-	ImageUrl string `json:"image_url"`
+	ImageUrl string `json:"imageUrl"`
 }
 
 type CreateCategory struct {
@@ -64,12 +64,12 @@ type CreateCategory struct {
 type CreateProduct struct {
 	Title string `json:"title"`
 	Description string `json:"description"`
-	ProductKey string `json:"product_key"`
-	ImageUrl string `json:"image_url"`
+	ProductKey string `json:"productKey"`
+	ImageUrl string `json:"imageUrl"`
 	Rating float32 `json:"rating"`
 	Price float32 `json:"price"`
-	OriginalUrl string `json:"original_url"`
-	WebsiteOrigin string `json:"website_origin"`
-	TotalReviews int `json:"total_reviews"`
+	OriginalUrl string `json:"originalUrl"`
+	WebsiteOrigin string `json:"websiteOrigin"`
+	TotalReviews int `json:"totalReviews"`
 	Category string `json:"category"`
 }

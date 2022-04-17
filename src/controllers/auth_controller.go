@@ -32,7 +32,7 @@ func (ctx *AuthController) get_profile(w http.ResponseWriter, r *http.Request) {
 func (ctx *AuthController) sign_in(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	provider := params["provider"]
-	callback_url := r.URL.Query().Get("callback_url")
+	callback_url := r.URL.Query().Get("callbackUrl")
 
 	if callback_url != "" {
 		switch provider {

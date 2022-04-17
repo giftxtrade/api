@@ -9,8 +9,8 @@ import (
 
 type Base struct {
 	ID uuid.UUID `gorm:"type:uuid; primary key" json:"id"`
-	CreatedAt time.Time `gorm:"index; not null" json:"created_at"`
-	UpdatedAt time.Time `gorm:"index; not null" json:"updated_at"`
+	CreatedAt time.Time `gorm:"index; not null" json:"createdAt"`
+	UpdatedAt time.Time `gorm:"index; not null" json:"updatedAt"`
 }
 
 func (base *Base) BeforeCreate(tx *gorm.DB) error {
@@ -31,9 +31,9 @@ type User struct {
 	Base
 	Email string `gorm:"varchar(255); not null; index; unique" json:"email"`
 	Name string `gorm:"varchar(255); not null" json:"name"`
-	ImageUrl string `gorm:"varchar(255);" json:"image_url"`
+	ImageUrl string `gorm:"varchar(255);" json:"imageUrl"`
 	IsAdmin bool `gorm:"default: false" json:"-"`
-	IsActive bool `gorm:"default: false" json:"is_active"`
+	IsActive bool `gorm:"default: false" json:"isActive"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) error {
@@ -54,13 +54,13 @@ type Product struct {
 	Base
 	Title string `gorm:"type:text; not null; index" json:"title"`
 	Description string `gorm:"type:text" json:"description"`
-	ProductKey string `gorm:"type:varchar(255); not null; index" json:"product_key"`
-	ImageUrl string `gorm:"type:text" json:"image_url"`
+	ProductKey string `gorm:"type:varchar(255); not null; index" json:"productKey"`
+	ImageUrl string `gorm:"type:text" json:"imageUrl"`
 	Rating float32 `gorm:"type:float; not null; index" json:"rating"`
 	Price float32 `gorm:"type:float(2); not null; index" json:"price"`
-	OriginalUrl string `gorm:"type:text; not null" json:"original_url"`
-	WebsiteOrigin string `gorm:"type:varchar(255); not null" json:"website_origin"`
-	TotalReviews int `gorm:"not null" json:"total_reviews"`
+	OriginalUrl string `gorm:"type:text; not null" json:"originalUrl"`
+	WebsiteOrigin string `gorm:"type:varchar(255); not null" json:"websiteOrigin"`
+	TotalReviews int `gorm:"not null" json:"totalReviews"`
 	CategoryId uuid.UUID `gorm:"type:uuid; index" json:"-"`
 	Category Category `gorm:"foreignKey:CategoryId" json:"category"`
 }
@@ -70,7 +70,7 @@ type Event struct {
 	Name string `gorm:"type:varchar(255); not null" json:"name"`
 	Description string `gorm:"type:text" json:"description"`
 	Budget float32 `gorm:"type:float(2); not null; index" json:"budget"`
-	InviteMessage string `gorm:"type:text" json:"invite_message"`
-	DrawAt time.Time `gorm:"index; not null" json:"draw_at"`
-	CloseAt time.Time `gorm:"index; not null" json:"close_at"`
+	InviteMessage string `gorm:"type:text" json:"inviteMessage"`
+	DrawAt time.Time `gorm:"index; not null" json:"drawAt"`
+	CloseAt time.Time `gorm:"index; not null" json:"closeAt"`
 }

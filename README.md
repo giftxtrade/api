@@ -29,27 +29,29 @@ This project also uses a PostgreSQL database in order to run. To start, create a
 ```json
 {
     "host": "localhost",
-    "db_name": "[database name]",
+    "dbName": "[database name]",
     "username": "[database username]",
     "password": "[database password]",
     "port": "5432"
 }
 ```
 
+***Note:*** All database table and column names are represented in `snake_case`. While all json field names are represented using `camelCase`.
+
 #### `tokens.json`
 
 In addition to the `db_config.json`, you will also need to create a `tokens.json` file which will hold the JWT secret, note that this token should be a randomly generated value and must not be made public. The `token.json` file should contain the following:
 ```json
 {
-    "jwt_key": "[YOUR_SECRET_TOKEN]",
+    "jwtKey": "[YOUR SECRET TOKEN]",
     "twitter": {
-        "api_key": "[Twitter OAuth 1.0 API Key]",
-        "api_key_secret": "[Twitter OAuth 1.0 API Secret]",
-        "bearer_token": "[Twitter OAuth Bearer Token]",
+        "apiKey": "[Twitter OAuth 1.0 API Key]",
+        "apiKeySecret": "[Twitter OAuth 1.0 API Secret]",
+        "bearerToken": "[Twitter OAuth Bearer Token]",
     },
     "google": {
-        "client_id": "[Google Client Id]",
-        "client_secret": "[Google Secret Key]"
+        "clientId": "[Google Client Id]",
+        "clientSecret": "[Google Secret Key]"
     }
 }
 ```

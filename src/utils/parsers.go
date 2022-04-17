@@ -71,7 +71,7 @@ func GenerateJWT(key string, user *types.User) (string, error) {
 		"id": user.ID,
 		"name": user.Name,
 		"email": user.Email,
-		"image_url": user.ImageUrl,
+		"imageUrl": user.ImageUrl,
 	})
 	token, err := jwt.SignedString([]byte(key))
 	if err != nil {

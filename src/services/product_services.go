@@ -35,6 +35,7 @@ func (service *ProductServices) Find(key string) types.Product {
 	var product types.Product
 	service.DB.
 		Table(service.TABLE).
+		Preload("Category").
 		Joins("JOIN categories ON categories.id = products.category_id").
 		Where("products.id = ? OR products.product_key = ?", key, key).
 		Find(&product)

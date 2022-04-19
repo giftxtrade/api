@@ -48,7 +48,7 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	if tokens_err != nil {
 		panic(tokens_err)
 	}
-	app.Tokens = tokens
+	app.Tokens = &tokens
 
 	app.CreateSchemas() // create schemas
 	utils.SetupOauthProviders(tokens) // oauth providers

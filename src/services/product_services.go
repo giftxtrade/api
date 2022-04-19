@@ -24,7 +24,7 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) *typ
 		OriginalUrl: create_product.OriginalUrl,
 		TotalReviews: create_product.TotalReviews,
 		CategoryId: category.ID,
-		Category: category,
+		Category: *category,
 	}
 
 	// add website origin
@@ -81,7 +81,7 @@ func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProdu
 	if create_product.Category != product.Category.Name {
 		new_category := service.CategoryServices.FindOrCreate(create_product.Category)
 		product.CategoryId = new_category.ID
-		product.Category = new_category
+		product.Category = *new_category
 	}
 	service.DB.Save(&product)
 	return product

@@ -31,13 +31,13 @@ func UseJwtAuth(jwt_key string, user_services *services.UserService, next http.H
 
 			// Get user from id, username, email
 			user := user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
-			if user == (types.User{}) {
+			if *user == (types.User{}) {
 				FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), types.AuthKey, types.Auth{
 				Token: raw_token,
-				User: user,
+				User: *user,
 			}))
 			// Serve handler with updated request
 			next.ServeHTTP(w, r)

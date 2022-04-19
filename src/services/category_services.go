@@ -9,7 +9,7 @@ type CategoryServices struct {
 	Service
 }
 
-func (service *CategoryServices) Create(create_category *types.CreateCategory) types.Category {
+func (service *CategoryServices) Create(create_category *types.CreateCategory) *types.Category {
 	category := types.Category{
 		Name: create_category.Name,
 		Description: create_category.Description,
@@ -18,16 +18,16 @@ func (service *CategoryServices) Create(create_category *types.CreateCategory) t
 	service.DB.
 		Table(service.TABLE).
 		Create(&category)
-	return category
+	return &category
 }
 
-func (service *CategoryServices) Find(name string) types.Category {
+func (service *CategoryServices) Find(name string) *types.Category {
 	var category types.Category
 	service.DB.
 		Table(service.TABLE).
 		Where("name = ?", name).
 		First(&category)
-	return category
+	return &category
 }
 
 func (service *CategoryServices) FindAll() *[]types.Category {
@@ -38,7 +38,7 @@ func (service *CategoryServices) FindAll() *[]types.Category {
 	return &categories
 }
 
-func (service *CategoryServices) FindOrCreate(name string) types.Category {
+func (service *CategoryServices) FindOrCreate(name string) *types.Category {
 	category := service.Find(name)
 	if category.ID == uuid.Nil {
 		category = service.Create(&types.CreateCategory{

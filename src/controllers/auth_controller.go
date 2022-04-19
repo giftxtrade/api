@@ -32,8 +32,8 @@ func (ctx *AuthController) get_profile(w http.ResponseWriter, r *http.Request) {
 func (ctx *AuthController) sign_in(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	provider := params["provider"]
+	
 	callback_url := r.URL.Query().Get("callbackUrl")
-
 	if callback_url != "" {
 		switch provider {
 		case "google":
@@ -58,14 +58,14 @@ func (ctx *AuthController) callback(w http.ResponseWriter, r *http.Request) {
 		ImageUrl: provider_user.AvatarURL,
 	}
 	user := ctx.UserServices.FindOrCreate(&check_user)
-	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, &user)
+	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, user)
 	if err != nil {
 		utils.FailResponse(w, "could not generate token")
 		return
 	}
 	auth := types.Auth{
 		Token: token,
-		User: user,
+		User: *user,
 	}
-	utils.JsonResponse(w, auth)
+	utils.JsonResponse(w, &auth)
 }

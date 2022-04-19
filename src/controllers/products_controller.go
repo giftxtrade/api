@@ -18,8 +18,13 @@ type ProductsController struct {
 }
 
 func (ctx *ProductsController) CreateRoutes(router *mux.Router) {
+	router.Handle("/products", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.find_all_products))).Methods("GET")
 	router.Handle("/products", utils.UseAdminOnly(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.create_product))).Methods("POST")
 	router.Handle("/products/{id}", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.find_product))).Methods("GET")
+}
+
+func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.Request) {
+	utils.JsonResponse(w, types.Response{Message: "all products"})
 }
 
 func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +48,7 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 	}
 
 	new_product := ctx.ProductServices.CreateOrUpdate(&create_product)
-	utils.DataResponse(w, &new_product)
+	utils.DataResponse(w, new_product)
 }
 
 func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Request) {
@@ -54,5 +59,5 @@ func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Reque
 		utils.FailResponse(w, "product not found")
 		return
 	}
-	utils.DataResponse(w, &product)
+	utils.DataResponse(w, product)
 }

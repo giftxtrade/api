@@ -42,7 +42,7 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	new_product := ctx.ProductServices.Create(&create_product)
+	new_product := ctx.ProductServices.CreateOrUpdate(&create_product)
 	utils.DataResponse(w, &new_product)
 }
 

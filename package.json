@@ -14,12 +14,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ayaanqui/go-rest.git"
+        "url": "git+https://github.com/giftxtrade/api.git"
     },
     "author": "Ayaan Siddiqui",
     "license": "CC Attribution-NonCommercial-NoDerivatives 4.0",
     "bugs": {
-        "url": "https://github.com/ayaanqui/go-rest/issues"
+        "url": "https://github.com/giftxtrade/api/issues"
     },
-    "homepage": "https://github.com/ayaanqui/go-rest#readme"
+    "homepage": "https://github.com/giftxtrade/api#readme"
 }

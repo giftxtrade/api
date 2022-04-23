@@ -16,10 +16,10 @@ type AuthController struct {
 	UserServices *services.UserService
 }
 
-func (ctx *AuthController) CreateRoutes(router *mux.Router) {
-	router.Handle("/auth/profile", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.get_profile))).Methods("GET")
-	router.HandleFunc("/auth/{provider}", ctx.sign_in).Methods("GET")
-	router.HandleFunc("/auth/{provider}/callback", ctx.callback).Methods("GET")
+func (ctx *AuthController) CreateRoutes(router *mux.Router, path string) {
+	router.Handle(path + "/profile", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.get_profile))).Methods("GET")
+	router.HandleFunc(path + "/{provider}", ctx.sign_in).Methods("GET")
+	router.HandleFunc(path + "/{provider}/callback", ctx.callback).Methods("GET")
 }
 
 func (ctx *AuthController) get_profile(w http.ResponseWriter, r *http.Request) {

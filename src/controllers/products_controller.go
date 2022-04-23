@@ -17,10 +17,10 @@ type ProductsController struct {
 	ProductServices *services.ProductServices
 }
 
-func (ctx *ProductsController) CreateRoutes(router *mux.Router) {
-	router.Handle("/products", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.find_all_products))).Methods("GET")
-	router.Handle("/products", utils.UseAdminOnly(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.create_product))).Methods("POST")
-	router.Handle("/products/{id}", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.find_product))).Methods("GET")
+func (ctx *ProductsController) CreateRoutes(router *mux.Router, path string) {
+	router.Handle(path, utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.find_all_products))).Methods("GET")
+	router.Handle(path, utils.UseAdminOnly(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.create_product))).Methods("POST")
+	router.Handle(path + "/{id}", utils.UseJwtAuth(ctx.Tokens.JwtKey, ctx.UserServices, http.HandlerFunc(ctx.find_product))).Methods("GET")
 }
 
 func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.Request) {

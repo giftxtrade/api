@@ -26,14 +26,14 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 		Controller: controller,
 		UserServices: app.UserServices,
 	}
-	auth_controller.CreateRoutes(router)
+	auth_controller.CreateRoutes(router, "/auth")
 
 	products_controller := controllers.ProductsController{
 		Controller: controller,
 		UserServices: app.UserServices,
 		ProductServices: app.ProductServices,
 	}
-	products_controller.CreateRoutes(router)
+	products_controller.CreateRoutes(router, "/products")
 
 	return app
 }

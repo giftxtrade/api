@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/gorilla/mux"
@@ -32,6 +34,9 @@ func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
 		ProductServices: app.ProductServices,
 	}
 	products_controller.CreateRoutes(router, "/products")
+
+	// 404 page
+	router.NotFoundHandler = http.HandlerFunc(home_controller.NotFound)
 
 	return app
 }

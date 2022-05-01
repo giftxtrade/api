@@ -21,3 +21,9 @@ func (controller *HomeController) Home(w http.ResponseWriter, r *http.Request) {
 		Message: "GiftTrade REST API ⚡",
 	})
 }
+
+func (controller *HomeController) NotFound(w http.ResponseWriter, r *http.Request) {
+	utils.ResponseWithStatusCode(w, 404, types.Errors{
+		Errors: []string{"resource not found"},
+	})
+}

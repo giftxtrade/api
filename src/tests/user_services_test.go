@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func UserTestSetup(t *testing.T) (*services.UserService) {
+func test_setup(t *testing.T) (*services.UserService) {
 	db, err := NewMockDB(t)
 	if err != nil {
 		t.FailNow()
@@ -32,7 +32,7 @@ func UserTestSetup(t *testing.T) (*services.UserService) {
 }
 
 func TestCreateUser(t *testing.T) {
-	user_service := UserTestSetup(t)
+	user_service := test_setup(t)
 
 	expected := types.CreateUser{
 		Email: "john_doe@email.com",

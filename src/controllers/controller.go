@@ -46,8 +46,8 @@ func (ctx *Controller) UseJwtAuth(next http.Handler) http.Handler {
 			}
 
 			// Get user from id, username, email
-			user := user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
-			if *user == (types.User{}) {
+			user, err := user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
+			if err != nil {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}

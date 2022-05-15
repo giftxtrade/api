@@ -9,67 +9,73 @@ type UserService struct {
 }
 
 // Find user by either the id or email
-func (service *UserService) Find(key string) *types.User {
+func (service *UserService) Find(key string) (*types.User, error) {
 	var user types.User
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Where("id = ? OR email = ?", key, key).
-		First(&user)
-	return &user
+		First(&user).
+		Error
+	return &user, err
 }
 
-func (service *UserService) FindByEmail(email string) *types.User {
+func (service *UserService) FindByEmail(email string) (*types.User, error) {
 	var user types.User
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Where("email = ?", email).
-		First(&user)
-	return &user
+		First(&user).
+		Error
+	return &user, err
 }
 
-func (service *UserService) FindById(id string) *types.User {
+func (service *UserService) FindById(id string) (*types.User, error) {
 	var user types.User
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Where("id = ?", id).
-		First(&user)
-	return &user
+		First(&user).
+		Error
+	return &user, err
 }
 
-func (service *UserService) FindByIdAndEmail(id string, email string) *types.User {
+func (service *UserService) FindByIdAndEmail(id string, email string) (*types.User, error) {
 	var user types.User
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Where("id = ? AND email = ?", id, email).
-		First(&user)
-	return &user
+		First(&user).
+		Error
+	return &user, err
 }
 
-func (service *UserService) FindByIdOrEmail(id string, email string) *types.User {
+func (service *UserService) FindByIdOrEmail(id string, email string) (*types.User, error) {
 	var user types.User
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Where("id = ? OR email = ?", id, email).
-		First(user)
-	return &user
+		First(user).
+		Error
+	return &user, err
 }
 
-func (service *UserService) FindOrCreate(create_user *types.CreateUser) *types.User {
-	user := service.FindByEmail(create_user.Email)
+func (service *UserService) FindOrCreate(create_user *types.CreateUser) (*types.User, error) {
+	user, err := service.FindByEmail(create_user.Email)
 	if *user == (types.User{}) {
-		user = service.Create(create_user)
+		user, err = service.Create(create_user)
 	}
-	return user
+	return user, err
 }
 
-func (service *UserService) Create(create_user *types.CreateUser) *types.User {
+func (service *UserService) Create(create_user *types.CreateUser) (*types.User, error) {
 	user := types.User{
 		Name: create_user.Name,
 		Email: create_user.Email,
 		ImageUrl: create_user.ImageUrl,
 	}
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
-		Create(&user)
-	return &user
+		Create(&user).
+		Error
+	return &user, err
 }

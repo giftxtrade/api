@@ -7,6 +7,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
 
@@ -15,7 +16,15 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 	if (test_db == "") {
 		test_db = "giftxtrade_test_db"
 	}
-	db, err := utils.CreateDbConnection("localhost", "postgres", "password", test_db, "5432", false)
+	db, err := utils.CreateDbConnection(types.DbConnectionOptions{
+		Host: "localhost", 
+		User: "postgres", 
+		Password: "password", 
+		DbName: test_db, 
+		Port: "5432", 
+		SslMode: false, 
+		DisableLogger: true,
+	})
 	if (err != nil) {
 		fmt.Print(err)
 		t.FailNow()

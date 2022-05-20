@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"gorm.io/gorm"
@@ -10,7 +11,11 @@ import (
 )
 
 func NewMockDB(t *testing.T) (*gorm.DB, error) {
-	db, err := utils.CreateDbConnection("localhost", "postgres", "password", "giftxtrade_test_db", "5432", false)
+	test_db := os.Getenv("TEST_DB")
+	if (test_db == "") {
+		test_db = "giftxtrade_test_db"
+	}
+	db, err := utils.CreateDbConnection("localhost", "postgres", "password", test_db, "5432", false)
 	if (err != nil) {
 		fmt.Print(err)
 		t.FailNow()

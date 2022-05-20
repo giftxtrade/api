@@ -57,7 +57,7 @@ func (ctx *AuthController) callback(w http.ResponseWriter, r *http.Request) {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	user, err := ctx.UserServices.FindOrCreate(&check_user)
+	user, _, err := ctx.UserServices.FindOrCreate(&check_user)
 	if err != nil {
 		utils.FailResponse(w, "something went wrong")
 		return

@@ -59,12 +59,18 @@ func (service *UserService) FindByIdOrEmail(id string, email string) (*types.Use
 	return &user, err
 }
 
-func (service *UserService) FindOrCreate(create_user *types.CreateUser) (*types.User, error) {
+// finds a user by email or creates one if not found. 
+// boolean value is true if a new user is created, otherwise false
+func (service *UserService) FindOrCreate(create_user *types.CreateUser) (*types.User, bool, error) {
+	found := false
 	user, err := service.FindByEmail(create_user.Email)
 	if *user == (types.User{}) {
 		user, err = service.Create(create_user)
+		if err == nil {
+			found = true
+		}
 	}
-	return user, err
+	return user, found, err
 }
 
 func (service *UserService) Create(create_user *types.CreateUser) (*types.User, error) {

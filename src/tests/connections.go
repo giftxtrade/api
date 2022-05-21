@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/giftxtrade/api/src/app"
+	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -32,6 +33,17 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 		t.FailNow()
 	}
 	return db, nil
+}
+
+func SetupMockController(db *gorm.DB) *controllers.Controller {
+	return &controllers.Controller{
+		AppContext: types.AppContext{
+			DB: db,
+			Tokens: &types.Tokens{
+				JwtKey: "my-secret-jwt-token",
+			},
+		},
+	}
 }
 
 func SetupMockUserService(t *testing.T) (*services.UserService) {

@@ -45,28 +45,27 @@ func TestUserService(t *testing.T) {
 		ImageUrl: "https://images.com/test_user2",
 	}
 
-	t.Run("should create user", func(t *testing.T) {
-		new_user, err := user_service.Create(&test_user1)
+	t.Run("create user", func(t *testing.T) {
+		t.Run("should create user", func(t *testing.T) {
+			new_user, err := user_service.Create(&test_user1)
 
-		if err != nil {
-			fmt.Println("should not return an error", new_user, test_user1)
-			t.Fail()
-		}
+			if err != nil {
+				t.Fatal("should not return an error", new_user, test_user1)
+			}
 
-		if new_user.ID == uuid.Nil || new_user.Name != test_user1.Name || new_user.Email != test_user1.Email || new_user.ImageUrl != test_user1.ImageUrl || !new_user.IsActive || new_user.IsAdmin {
-			fmt.Println("user service create did not work", new_user, test_user1)
-			t.Fail()
-		}
+			if new_user.ID == uuid.Nil || new_user.Name != test_user1.Name || new_user.Email != test_user1.Email || new_user.ImageUrl != test_user1.ImageUrl || !new_user.IsActive || new_user.IsAdmin {
+				t.Fatal("user service create did not work", new_user, test_user1)
+			}
+		})
+
+		t.Run("should not create existing user", func(t *testing.T) {
+			if _, err := user_service.Create(&test_user1); err == nil {
+				t.Fatalf("should not create a new user")
+			}
+		})
 	})
 
-	t.Run("should not create new user", func(t *testing.T) {
-		if _, err := user_service.Create(&test_user1); err == nil {
-			fmt.Println("should not create a new user")
-			t.Fail()
-		}
-	})
-
-	t.Run("should find user", func(t *testing.T) {
+	t.Run("find user", func(t *testing.T) {
 		t.Run("should find by email", func(t *testing.T) {
 			user_by_email, err := user_service.FindByEmail(test_user1.Email)
 			if err != nil {
@@ -120,7 +119,7 @@ func TestUserService(t *testing.T) {
 		t.Run("should find with id and email", func(t *testing.T) {
 			_, err := user_service.FindByIdAndEmail(uuid.NewString(), test_user1.Email)
 			if err == nil {
-				t.Fatal(err)
+				t.Fatal("should not find a user with an empty uuid")
 			}
 
 			user_by_email, err := user_service.FindByEmail(test_user1.Email)
@@ -132,10 +131,17 @@ func TestUserService(t *testing.T) {
 			if err != nil || user.ID != user_by_email.ID || user.Email != user_by_email.Email {
 				t.Fatal(err, user, user_by_email)
 			}
+
+			_, err = user_service.FindByIdAndEmail(user.ID.String(), test_user2.Email)
+			if err == nil {
+				t.Fatal("should not find a user with id and email from different users")
+			}
 		})
+
+		t.Run("", func(t *testing.T) {})
 	})
 
-	t.Cleanup(func (){
+	t.Cleanup(func() {
 		user_service.DB.Exec(fmt.Sprintf("DELETE FROM %s", user_service.TABLE))
 	})
 }

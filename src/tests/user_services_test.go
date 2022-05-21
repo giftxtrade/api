@@ -96,6 +96,9 @@ func TestUserService(t *testing.T) {
 			if _, err = user_service.FindById(user_by_id.Email); err == nil {
 				t.Fatal(err)
 			}
+			if _, err = user_service.FindById("some random text that is not a uuid"); err == nil {
+				t.Fatal(err)
+			}
 		})
 
 		t.Run("should find or create", func(t *testing.T) {
@@ -136,25 +139,10 @@ func TestUserService(t *testing.T) {
 			if err == nil {
 				t.Fatal("should not find a user with id and email from different users")
 			}
-		})
 
-		t.Run("should find user with any primary key", func(t *testing.T) {
-			if _, err := user_service.Find("random key"); err == nil {
-				t.Fatal("user should not exist")
-			}
-			if _, err := user_service.Find(uuid.NewString()); err == nil {
-				t.Fatal("user should not exist")
-			}
-
-			test_user, _ := user_service.FindByEmail(test_user2.Email)
-
-			u1, err1 := user_service.Find(test_user.Email)
-			u2, err2 := user_service.Find(test_user.ID.String())
-			if err1 != nil || err2 != nil {
-				t.Fatal(err1, err2)
-			}
-			if u1.Email != u2.Email || u1.ID != u2.ID {
-				t.Fatal("both users should match")
+			_, err = user_service.FindByIdAndEmail("not a uuid", test_user2.Email)
+			if err == nil {
+				t.Fatal(err)
 			}
 		})
 	})

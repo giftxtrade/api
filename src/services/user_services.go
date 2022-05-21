@@ -8,17 +8,6 @@ type UserService struct {
 	Service
 }
 
-// Find user by either the id or email
-func (service *UserService) Find(key string) (*types.User, error) {
-	var user types.User
-	err := service.DB.
-		Table(service.TABLE).
-		Where("id = ? OR email = ?", key, key).
-		First(&user).
-		Error
-	return &user, err
-}
-
 func (service *UserService) FindByEmail(email string) (*types.User, error) {
 	var user types.User
 	err := service.DB.

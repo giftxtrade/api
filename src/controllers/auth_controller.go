@@ -17,19 +17,19 @@ type AuthController struct {
 }
 
 func (ctx *AuthController) CreateRoutes(router *mux.Router, path string) {
-	router.Handle(path + "/profile", ctx.Controller.UseJwtAuth(http.HandlerFunc(ctx.get_profile))).Methods("GET")
-	router.HandleFunc(path + "/{provider}", ctx.sign_in).Methods("GET")
-	router.HandleFunc(path + "/{provider}/callback", ctx.callback).Methods("GET")
+	router.Handle(path + "/profile", ctx.Controller.UseJwtAuth(http.HandlerFunc(ctx.GetProfile))).Methods("GET")
+	router.HandleFunc(path + "/{provider}", ctx.SignIn).Methods("GET")
+	router.HandleFunc(path + "/{provider}/callback", ctx.Callback).Methods("GET")
 }
 
-func (ctx *AuthController) get_profile(w http.ResponseWriter, r *http.Request) {
+func (ctx *AuthController) GetProfile(w http.ResponseWriter, r *http.Request) {
 	auth := utils.ParseAuthContext(r.Context())
 	utils.DataResponse(w, &auth)
 }
 
 
 // [GET] /auth/{provider}
-func (ctx *AuthController) sign_in(w http.ResponseWriter, r *http.Request) {
+func (ctx *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	provider := params["provider"]
 	
@@ -44,8 +44,8 @@ func (ctx *AuthController) sign_in(w http.ResponseWriter, r *http.Request) {
 	gothic.BeginAuthHandler(w, r)
 }
 
-// [GET] /auth/{provider}/callback
-func (ctx *AuthController) callback(w http.ResponseWriter, r *http.Request) {
+// [GET] /auth/{provider}/Callback
+func (ctx *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 	provider_user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		utils.FailResponse(w, "could not complete authentication")

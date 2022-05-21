@@ -43,7 +43,7 @@ func (service *UserService) FindByIdOrEmail(id string, email string) (*types.Use
 	err := service.DB.
 		Table(service.TABLE).
 		Where("id = ? OR email = ?", id, email).
-		First(user).
+		First(&user).
 		Error
 	return &user, err
 }

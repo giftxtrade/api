@@ -119,10 +119,9 @@ func TestUserService(t *testing.T) {
 			}
 		})
 
-		t.Run("should find with id and email", func(t *testing.T) {
-			_, err := user_service.FindByIdAndEmail(uuid.NewString(), test_user1.Email)
-			if err == nil {
-				t.Fatal("should not find a user with an empty uuid")
+		t.Run("should find with id and email", func(t *testing.T) {	
+			if _, err := user_service.FindByIdAndEmail(uuid.NewString(), test_user1.Email); err == nil {
+				t.Fatal("should not find a user with an non existing or matching uuid")
 			}
 
 			user_by_email, err := user_service.FindByEmail(test_user1.Email)
@@ -134,15 +133,35 @@ func TestUserService(t *testing.T) {
 			if err != nil || user.ID != user_by_email.ID || user.Email != user_by_email.Email {
 				t.Fatal(err, user, user_by_email)
 			}
-
-			_, err = user_service.FindByIdAndEmail(user.ID.String(), test_user2.Email)
-			if err == nil {
+			
+			if _, err = user_service.FindByIdAndEmail(user.ID.String(), test_user2.Email); err == nil {
 				t.Fatal("should not find a user with id and email from different users")
 			}
 
-			_, err = user_service.FindByIdAndEmail("not a uuid", test_user2.Email)
-			if err == nil {
+			if _, err = user_service.FindByIdAndEmail("not a uuid", test_user2.Email); err == nil {
 				t.Fatal(err)
+			}
+		})
+
+		t.Run("should find by id or email", func(t *testing.T) {
+			if _, err := user_service.FindByIdOrEmail("not a uuid", test_user1.Email); err == nil {
+				t.Fatal(err)
+			}
+
+			user1, err := user_service.FindByIdOrEmail(uuid.NewString(), test_user1.Email)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if user1.Email != test_user1.Email {
+				t.Fatal("email does not match", user1, test_user1)
+			}
+
+			user2, err := user_service.FindByIdOrEmail(user1.ID.String(), "not an email")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if user2.Email != test_user1.Email {
+				t.Fatal("email does not match", user1, test_user1)
 			}
 		})
 	})

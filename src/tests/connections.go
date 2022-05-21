@@ -7,6 +7,8 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/giftxtrade/api/src/app"
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
@@ -30,4 +32,24 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 		t.FailNow()
 	}
 	return db, nil
+}
+
+func SetupMockUserService(t *testing.T) (*services.UserService) {
+	db, err := NewMockDB(t)
+	if err != nil {
+		t.FailNow()
+	}
+
+	if app.AutoMigrate(db) != nil {
+		t.Fatal("migration failed")
+	}
+
+	db.Exec("delete from users")
+
+	return &services.UserService{
+		Service: services.Service{
+			DB: db,
+			TABLE: "users",
+		},
+	}
 }

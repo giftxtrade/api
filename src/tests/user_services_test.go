@@ -4,34 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/giftxtrade/api/src/app"
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/google/uuid"
 )
 
-func test_setup(t *testing.T) (*services.UserService) {
-	db, err := NewMockDB(t)
-	if err != nil {
-		t.FailNow()
-	}
-
-	if app.AutoMigrate(db) != nil {
-		t.Fatal("migration failed")
-	}
-
-	db.Exec("delete from users")
-
-	return &services.UserService{
-		Service: services.Service{
-			DB: db,
-			TABLE: "users",
-		},
-	}
-}
-
 func TestUserService(t *testing.T) {
-	user_service := test_setup(t)
+	user_service := SetupMockUserService(t)
 
 	test_user1 := types.CreateUser{
 		Email: "john_doe@email.com",

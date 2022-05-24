@@ -19,7 +19,7 @@ func TestAuthController(t *testing.T) {
 		Controller: *SetupMockController(user_service.DB),
 		UserServices: user_service,
 	}
-	token := "my-jwt-token"
+	token := auth_controller.Tokens.JwtKey
 
 	t.Run("auth middleware", func(t *testing.T) {
 		t.Run("should throw status 401", func(t *testing.T) {
@@ -54,6 +54,37 @@ func TestAuthController(t *testing.T) {
 				}
 			})
 		})
+
+		t.Run("should authenticate with status 200", func(t *testing.T) {
+			req, err := http.NewRequest("GET", "/auth/profile", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			user, _, err := user_service.FindOrCreate(&types.CreateUser{
+				Name: "Naruto Uzumaki",
+				Email: "naruto_uzumaki@gmail.com",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			jwt, err := utils.GenerateJWT(token, user)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			req.Header.Set("Authorization", "Bearer " + jwt)
+			rr := httptest.NewRecorder()
+			handler := http.Handler(auth_controller.Controller.UseJwtAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+			})))
+			handler.ServeHTTP(rr, req)
+
+			if rr.Result().StatusCode == 401 {
+				t.Fatal("status code must be 200 for valid JWT", jwt, rr.Result().StatusCode)
+			}
+		})
+	})
 
 	t.Run("[GET] /auth/profile", func(t *testing.T) {
 		t.Run("should return auth struct", func(t *testing.T) {

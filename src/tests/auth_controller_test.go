@@ -11,6 +11,7 @@ import (
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
+	"github.com/google/uuid"
 )
 
 func TestAuthController(t *testing.T) {
@@ -51,6 +52,36 @@ func TestAuthController(t *testing.T) {
 
 				if rr.Result().StatusCode != 401 {
 					t.Fatal("status code must be a 401")
+				}
+			})
+
+			t.Run("invalid jwt", func(t *testing.T) {
+				req, err := http.NewRequest("GET", "/auth/profile", nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				jwt, err := utils.GenerateJWT(token, &types.User{
+					Base: types.Base{
+						ID: uuid.New(),
+					},
+					Name: "New User 1",
+					Email: "new_user1@email.com",
+					IsActive: true,
+				})
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				req.Header.Set("Authorization", "Bearer " + jwt)
+				rr := httptest.NewRecorder()
+				handler := http.Handler(auth_controller.Controller.UseJwtAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+				})))
+				handler.ServeHTTP(rr, req)
+
+				if rr.Result().StatusCode == 200 {
+					t.Fatal("jwt claims must exist in database")
 				}
 			})
 		})

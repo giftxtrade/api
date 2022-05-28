@@ -115,6 +115,74 @@ func TestAuthController(t *testing.T) {
 				t.Fatal("status code must be 200 for valid JWT", jwt, rr.Result().StatusCode)
 			}
 		})
+
+		t.Run("admin only authentication", func(t *testing.T) {
+			t.Run("non admin user", func(t *testing.T) {
+				req, err := http.NewRequest("GET", "/auth/profile", nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				user, _, err := user_service.FindOrCreate(&types.CreateUser{
+					Name: "Non Admin User",
+					Email: "non_admin_user@gmail.com",
+				})
+				if err != nil {
+					t.Fatal(err)
+				}
+				jwt, err := utils.GenerateJWT(token, user)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				req.Header.Set("Authorization", "Bearer " + jwt)
+				rr := httptest.NewRecorder()
+				handler := http.Handler(auth_controller.Controller.UseAdminOnly(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+				})))
+				handler.ServeHTTP(rr, req)
+
+				if rr.Result().StatusCode != 401 {
+					t.Fatal("user is not an admin so should not authenticate")
+				}
+			})
+
+			t.Run("admin user", func(t *testing.T) {
+				req, err := http.NewRequest("GET", "/auth/profile", nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				user, _, err := user_service.FindOrCreate(&types.CreateUser{
+					Name: "Admin User",
+					Email: "admin_user@gmail.com",
+				})
+				if err != nil {
+					t.Fatal(err)
+				}
+				// set user to admin
+				user.IsAdmin = true
+				if user_service.DB.Save(&user).Error != nil {
+					t.Fatal("could not update user admin level")
+				}
+
+				jwt, err := utils.GenerateJWT(token, user)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				req.Header.Set("Authorization", "Bearer " + jwt)
+				rr := httptest.NewRecorder()
+				handler := http.Handler(auth_controller.Controller.UseAdminOnly(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+				})))
+				handler.ServeHTTP(rr, req)
+
+				if rr.Result().StatusCode != 200 {
+					t.Fatal("user is admin, should return status code 200.")
+				}
+			})
+		})
 	})
 
 	t.Run("[GET] /auth/profile", func(t *testing.T) {

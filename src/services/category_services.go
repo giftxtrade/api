@@ -1,49 +1,60 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/giftxtrade/api/src/types"
-	"github.com/google/uuid"
 )
 
 type CategoryServices struct {
 	Service
 }
 
-func (service *CategoryServices) Create(create_category *types.CreateCategory) *types.Category {
+func (service *CategoryServices) Create(create_category *types.CreateCategory) (*types.Category, error) {
+	if create_category.Name == "" {
+		return nil, fmt.Errorf("at least CreateCategory.Name must be provided")
+	}
+
 	category := types.Category{
 		Name: create_category.Name,
 		Description: create_category.Description,
 		Url: create_category.Url,
 	}
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
-		Create(&category)
-	return &category
+		Create(&category).
+		Error
+	return &category, err
 }
 
-func (service *CategoryServices) Find(name string) *types.Category {
+func (service *CategoryServices) Find(name string) (*types.Category, error) {
 	var category types.Category
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Where("name = ?", name).
-		First(&category)
-	return &category
+		First(&category).
+		Error
+	return &category, err
 }
 
-func (service *CategoryServices) FindAll() *[]types.Category {
-	var categories []types.Category
-	service.DB.
+func (service *CategoryServices) FindAll() (*[]types.Category, error) {
+	categories := new([]types.Category)
+	err := service.DB.
 		Table(service.TABLE).
-		Find(&categories)
-	return &categories
+		Find(categories).
+		Error
+	return categories, err
 }
 
-func (service *CategoryServices) FindOrCreate(name string) *types.Category {
-	category := service.Find(name)
-	if category.ID == uuid.Nil {
-		category = service.Create(&types.CreateCategory{
+func (service *CategoryServices) FindOrCreate(name string) (*types.Category, error) {
+	category, err := service.Find(name)
+	if err != nil {
+		category, err = service.Create(&types.CreateCategory{
 			Name: name,
 		})
+		if err != nil {
+			return nil, err
+		}
 	}
-	return category
+	return category, nil
 }

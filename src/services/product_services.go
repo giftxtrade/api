@@ -12,8 +12,11 @@ type ProductServices struct {
 	CategoryServices *CategoryServices
 }
 
-func (service *ProductServices) Create(create_product *types.CreateProduct) *types.Product {
-	category := service.CategoryServices.FindOrCreate(create_product.Category)
+func (service *ProductServices) Create(create_product *types.CreateProduct) (*types.Product, error) {
+	category, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
+	if category_err != nil {
+		return nil, category_err
+	}
 	new_product := types.Product{
 		Title: create_product.Title,
 		Description: create_product.Description,
@@ -32,30 +35,34 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) *typ
 		parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
 		if err == nil {
 			new_product.WebsiteOrigin = parsed_url.Host
+		} else {
+			return nil, err
 		}
 	}
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Create(&new_product).
-		Joins(service.CategoryServices.TABLE)
-	return &new_product
+		Joins(service.CategoryServices.TABLE).
+		Error
+	return &new_product, err
 }
 
-func (service *ProductServices) Find(key string) *types.Product {
+func (service *ProductServices) Find(key string) (*types.Product, error) {
 	id, _ := uuid.Parse(key)
 	var product types.Product
-	service.DB.
+	err := service.DB.
 		Table(service.TABLE).
 		Preload("Category").
 		Joins("JOIN categories ON categories.id = products.category_id").
 		Where("products.product_key = ? OR products.id = ?", key, id).
-		Find(&product)
-	return &product
+		Find(&product).
+		Error
+	return &product, err
 }
 
-func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProduct) *types.Product {
-	product := service.Find(create_product.ProductKey)
-	if product.ID == uuid.Nil {
+func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProduct) (*types.Product, error) {
+	product, err := service.Find(create_product.ProductKey)
+	if err != nil {
 		return service.Create(create_product)
 	}
 	
@@ -79,10 +86,12 @@ func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProdu
 		product.TotalReviews = create_product.TotalReviews
 	}
 	if create_product.Category != product.Category.Name {
-		new_category := service.CategoryServices.FindOrCreate(create_product.Category)
-		product.CategoryId = new_category.ID
-		product.Category = *new_category
+		new_category, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
+		if category_err == nil {
+			product.CategoryId = new_category.ID
+			product.Category = *new_category
+		}
 	}
-	service.DB.Save(&product)
-	return product
+	err = service.DB.Save(&product).Error
+	return product, err
 }

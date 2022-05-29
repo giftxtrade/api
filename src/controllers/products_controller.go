@@ -7,7 +7,6 @@ import (
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -47,15 +46,18 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	new_product := ctx.ProductServices.CreateOrUpdate(&create_product)
+	new_product, err := ctx.ProductServices.CreateOrUpdate(&create_product)
+	if err != nil {
+		utils.FailResponse(w, []string{"could not create product", err.Error()})
+	}
 	utils.DataResponse(w, new_product)
 }
 
 func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Request) {
 	query_params := mux.Vars(r)
 	id := query_params["id"]
-	product := ctx.ProductServices.Find(id)
-	if product.ID == uuid.Nil {
+	product, err := ctx.ProductServices.Find(id)
+	if err != nil {
 		utils.FailResponse(w, "product not found")
 		return
 	}

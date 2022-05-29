@@ -9,7 +9,7 @@ import (
 )
 
 func TestUserService(t *testing.T) {
-	user_service := SetupMockUserService(t)
+	user_service := SetupMockUserServices(t)
 
 	test_user1 := types.CreateUser{
 		Email: "john_doe@email.com",

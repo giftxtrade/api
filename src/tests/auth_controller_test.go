@@ -15,7 +15,7 @@ import (
 )
 
 func TestAuthController(t *testing.T) {
-	user_service := SetupMockUserService(t)
+	user_service := SetupMockUserServices(t)
 	auth_controller := controllers.AuthController{
 		Controller: *SetupMockController(user_service.DB),
 		UserServices: user_service,

@@ -9,15 +9,13 @@ import (
 
 type Base struct {
 	ID uuid.UUID `gorm:"type:uuid; primary key" json:"id"`
-	CreatedAt time.Time `gorm:"index; not null" json:"createdAt"`
-	UpdatedAt time.Time `gorm:"index; not null" json:"updatedAt"`
+	CreatedAt time.Time `gorm:"index; not null; default: now()" json:"createdAt"`
+	UpdatedAt time.Time `gorm:"index; not null; default: now()" json:"updatedAt"`
 }
 
 func (base *Base) BeforeCreate(tx *gorm.DB) error {
 	if base.ID == uuid.Nil {
 		base.ID = uuid.New()
-		base.CreatedAt = time.Now()
-		base.UpdatedAt = time.Now()
 	}
 	return nil
 }

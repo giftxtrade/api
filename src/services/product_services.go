@@ -54,7 +54,7 @@ func (service *ProductServices) Find(key string) (*types.Product, error) {
 		Preload("Category").
 		Joins("JOIN categories ON categories.id = products.category_id").
 		Where("products.product_key = ? OR products.id = ?", key, id).
-		Find(&product).
+		First(&product).
 		Error
 	return &product, err
 }
@@ -66,33 +66,44 @@ func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProdu
 	}
 	
 	// product already exists, so update...
+	changed := false
 	if create_product.Title != product.Title {
 		product.Title = create_product.Title
+		changed = true
 	}
 	if create_product.Description != product.Description {
 		product.Description = create_product.Description
+		changed = true
 	}
 	if create_product.ImageUrl != product.ImageUrl {
 		product.ImageUrl = create_product.ImageUrl
+		changed = true
 	}
 	if create_product.Price != product.Price {
 		product.Price = create_product.Price
+		changed = true
 	}
 	if create_product.Rating != product.Rating {
 		product.Rating = create_product.Rating
+		changed = true
 	}
 	if create_product.TotalReviews != product.TotalReviews {
 		product.TotalReviews = create_product.TotalReviews
+		changed = true
 	}
 	if create_product.Category != product.Category.Name {
 		new_category, _, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
 		if category_err == nil {
 			product.CategoryId = new_category.ID
 			product.Category = *new_category
+			changed = true
 		}
 	}
-	err = service.DB.
-		Save(product).
-		Error
+
+	if changed {
+		err = service.DB.
+			Save(product).
+			Error
+	}
 	return product, err
 }

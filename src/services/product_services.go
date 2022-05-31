@@ -13,7 +13,7 @@ type ProductServices struct {
 }
 
 func (service *ProductServices) Create(create_product *types.CreateProduct) (*types.Product, error) {
-	category, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
+	category, _, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
 	if category_err != nil {
 		return nil, category_err
 	}
@@ -86,7 +86,7 @@ func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProdu
 		product.TotalReviews = create_product.TotalReviews
 	}
 	if create_product.Category != product.Category.Name {
-		new_category, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
+		new_category, _, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
 		if category_err == nil {
 			product.CategoryId = new_category.ID
 			product.Category = *new_category

@@ -46,15 +46,18 @@ func (service *CategoryServices) FindAll() (*[]types.Category, error) {
 	return categories, err
 }
 
-func (service *CategoryServices) FindOrCreate(name string) (*types.Category, error) {
+// find or create a new category
+// boolean value is true if a new user is created, otherwise false
+func (service *CategoryServices) FindOrCreate(name string) (*types.Category, bool, error) {
 	category, err := service.Find(name)
 	if err != nil {
 		category, err = service.Create(&types.CreateCategory{
 			Name: name,
 		})
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
+		return category, true, nil
 	}
-	return category, nil
+	return category, false, nil
 }

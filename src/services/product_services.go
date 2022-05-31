@@ -42,7 +42,6 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) (*ty
 	err := service.DB.
 		Table(service.TABLE).
 		Create(&new_product).
-		Joins(service.CategoryServices.TABLE).
 		Error
 	return &new_product, err
 }
@@ -92,6 +91,8 @@ func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProdu
 			product.Category = *new_category
 		}
 	}
-	err = service.DB.Save(&product).Error
+	err = service.DB.
+		Save(product).
+		Error
 	return product, err
 }

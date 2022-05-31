@@ -49,6 +49,7 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 	new_product, err := ctx.ProductServices.CreateOrUpdate(&create_product)
 	if err != nil {
 		utils.FailResponse(w, []string{"could not create product", err.Error()})
+		return
 	}
 	utils.DataResponse(w, new_product)
 }

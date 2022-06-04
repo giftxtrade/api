@@ -45,7 +45,7 @@ type Category struct {
 	Name string `gorm:"type:varchar(30); not null; index; unique" json:"name"`
 	Description string `gorm:"type:text; default: ''" json:"description"`
 	Url string `gorm:"type:text" json:"url"`
-	Products []Product `json:"products"`
+	Products []Product `json:"products,omitempty"`
 }
 
 type Product struct {

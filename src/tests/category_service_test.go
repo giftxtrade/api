@@ -7,8 +7,8 @@ import (
 	"github.com/giftxtrade/api/src/types"
 )
 
-func TestCategoryServices(t *testing.T) {
-	category_services := SetupMockCategoryServices(t)
+func TestCategoryService(t *testing.T) {
+	category_service := SetupMockCategoryService(t)
 
 	input := types.CreateCategory{
 		Name: "Fashion",
@@ -19,9 +19,9 @@ func TestCategoryServices(t *testing.T) {
 	t.Run("create category", func(t *testing.T) {
 		t.Run("should create", func(t *testing.T) {
 			t.Cleanup(func() {
-				category_services.DB.Exec("delete from categories")
+				category_service.DB.Exec("delete from categories")
 			})
-			input_created, err := category_services.Create(&input)
+			input_created, err := category_service.Create(&input)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -34,7 +34,7 @@ func TestCategoryServices(t *testing.T) {
 			input := types.CreateCategory{
 				Name: "",
 			}
-			created, err := category_services.Create(&input)
+			created, err := category_service.Create(&input)
 			if err == nil || created != nil {
 				t.Fatal(err.Error())
 			}
@@ -43,12 +43,12 @@ func TestCategoryServices(t *testing.T) {
 
 	t.Run("find category", func(t *testing.T) {
 		t.Run("should return created category", func(t *testing.T) {
-			input_created, err := category_services.Create(&input)
+			input_created, err := category_service.Create(&input)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
 
-			found_category, err := category_services.Find(input_created.Name)
+			found_category, err := category_service.Find(input_created.Name)
 			if err != nil {
 				t.Fatal(err)
 			}

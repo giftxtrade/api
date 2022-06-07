@@ -6,11 +6,11 @@ import (
 	"github.com/giftxtrade/api/src/types"
 )
 
-type CategoryServices struct {
+type CategoryService struct {
 	Service
 }
 
-func (service *CategoryServices) Create(create_category *types.CreateCategory) (*types.Category, error) {
+func (service *CategoryService) Create(create_category *types.CreateCategory) (*types.Category, error) {
 	if create_category.Name == "" {
 		return nil, fmt.Errorf("at least CreateCategory.Name must be provided")
 	}
@@ -27,7 +27,7 @@ func (service *CategoryServices) Create(create_category *types.CreateCategory) (
 	return &category, err
 }
 
-func (service *CategoryServices) Find(name string) (*types.Category, error) {
+func (service *CategoryService) Find(name string) (*types.Category, error) {
 	var category types.Category
 	err := service.DB.
 		Table(service.TABLE).
@@ -37,7 +37,7 @@ func (service *CategoryServices) Find(name string) (*types.Category, error) {
 	return &category, err
 }
 
-func (service *CategoryServices) FindAll() (*[]types.Category, error) {
+func (service *CategoryService) FindAll() (*[]types.Category, error) {
 	categories := new([]types.Category)
 	err := service.DB.
 		Table(service.TABLE).
@@ -48,7 +48,7 @@ func (service *CategoryServices) FindAll() (*[]types.Category, error) {
 
 // find or create a new category
 // boolean value is true if a new user is created, otherwise false
-func (service *CategoryServices) FindOrCreate(name string) (*types.Category, bool, error) {
+func (service *CategoryService) FindOrCreate(name string) (*types.Category, bool, error) {
 	category, err := service.Find(name)
 	if err != nil {
 		category, err = service.Create(&types.CreateCategory{

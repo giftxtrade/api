@@ -13,7 +13,7 @@ import (
 type ProductsController struct {
 	Controller
 	UserServices *services.UserService
-	ProductServices *services.ProductServices
+	ProductServices *services.ProductService
 }
 
 func (ctx *ProductsController) CreateRoutes(router *mux.Router, path string) {

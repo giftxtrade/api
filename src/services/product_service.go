@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type ProductServices struct {
+type ProductService struct {
 	Service
-	CategoryServices *CategoryServices
+	CategoryServices *CategoryService
 }
 
-func (service *ProductServices) Create(create_product *types.CreateProduct) (*types.Product, error) {
+func (service *ProductService) Create(create_product *types.CreateProduct) (*types.Product, error) {
 	category, _, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
 	if category_err != nil {
 		return nil, category_err
@@ -46,7 +46,7 @@ func (service *ProductServices) Create(create_product *types.CreateProduct) (*ty
 	return &new_product, err
 }
 
-func (service *ProductServices) Find(key string) (*types.Product, error) {
+func (service *ProductService) Find(key string) (*types.Product, error) {
 	id, _ := uuid.Parse(key)
 	var product types.Product
 	err := service.DB.
@@ -59,7 +59,7 @@ func (service *ProductServices) Find(key string) (*types.Product, error) {
 	return &product, err
 }
 
-func (service *ProductServices) CreateOrUpdate(create_product *types.CreateProduct) (*types.Product, error) {
+func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduct) (*types.Product, error) {
 	product, err := service.Find(create_product.ProductKey)
 	if err != nil {
 		return service.Create(create_product)

@@ -60,7 +60,7 @@ func SetupMockController(db *gorm.DB) *controllers.Controller {
 	}
 }
 
-func SetupMockUserServices(t *testing.T) (*services.UserService) {
+func SetupMockUserService(t *testing.T) (*services.UserService) {
 	db := MockMigration(t, func(db *gorm.DB) {
 		db.Exec("delete from users")
 	})
@@ -73,12 +73,12 @@ func SetupMockUserServices(t *testing.T) (*services.UserService) {
 	}
 }
 
-func SetupMockCategoryServices(t *testing.T) (*services.CategoryServices) {
+func SetupMockCategoryService(t *testing.T) (*services.CategoryService) {
 	db := MockMigration(t, func(db *gorm.DB) {
 		db.Exec("delete from categories")
 	})
 
-	return &services.CategoryServices{
+	return &services.CategoryService{
 		Service: services.Service{
 			DB: db,
 			TABLE: "categories",

@@ -79,3 +79,14 @@ func SetupMockCategoryService(t *testing.T) (*services.CategoryService) {
 		Service: *services.New(db, "categories"),
 	}
 }
+
+func SetupMockProductService(t *testing.T) (*services.ProductService) {
+	db := MockMigration(t, func(db *gorm.DB) {
+		db.Exec("delete from products")
+	})
+
+	return &services.ProductService{
+		Service: *services.New(db, "products"),
+		CategoryService: SetupMockCategoryService(t),
+	}
+}

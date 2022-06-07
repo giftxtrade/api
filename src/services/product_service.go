@@ -9,11 +9,11 @@ import (
 
 type ProductService struct {
 	Service
-	CategoryServices *CategoryService
+	CategoryService *CategoryService
 }
 
 func (service *ProductService) Create(create_product *types.CreateProduct) (*types.Product, error) {
-	category, _, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
+	category, _, category_err := service.CategoryService.FindOrCreate(create_product.Category)
 	if category_err != nil {
 		return nil, category_err
 	}
@@ -92,7 +92,7 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 		changed = true
 	}
 	if create_product.Category != product.Category.Name {
-		new_category, _, category_err := service.CategoryServices.FindOrCreate(create_product.Category)
+		new_category, _, category_err := service.CategoryService.FindOrCreate(create_product.Category)
 		if category_err == nil {
 			product.CategoryId = new_category.ID
 			product.Category = *new_category

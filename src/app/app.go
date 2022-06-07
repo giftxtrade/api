@@ -32,7 +32,7 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	}
 	app.ProductServices = &services.ProductService{
 		Service: *services.New(conn, "products"),
-		CategoryServices: app.CategoryServices,
+		CategoryService: app.CategoryServices,
 	}
 	
 	tokens, tokens_err := utils.ParseTokens()

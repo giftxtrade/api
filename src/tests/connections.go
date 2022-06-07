@@ -66,10 +66,7 @@ func SetupMockUserService(t *testing.T) (*services.UserService) {
 	})
 
 	return &services.UserService{
-		Service: services.Service{
-			DB: db,
-			TABLE: "users",
-		},
+		Service: *services.New(db, "users"),
 	}
 }
 
@@ -79,9 +76,6 @@ func SetupMockCategoryService(t *testing.T) (*services.CategoryService) {
 	})
 
 	return &services.CategoryService{
-		Service: services.Service{
-			DB: db,
-			TABLE: "categories",
-		},
+		Service: *services.New(db, "categories"),
 	}
 }

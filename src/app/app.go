@@ -25,22 +25,13 @@ type IAppBase interface {
 func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 	app.DB = conn
 	app.UserServices = &services.UserService{
-		Service: services.Service{
-			DB: conn,
-			TABLE: "users",
-		},
+		Service: *services.New(conn, "users"),
 	}
 	app.CategoryServices = &services.CategoryService{
-		Service: services.Service{
-			DB: conn,
-			TABLE: "categories",
-		},
+		Service: *services.New(conn, "categories"),
 	}
 	app.ProductServices = &services.ProductService{
-		Service: services.Service{
-			DB: conn,
-			TABLE: "products",
-		},
+		Service: *services.New(conn, "products"),
 		CategoryServices: app.CategoryServices,
 	}
 	

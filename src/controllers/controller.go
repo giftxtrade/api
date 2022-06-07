@@ -22,10 +22,7 @@ type IController interface {
 func (ctx *Controller) UseJwtAuth(next http.Handler) http.Handler {
 	const AUTH_REQ string = "authorization required"
 	user_services := services.UserService{
-		Service: services.Service{
-			DB: ctx.DB,
-			TABLE: "users",
-		},
+		Service: *services.New(ctx.DB, "users"),
 	}
 
 	return http.HandlerFunc(

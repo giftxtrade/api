@@ -57,7 +57,6 @@ func (service *ProductService) Find(key string) (*types.Product, error) {
 	err := service.DB.
 		Table(service.TABLE).
 		Preload("Category").
-		Joins("JOIN categories ON categories.id = products.category_id").
 		Where("products.product_key = ? OR products.id = ?", key, id).
 		First(&product).
 		Error

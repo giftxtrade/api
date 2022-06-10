@@ -64,10 +64,16 @@ func (service *ProductService) Find(key string) (*types.Product, error) {
 	return &product, err
 }
 
-func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduct) (*types.Product, error) {
+// create a new product or update existing product with input
+// boolean value is true if a new user is created, otherwise false
+func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduct) (*types.Product, bool, error) {
 	product, err := service.Find(create_product.ProductKey)
 	if err != nil {
-		return service.Create(create_product)
+		create_product, create_err := service.Create(create_product)
+		if create_err == nil {
+			return create_product, true, nil
+		}
+		return nil, false, nil
 	}
 	
 	// product already exists, so update...
@@ -110,7 +116,7 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 			Save(product).
 			Error
 	}
-	return product, err
+	return product, false, err
 }
 
 func validate_create_product_input(create_product *types.CreateProduct) (*types.CreateProduct, error) {

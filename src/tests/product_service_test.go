@@ -214,6 +214,42 @@ func TestProductService(t *testing.T) {
 		})
 	})
 
+	t.Run("should create or update", func(t *testing.T) {
+		input := types.CreateProduct{
+			Title: "Find Product 1",
+			ProductKey: "find_product_1",
+			OriginalUrl: "https://example.com",
+			Price: 5,
+			Rating: 5,
+			TotalReviews: 4,
+			Category: "New Category",
+		}
+		product, created, err := product_service.CreateOrUpdate(&input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if created {
+			t.Fatal("product already exists, should not create new product")
+		}
+		if product.ProductKey != input.ProductKey || product.Title != input.Title {
+			t.Fatal("valued don't match", product, input)
+		}
+
+
+		input2 := input
+		input2.ProductKey = "my_new_key_input2"
+		product2, created2, err2 := product_service.CreateOrUpdate(&input2)
+		if err2 != nil {
+			t.Fatal(err)
+		}
+		if !created2 || product2.ID == product.ID {
+			t.Fatal("product should be created")
+		}
+		if product2.ProductKey != input2.ProductKey || product2.Title != input2.Title {
+			t.Fatal("valued don't match", product, input)
+		}
+	})
+
 	t.Cleanup(func() {
 		product_service.DB.Exec("delete from products")
 	})

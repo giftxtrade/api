@@ -73,7 +73,7 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 		if create_err == nil {
 			return create_product, true, nil
 		}
-		return nil, false, nil
+		return nil, false, create_err
 	}
 	
 	// product already exists, so update...
@@ -124,7 +124,7 @@ func validate_create_product_input(create_product *types.CreateProduct) (*types.
 		return nil, fmt.Errorf("title is required")
 	}
 	if create_product.ProductKey == "" {
-		return nil, fmt.Errorf("product_key is required")
+		return nil, fmt.Errorf("productKey is required")
 	}
 	if create_product.Rating <= 0 {
 		return nil, fmt.Errorf("rating is required")
@@ -136,10 +136,10 @@ func validate_create_product_input(create_product *types.CreateProduct) (*types.
 		return nil, fmt.Errorf("price is required")
 	}
 	if create_product.OriginalUrl == "" {
-		return nil, fmt.Errorf("original_url is required")
+		return nil, fmt.Errorf("originalUrl is required")
 	}
 	if create_product.TotalReviews == 0 {
-		return nil, fmt.Errorf("total_reviews is required")
+		return nil, fmt.Errorf("totalReviews is required")
 	}
 	if create_product.Category == "" {
 		return nil, fmt.Errorf("category is required")

@@ -52,7 +52,7 @@ type Product struct {
 	Base
 	Title string `gorm:"type:text; not null; index" json:"title"`
 	Description string `gorm:"type:text" json:"description"`
-	ProductKey string `gorm:"type:varchar(255); not null; index" json:"productKey"`
+	ProductKey string `gorm:"type:varchar(255); not null; index; unique" json:"productKey"`
 	ImageUrl string `gorm:"type:text" json:"imageUrl"`
 	Rating float32 `gorm:"type:float; not null; index" json:"rating"`
 	Price float32 `gorm:"type:float(2); not null; index" json:"price"`

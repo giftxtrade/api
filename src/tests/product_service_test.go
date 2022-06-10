@@ -65,6 +65,17 @@ func TestProductService(t *testing.T) {
 					t.Fatal(product, input)
 				}
 			})
+
+			t.Run("should not parse url", func(t *testing.T) {
+				input := types.CreateProduct{
+					Title: "Product 4",
+					Category: "test",
+					OriginalUrl: "incorrect url",
+				}
+				if _, err := product_service.Create(&input); err == nil {
+					t.Fatal("should not parse invalid url: " + input.OriginalUrl)
+				}
+			})
 		})
 	})
 

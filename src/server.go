@@ -19,9 +19,8 @@ func main() {
 	
 	// Create router instance
 	router := mux.NewRouter()
-	// Create server base with DB connection
-	server := app.New(conn)
-	server.CreateRoutes(router)
+	// Create server base with DB connection and router instance
+	app.New(conn, router)
 
 	const port = "8080"
 	log.Printf("🚀 server starting on port %s\n", port)

@@ -4,17 +4,13 @@ import (
 	"net/http"
 
 	"github.com/giftxtrade/api/src/controllers"
-	"github.com/giftxtrade/api/src/types"
-	"github.com/gorilla/mux"
 )
 
 // Create routes given a gorilla/mux router instance
-func (app *AppBase) CreateRoutes(router *mux.Router) *AppBase {
+func (app *AppBase) CreateRoutes() *AppBase {
+	router := app.Router
 	controller := controllers.Controller{
-		AppContext: types.AppContext{
-			DB: app.DB,
-			Tokens: app.Tokens,
-		},
+		AppContext: &app.AppContext,
 	}
 
 	home_controller := controllers.HomeController{

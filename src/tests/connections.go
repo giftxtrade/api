@@ -51,7 +51,7 @@ func MockMigration(t *testing.T, callback func(db *gorm.DB)) *gorm.DB {
 
 func SetupMockController(db *gorm.DB) *controllers.Controller {
 	return &controllers.Controller{
-		AppContext: types.AppContext{
+		AppContext: &types.AppContext{
 			DB: db,
 			Tokens: &types.Tokens{
 				JwtKey: "my-secret-jwt-token",
@@ -66,7 +66,7 @@ func SetupMockUserService(t *testing.T) (*services.UserService) {
 	})
 
 	return &services.UserService{
-		Service: *services.New(db, "users"),
+		Service: services.New(db, "users"),
 	}
 }
 
@@ -76,7 +76,7 @@ func SetupMockCategoryService(t *testing.T) (*services.CategoryService) {
 	})
 
 	return &services.CategoryService{
-		Service: *services.New(db, "categories"),
+		Service: services.New(db, "categories"),
 	}
 }
 
@@ -86,7 +86,7 @@ func SetupMockProductService(t *testing.T) (*services.ProductService) {
 	})
 
 	return &services.ProductService{
-		Service: *services.New(db, "products"),
+		Service: services.New(db, "products"),
 		CategoryService: SetupMockCategoryService(t),
 	}
 }

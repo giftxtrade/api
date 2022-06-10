@@ -22,16 +22,17 @@ type IAppBase interface {
 	CreateRoutes(router *mux.Router)
 }
 
-func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
+func (app *AppBase) NewBaseHandler(conn *gorm.DB, router *mux.Router) *AppBase {
 	app.DB = conn
+	app.Router = router
 	app.UserServices = &services.UserService{
-		Service: *services.New(conn, "users"),
+		Service: services.New(conn, "users"),
 	}
 	app.CategoryServices = &services.CategoryService{
-		Service: *services.New(conn, "categories"),
+		Service: services.New(conn, "categories"),
 	}
 	app.ProductServices = &services.ProductService{
-		Service: *services.New(conn, "products"),
+		Service: services.New(conn, "products"),
 		CategoryService: app.CategoryServices,
 	}
 	
@@ -43,10 +44,11 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB) *AppBase {
 
 	app.CreateSchemas() // create schemas
 	utils.SetupOauthProviders(tokens) // oauth providers
+	app.CreateRoutes()
 	return app
 }
 
-func New(conn *gorm.DB) *AppBase {
+func New(conn *gorm.DB, router *mux.Router) *AppBase {
 	app := AppBase{}
-	return app.NewBaseHandler(conn)
+	return app.NewBaseHandler(conn, router)
 }

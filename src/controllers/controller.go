@@ -11,7 +11,7 @@ import (
 )
 
 type Controller struct {
-	types.AppContext
+	*types.AppContext
 }
 
 type IController interface {
@@ -22,7 +22,7 @@ type IController interface {
 func (ctx *Controller) UseJwtAuth(next http.Handler) http.Handler {
 	const AUTH_REQ string = "authorization required"
 	user_services := services.UserService{
-		Service: *services.New(ctx.DB, "users"),
+		Service: services.New(ctx.DB, "users"),
 	}
 
 	return http.HandlerFunc(

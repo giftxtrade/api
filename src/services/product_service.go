@@ -9,7 +9,7 @@ import (
 )
 
 type ProductService struct {
-	Service
+	*Service
 	CategoryService *CategoryService
 }
 

@@ -1,12 +1,14 @@
 package types
 
 import (
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
 type AppContext struct {
 	DB *gorm.DB
 	Tokens *Tokens
+	Router *mux.Router
 }
 
 type DbConnectionOptions struct {

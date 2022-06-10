@@ -12,22 +12,74 @@ func TestProductService(t *testing.T) {
 
 	t.Run("create product", func(t *testing.T) {
 		t.Run("should not create product", func(t *testing.T) {
-			input := types.CreateProduct{}
-			product, err := product_service.Create(&input)
-			if err == nil || product != nil {
-				t.Fatalf("should not create product")
+			input := types.CreateProduct{
+				Title: "p1",
+				ProductKey: "token",
+				OriginalUrl: "https://example.com",
+				Price: 10.5,
+				Rating: 4.5,
+				TotalReviews: 124,
+				Category: "test category 1",
 			}
 
-			input.Title = "sample product"
-			product, err = product_service.Create(&input)
+			cp_input := input
+			cp_input.ProductKey = ""
+			product, err := product_service.Create(&cp_input)
 			if err == nil || product != nil {
-				t.Fatalf(err.Error())
+				t.Fatalf("product_key should be required")
+			}
+
+			cp_input = input
+			cp_input.Title = ""
+			product, err = product_service.Create(&cp_input)
+			if err == nil || product != nil {
+				t.Fatalf("title should be required")
+			}
+
+			cp_input = input
+			cp_input.OriginalUrl = ""
+			product, err = product_service.Create(&cp_input)
+			if err == nil || product != nil {
+				t.Fatalf("original_url should be required")
+			}
+
+			cp_input = input
+			cp_input.Rating = 0
+			product, err = product_service.Create(&cp_input)
+			if err == nil || product != nil {
+				t.Fatalf("rating should be required")
+			}
+
+			cp_input = input
+			cp_input.Price = 0
+			product, err = product_service.Create(&cp_input)
+			if err == nil || product != nil {
+				t.Fatalf("price should be required")
+			}
+
+			cp_input = input
+			cp_input.TotalReviews = 0
+			product, err = product_service.Create(&cp_input)
+			if err == nil || product != nil {
+				t.Fatalf("total_reviews should be required")
+			}
+
+			cp_input = input
+			cp_input.Category = ""
+			product, err = product_service.Create(&cp_input)
+			if err == nil || product != nil {
+				t.Fatalf("category should be required")
 			}
 		})
 
 		t.Run("should create product", func(t *testing.T) {
 			input := types.CreateProduct{
 				Title: "Product 1",
+				ProductKey: "token",
+				OriginalUrl: "https://example.com",
+				Price: 10.5,
+				Rating: 4.5,
+				TotalReviews: 124,
 				Category: "any",
 			}
 			product, err := product_service.Create(&input)
@@ -51,11 +103,9 @@ func TestProductService(t *testing.T) {
 			}
 
 			t.Run("should parse url", func(t *testing.T) {
-				input := types.CreateProduct{
-					Title: "Product 3",
-					Category: "test",
-					OriginalUrl: "https://www.amazon.com/gp/product/B07G5MSF3G/ref=ppx_yo_dt_b_search_asin_image?ie=UTF8&psc=1",
-				}
+				input.Title = "Product 3"
+				input.Category = "test"
+				input.OriginalUrl = "https://www.amazon.com/gp/product/B07G5MSF3G/ref=ppx_yo_dt_b_search_asin_image?ie=UTF8&psc=1"
 				product, err := product_service.Create(&input)
 				if err != nil {
 					t.Fatal(err)
@@ -67,11 +117,9 @@ func TestProductService(t *testing.T) {
 			})
 
 			t.Run("should not parse url", func(t *testing.T) {
-				input := types.CreateProduct{
-					Title: "Product 4",
-					Category: "test",
-					OriginalUrl: "incorrect url",
-				}
+				input.Title = "Product 3"
+				input.Category = "test"
+				input.OriginalUrl = "invalid url"
 				if _, err := product_service.Create(&input); err == nil {
 					t.Fatal("should not parse invalid url: " + input.OriginalUrl)
 				}

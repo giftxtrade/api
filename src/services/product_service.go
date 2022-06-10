@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/giftxtrade/api/src/types"
@@ -13,10 +14,16 @@ type ProductService struct {
 }
 
 func (service *ProductService) Create(create_product *types.CreateProduct) (*types.Product, error) {
+	var err error
+	if create_product, err = validate_create_product_input(create_product); err != nil {
+		return nil, err
+	}
+
 	category, _, category_err := service.CategoryService.FindOrCreate(create_product.Category)
 	if category_err != nil {
 		return nil, category_err
 	}
+
 	new_product := types.Product{
 		Title: create_product.Title,
 		Description: create_product.Description,
@@ -29,17 +36,15 @@ func (service *ProductService) Create(create_product *types.CreateProduct) (*typ
 		CategoryId: category.ID,
 		Category: *category,
 	}
-
 	// add website origin
-	if create_product.OriginalUrl != "" {
-		parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
-		if err == nil {
-			new_product.WebsiteOrigin = parsed_url.Host
-		} else {
-			return nil, err
-		}
+	parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
+	if err == nil {
+		new_product.WebsiteOrigin = parsed_url.Host
+	} else {
+		return nil, err
 	}
-	err := service.DB.
+
+	err = service.DB.
 		Table(service.TABLE).
 		Create(&new_product).
 		Error
@@ -106,4 +111,29 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 			Error
 	}
 	return product, err
+}
+
+func validate_create_product_input(create_product *types.CreateProduct) (*types.CreateProduct, error) {
+	if create_product.Title == "" {
+		return nil, fmt.Errorf("title is required")
+	}
+	if create_product.ProductKey == "" {
+		return nil, fmt.Errorf("product_key is required")
+	}
+	if create_product.Rating == 0 {
+		return nil, fmt.Errorf("rating is required")
+	}
+	if create_product.Price == 0 {
+		return nil, fmt.Errorf("price is required")
+	}
+	if create_product.OriginalUrl == "" {
+		return nil, fmt.Errorf("original_url is required")
+	}
+	if create_product.TotalReviews == 0 {
+		return nil, fmt.Errorf("total_reviews is required")
+	}
+	if create_product.Category == "" {
+		return nil, fmt.Errorf("category is required")
+	}
+	return create_product, nil
 }

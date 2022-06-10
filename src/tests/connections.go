@@ -41,8 +41,8 @@ func MockMigration(t *testing.T, callback func(db *gorm.DB)) *gorm.DB {
 		t.FailNow()
 	}
 
-	if app.AutoMigrate(db) != nil {
-		t.Fatal("migration failed")
+	if err = app.AutoMigrate(db); err != nil {
+		t.Fatal("migration failed", err)
 	}
 
 	callback(db)

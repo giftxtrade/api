@@ -58,7 +58,7 @@ type Product struct {
 	Price float32 `gorm:"type:float(2); not null; index" json:"price"`
 	OriginalUrl string `gorm:"type:text; not null" json:"originalUrl"`
 	WebsiteOrigin string `gorm:"type:varchar(255); not null" json:"websiteOrigin"`
-	TotalReviews int `gorm:"not null" json:"totalReviews"`
+	TotalReviews uint `gorm:"not null" json:"totalReviews"`
 	CategoryId uuid.UUID `gorm:"type:uuid; index" json:"-"`
 	Category Category `gorm:"foreignKey:CategoryId" json:"category"`
 }

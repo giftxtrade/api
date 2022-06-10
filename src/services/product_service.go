@@ -120,10 +120,13 @@ func validate_create_product_input(create_product *types.CreateProduct) (*types.
 	if create_product.ProductKey == "" {
 		return nil, fmt.Errorf("product_key is required")
 	}
-	if create_product.Rating == 0 {
+	if create_product.Rating <= 0 {
 		return nil, fmt.Errorf("rating is required")
 	}
-	if create_product.Price == 0 {
+	if create_product.Rating > 5 {
+		return nil, fmt.Errorf("rating should be between interval (0, 5]")
+	}
+	if create_product.Price <= 0 {
 		return nil, fmt.Errorf("price is required")
 	}
 	if create_product.OriginalUrl == "" {

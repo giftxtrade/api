@@ -57,4 +57,8 @@ func TestCategoryService(t *testing.T) {
 			}
 		})
 	})
+
+	t.Cleanup(func() {
+		category_service.DB.Exec("delete from categories")
+	})
 }

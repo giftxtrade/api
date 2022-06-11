@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/giftxtrade/api/src/types"
@@ -116,6 +117,37 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 			Error
 	}
 	return product, false, err
+}
+
+func (service *ProductService) Search(search string, limit int, offset int, minPrice float32, maxPrice float32, sort string) (*[]types.Product, error) {
+	products := new([]types.Product)
+	query := service.DB.
+		Order("updated_at DESC").
+		Limit(limit).
+		Offset(offset)
+	
+	if minPrice > 0 && maxPrice >= minPrice {
+		query.
+			Where("price BETWEEN ? AND ?", minPrice, maxPrice)
+	}
+	if sort != "" {
+		switch sort {
+		case "rating":
+			log.Println("sort by: ", sort)
+			query.Order("rating DESC")
+		case "price":
+			log.Println("sort by: ", sort)
+			query.Order("price DESC")
+		case "totalReviews":
+			log.Println("sort by: ", sort)
+			query.Order("total_reviews DESC")
+		}
+	}
+	err := query.
+		Preload("Category").
+		Find(products).
+		Error
+	return products, err
 }
 
 func validate_create_product_input(create_product *types.CreateProduct) (*types.CreateProduct, error) {

@@ -32,9 +32,9 @@ func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.
 	if err != nil || limit <= 0 {
 		limit = 10
 	}
-	offset, err := strconv.Atoi(q.Get("offset"))
-	if err != nil || offset < 0 {
-		offset = 0
+	page, err := strconv.Atoi(q.Get("page"))
+	if err != nil || page <= 0 {
+		page = 1
 	}
 	minPrice, err := strconv.ParseFloat(q.Get("minPrice"), 32)
 	if err != nil || minPrice < 0 {
@@ -48,7 +48,7 @@ func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.
 
 	products, err := ctx.
 		ProductServices.
-		Search(search, limit, offset, float32(minPrice), float32(maxPrice), sort)
+		Search(search, limit, page - 1, float32(minPrice), float32(maxPrice), sort)
 	if err != nil {
 		errors = append(errors, err.Error())
 	}

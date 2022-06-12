@@ -122,26 +122,25 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 func (service *ProductService) Search(search string, limit int, offset int, minPrice float32, maxPrice float32, sort string) (*[]types.Product, error) {
 	products := new([]types.Product)
 	query := service.DB.
-		Order("updated_at DESC").
 		Limit(limit).
-		Offset(offset)
+		Offset(limit * offset)
 	
 	if minPrice > 0 && maxPrice >= minPrice {
 		query.
 			Where("price BETWEEN ? AND ?", minPrice, maxPrice)
 	}
-	if sort != "" {
-		switch sort {
-		case "rating":
-			log.Println("sort by: ", sort)
-			query.Order("rating DESC")
-		case "price":
-			log.Println("sort by: ", sort)
-			query.Order("price DESC")
-		case "totalReviews":
-			log.Println("sort by: ", sort)
-			query.Order("total_reviews DESC")
-		}
+	switch sort {
+	case "rating":
+		log.Println("sort by: ", sort)
+		query.Order("rating DESC")
+	case "price":
+		log.Println("sort by: ", sort)
+		query.Order("price DESC")
+	case "totalReviews":
+		log.Println("sort by: ", sort)
+		query.Order("total_reviews DESC")
+	default:
+		query.Order("updated_at DESC")
 	}
 	err := query.
 		Preload("Category").

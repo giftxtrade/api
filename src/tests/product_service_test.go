@@ -116,6 +116,7 @@ func TestProductService(t *testing.T) {
 			input2 := input
 			input2.Title = "Product 2"
 			input2.ProductKey = "token2"
+			input2.Price = 1.50
 			product2, err := product_service.Create(&input2)
 			if err != nil {
 				t.Fatal(err)
@@ -131,6 +132,7 @@ func TestProductService(t *testing.T) {
 				input.Category = "test"
 				input.OriginalUrl = "https://www.amazon.com/gp/product/B07G5MSF3G/ref=ppx_yo_dt_b_search_asin_image?ie=UTF8&psc=1"
 				input.ProductKey = "x"
+				input.Price = 19.99
 				product, err := product_service.Create(&input)
 				if err != nil {
 					t.Fatal(err)
@@ -216,7 +218,7 @@ func TestProductService(t *testing.T) {
 
 	t.Run("should create or update", func(t *testing.T) {
 		input := types.CreateProduct{
-			Title: "Find Product 1",
+			Title: "Find Product 1 (Updated)",
 			ProductKey: "find_product_1",
 			OriginalUrl: "https://example.com",
 			Price: 5,
@@ -238,6 +240,7 @@ func TestProductService(t *testing.T) {
 
 		input2 := input
 		input2.ProductKey = "my_new_key_input2"
+		input2.Price = 50
 		product2, created2, err2 := product_service.CreateOrUpdate(&input2)
 		if err2 != nil {
 			t.Fatal(err)
@@ -248,6 +251,85 @@ func TestProductService(t *testing.T) {
 		if product2.ProductKey != input2.ProductKey || product2.Title != input2.Title {
 			t.Fatal("valued don't match", product, input)
 		}
+	})
+
+	t.Run("should filter products", func(t *testing.T) {
+		t.Run("filter with limit and page", func(t *testing.T) {
+			limit := 1
+			page := 1
+			products, err := product_service.Search("", limit, page, 0, 5000, "")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(*products) != 1 {
+				t.Fatal("products array should only contain 1 element")
+			}
+			if (*products)[0].ProductKey != "my_new_key_input2" {
+				t.Fatal("wrong first product", (*products)[0])
+			}
+
+			limit = 10
+			products, err = product_service.Search("", limit, page, 0, 5000, "")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(*products) != 5 {
+				t.Fatal("total products should be 5")
+			}
+
+			limit = 5
+			products2, err2 := product_service.Search("", limit, page, 0, 5000, "")
+			if err2 != nil {
+				t.Fatal(err2)
+			}
+			if len(*products2) != len(*products) {
+				t.Fatal("products and products2 don't have the same length")
+			}
+			if !reflect.DeepEqual(*products, *products2) {
+				t.Fatal("products and products2 are not equal")
+			}
+		})
+
+		t.Run("filter with min and max price", func(t *testing.T) {
+			products1, err1 := product_service.Search("", 5, 1, 10000, 10000, "")
+			if err1 != nil {
+				t.Fatal(err1)
+			}
+			if len(*products1) != 0 {
+				t.Fatal("products1 length should be 0")
+			}
+
+			products1, err1 = product_service.Search("", 5, 1, 10000, 20000, "")
+			if err1 != nil {
+				t.Fatal(err1)
+			}
+			if len(*products1) != 0 {
+				t.Fatal("products1 length should be 0")
+			}
+
+			var min float32 = 1.0
+			var max float32 = 2.0
+			products2, err2 := product_service.Search("", 5, 1, min, max, "")
+			if err2 != nil {
+				t.Fatal(err2)
+			}
+			if len(*products2) != 1 {
+				t.Fatal("products2 length should be 1")
+			}
+			{
+				product := (*products2)[0]
+				found_product, err := product_service.Find(product.ProductKey)
+				if err != nil {
+					t.Fatal("product with key not found", product.ProductKey)
+				}
+				if !reflect.DeepEqual(product, *found_product) {
+					t.Fatal(product, *found_product)
+				}
+				if !(product.Price >= min || product.Price <= max) {
+					t.Fatal("price does not match")
+				}
+			}
+		})
 	})
 
 	t.Cleanup(func() {

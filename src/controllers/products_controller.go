@@ -48,7 +48,7 @@ func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.
 
 	products, err := ctx.
 		ProductServices.
-		Search(search, limit, page - 1, float32(minPrice), float32(maxPrice), sort)
+		Search(search, limit, page, float32(minPrice), float32(maxPrice), sort)
 	if err != nil {
 		errors = append(errors, err.Error())
 	}

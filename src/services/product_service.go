@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/giftxtrade/api/src/types"
@@ -119,11 +118,12 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 	return product, false, err
 }
 
-func (service *ProductService) Search(search string, limit int, offset int, minPrice float32, maxPrice float32, sort string) (*[]types.Product, error) {
+func (service *ProductService) Search(search string, limit int, page int, minPrice float32, maxPrice float32, sort string) (*[]types.Product, error) {
+	offset := (page - 1) * limit
 	products := new([]types.Product)
 	query := service.DB.
 		Limit(limit).
-		Offset(limit * offset)
+		Offset(offset)
 	
 	if minPrice > 0 && maxPrice >= minPrice {
 		query.
@@ -131,13 +131,10 @@ func (service *ProductService) Search(search string, limit int, offset int, minP
 	}
 	switch sort {
 	case "rating":
-		log.Println("sort by: ", sort)
 		query.Order("rating DESC")
 	case "price":
-		log.Println("sort by: ", sort)
 		query.Order("price DESC")
 	case "totalReviews":
-		log.Println("sort by: ", sort)
 		query.Order("total_reviews DESC")
 	default:
 		query.Order("updated_at DESC")

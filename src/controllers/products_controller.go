@@ -82,7 +82,8 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	new_product, _, err := ctx.ProductService.CreateOrUpdate(&create_product)
+	var new_product types.Product
+	_, err := ctx.ProductService.CreateOrUpdate(&create_product, &new_product)
 	if err != nil {
 		utils.FailResponse(w, []string{"could not create product", err.Error()})
 		return
@@ -93,8 +94,8 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Request) {
 	query_params := mux.Vars(r)
 	id := query_params["id"]
-	product, err := ctx.ProductService.Find(id)
-	if err != nil {
+	var product types.Product
+	if ctx.ProductService.Find(id, &product) != nil {
 		utils.FailResponse(w, "product not found")
 		return
 	}

@@ -13,67 +13,60 @@ type ProductService struct {
 	CategoryService *CategoryService
 }
 
-func (service *ProductService) Create(create_product *types.CreateProduct) (*types.Product, error) {
-	var err error
-	if create_product, err = validate_create_product_input(create_product); err != nil {
-		return nil, err
+func (service *ProductService) Create(create_product *types.CreateProduct, product *types.Product) error {
+	if err := validate_create_product_input(create_product); err != nil {
+		return err
 	}
 
 	var category types.Category
 	_, category_err := service.CategoryService.FindOrCreate(create_product.Category, &category)
 	if category_err != nil {
-		return nil, category_err
+		return category_err
 	}
 
-	new_product := types.Product{
-		Title: create_product.Title,
-		Description: create_product.Description,
-		ProductKey: create_product.ProductKey,
-		ImageUrl: create_product.ImageUrl,
-		Rating: create_product.Rating,
-		Price: create_product.Price,
-		OriginalUrl: create_product.OriginalUrl,
-		TotalReviews: create_product.TotalReviews,
-		CategoryId: category.ID,
-		Category: category,
-	}
+	product.Title = create_product.Title
+	product.Description = create_product.Description
+	product.ProductKey = create_product.ProductKey
+	product.ImageUrl = create_product.ImageUrl
+	product.Rating = create_product.Rating
+	product.Price = create_product.Price
+	product.OriginalUrl = create_product.OriginalUrl
+	product.TotalReviews = create_product.TotalReviews
+	product.CategoryId = category.ID
+	product.Category = category
 	// add website origin
 	parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
 	if err == nil {
-		new_product.WebsiteOrigin = parsed_url.Host
+		product.WebsiteOrigin = parsed_url.Host
 	} else {
-		return nil, err
+		return err
 	}
 
-	err = service.DB.
+	return service.DB.
 		Table(service.TABLE).
-		Create(&new_product).
+		Create(product).
 		Error
-	return &new_product, err
 }
 
-func (service *ProductService) Find(key string) (*types.Product, error) {
+func (service *ProductService) Find(key string, product *types.Product) error {
 	id, _ := uuid.Parse(key)
-	var product types.Product
-	err := service.DB.
+	return service.DB.
 		Table(service.TABLE).
 		Preload("Category").
 		Where("products.product_key = ? OR products.id = ?", key, id).
-		First(&product).
+		First(product).
 		Error
-	return &product, err
 }
 
 // create a new product or update existing product with input
 // boolean value is true if a new user is created, otherwise false
-func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduct) (*types.Product, bool, error) {
-	product, err := service.Find(create_product.ProductKey)
-	if err != nil {
-		create_product, create_err := service.Create(create_product)
+func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduct, product *types.Product) (bool, error) {
+	if service.Find(create_product.ProductKey, product) != nil {
+		create_err := service.Create(create_product, product)
 		if create_err == nil {
-			return create_product, true, nil
+			return true, nil
 		}
-		return nil, false, create_err
+		return false, create_err
 	}
 	
 	// product already exists, so update...
@@ -112,12 +105,13 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 		}
 	}
 
+	var err error
 	if changed {
 		err = service.DB.
 			Save(product).
 			Error
 	}
-	return product, false, err
+	return false, err
 }
 
 func (service *ProductService) Search(search string, limit int, page int, minPrice float32, maxPrice float32, sort string) (*[]types.Product, error) {
@@ -148,30 +142,30 @@ func (service *ProductService) Search(search string, limit int, page int, minPri
 	return products, err
 }
 
-func validate_create_product_input(create_product *types.CreateProduct) (*types.CreateProduct, error) {
+func validate_create_product_input(create_product *types.CreateProduct) error {
 	if create_product.Title == "" {
-		return nil, fmt.Errorf("title is required")
+		return fmt.Errorf("title is required")
 	}
 	if create_product.ProductKey == "" {
-		return nil, fmt.Errorf("productKey is required")
+		return fmt.Errorf("productKey is required")
 	}
 	if create_product.Rating <= 0 {
-		return nil, fmt.Errorf("rating is required")
+		return fmt.Errorf("rating is required")
 	}
 	if create_product.Rating > 5 {
-		return nil, fmt.Errorf("rating should be between interval (0, 5]")
+		return fmt.Errorf("rating should be between interval (0, 5]")
 	}
 	if create_product.Price <= 0 {
-		return nil, fmt.Errorf("price is required")
+		return fmt.Errorf("price is required")
 	}
 	if create_product.OriginalUrl == "" {
-		return nil, fmt.Errorf("originalUrl is required")
+		return fmt.Errorf("originalUrl is required")
 	}
 	if create_product.TotalReviews == 0 {
-		return nil, fmt.Errorf("totalReviews is required")
+		return fmt.Errorf("totalReviews is required")
 	}
 	if create_product.Category == "" {
-		return nil, fmt.Errorf("category is required")
+		return fmt.Errorf("category is required")
 	}
-	return create_product, nil
+	return nil
 }

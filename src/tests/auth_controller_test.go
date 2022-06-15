@@ -92,14 +92,15 @@ func TestAuthController(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			user, _, err := user_service.FindOrCreate(&types.CreateUser{
+			var user types.User
+			_, err = user_service.FindOrCreate(&types.CreateUser{
 				Name: "Naruto Uzumaki",
 				Email: "naruto_uzumaki@gmail.com",
-			})
+			}, &user)
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := utils.GenerateJWT(token, user)
+			jwt, err := utils.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -123,14 +124,15 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				user, _, err := user_service.FindOrCreate(&types.CreateUser{
+				var user types.User
+				_, err = user_service.FindOrCreate(&types.CreateUser{
 					Name: "Non Admin User",
 					Email: "non_admin_user@gmail.com",
-				})
+				}, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
-				jwt, err := utils.GenerateJWT(token, user)
+				jwt, err := utils.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -153,10 +155,11 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				user, _, err := user_service.FindOrCreate(&types.CreateUser{
+				var user types.User
+				_, err = user_service.FindOrCreate(&types.CreateUser{
 					Name: "Admin User",
 					Email: "admin_user@gmail.com",
-				})
+				}, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -166,7 +169,7 @@ func TestAuthController(t *testing.T) {
 					t.Fatal("could not update user admin level")
 				}
 
-				jwt, err := utils.GenerateJWT(token, user)
+				jwt, err := utils.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}

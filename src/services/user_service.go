@@ -8,69 +8,56 @@ type UserService struct {
 	*Service
 }
 
-func (service *UserService) FindByEmail(email string) (*types.User, error) {
-	var user types.User
-	err := service.DB.
+func (service *UserService) FindByEmail(email string, user *types.User) error {
+	return service.DB.
 		Table(service.TABLE).
 		Where("email = ?", email).
-		First(&user).
+		First(user).
 		Error
-	return &user, err
 }
 
-func (service *UserService) FindById(id string) (*types.User, error) {
-	var user types.User
-	err := service.DB.
+func (service *UserService) FindById(id string, user *types.User) error {
+	return service.DB.
 		Table(service.TABLE).
 		Where("id = ?", id).
-		First(&user).
+		First(user).
 		Error
-	return &user, err
 }
 
-func (service *UserService) FindByIdAndEmail(id string, email string) (*types.User, error) {
-	var user types.User
-	err := service.DB.
+func (service *UserService) FindByIdAndEmail(id string, email string, user *types.User) error {
+	return service.DB.
 		Table(service.TABLE).
 		Where("id = ? AND email = ?", id, email).
-		First(&user).
+		First(user).
 		Error
-	return &user, err
 }
 
-func (service *UserService) FindByIdOrEmail(id string, email string) (*types.User, error) {
-	var user types.User
-	err := service.DB.
+func (service *UserService) FindByIdOrEmail(id string, email string, user *types.User) error {
+	return service.DB.
 		Table(service.TABLE).
 		Where("id = ? OR email = ?", id, email).
-		First(&user).
+		First(user).
 		Error
-	return &user, err
 }
 
 // finds a user by email or creates one if not found. 
 // boolean value is true if a new user is created, otherwise false
-func (service *UserService) FindOrCreate(create_user *types.CreateUser) (*types.User, bool, error) {
-	user, err := service.FindByEmail(create_user.Email)
-	if err != nil {
-		user, err = service.Create(create_user)
-		if err != nil {
-			return nil, false, err
+func (service *UserService) FindOrCreate(create_user *types.CreateUser, user *types.User) (bool, error) {
+	if err := service.FindByEmail(create_user.Email, user); err != nil {
+		if err = service.Create(create_user, user); err != nil {
+			return false, err
 		}
-		return user, true, nil
+		return true, nil
 	}
-	return user, false, nil
+	return false, nil
 }
 
-func (service *UserService) Create(create_user *types.CreateUser) (*types.User, error) {
-	user := types.User{
-		Name: create_user.Name,
-		Email: create_user.Email,
-		ImageUrl: create_user.ImageUrl,
-	}
-	err := service.DB.
+func (service *UserService) Create(create_user *types.CreateUser, user *types.User) error {
+	user.Name = create_user.Name
+	user.Email = create_user.Email
+	user.ImageUrl = create_user.ImageUrl
+	return service.DB.
 		Table(service.TABLE).
-		Create(&user).
+		Create(user).
 		Error
-	return &user, err
 }

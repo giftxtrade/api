@@ -12,9 +12,9 @@ import (
 
 type AppBase struct {
 	types.AppContext
-	UserServices *services.UserService
-	CategoryServices *services.CategoryService
-	ProductServices *services.ProductService
+	UserService *services.UserService
+	CategoryService *services.CategoryService
+	ProductService *services.ProductService
 }
 
 type IAppBase interface {
@@ -25,15 +25,15 @@ type IAppBase interface {
 func (app *AppBase) NewBaseHandler(conn *gorm.DB, router *mux.Router) *AppBase {
 	app.DB = conn
 	app.Router = router
-	app.UserServices = &services.UserService{
+	app.UserService = &services.UserService{
 		Service: services.New(conn, "users"),
 	}
-	app.CategoryServices = &services.CategoryService{
+	app.CategoryService = &services.CategoryService{
 		Service: services.New(conn, "categories"),
 	}
-	app.ProductServices = &services.ProductService{
+	app.ProductService = &services.ProductService{
 		Service: services.New(conn, "products"),
-		CategoryService: app.CategoryServices,
+		CategoryService: app.CategoryService,
 	}
 	
 	tokens, tokens_err := utils.ParseTokens()

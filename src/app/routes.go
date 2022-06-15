@@ -20,14 +20,14 @@ func (app *AppBase) CreateRoutes() *AppBase {
 
 	auth_controller := controllers.AuthController{
 		Controller: controller,
-		UserServices: app.UserServices,
+		UserService: app.UserService,
 	}
 	auth_controller.CreateRoutes(router, "/auth")
 
 	products_controller := controllers.ProductsController{
 		Controller: controller,
-		UserServices: app.UserServices,
-		ProductServices: app.ProductServices,
+		UserService: app.UserService,
+		ProductService: app.ProductService,
 	}
 	products_controller.CreateRoutes(router, "/products")
 

@@ -18,7 +18,7 @@ func TestAuthController(t *testing.T) {
 	user_service := SetupMockUserService(t)
 	auth_controller := controllers.AuthController{
 		Controller: *SetupMockController(user_service.DB),
-		UserServices: user_service,
+		UserService: user_service,
 	}
 	token := auth_controller.Tokens.JwtKey
 

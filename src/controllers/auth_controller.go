@@ -13,7 +13,7 @@ import (
 
 type AuthController struct {
 	Controller
-	UserServices *services.UserService
+	UserService *services.UserService
 }
 
 func (ctx *AuthController) CreateRoutes(router *mux.Router, path string) {
@@ -57,7 +57,7 @@ func (ctx *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	user, _, err := ctx.UserServices.FindOrCreate(&check_user)
+	user, _, err := ctx.UserService.FindOrCreate(&check_user)
 	if err != nil {
 		utils.FailResponse(w, "something went wrong")
 		return

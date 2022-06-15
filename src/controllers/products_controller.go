@@ -14,8 +14,8 @@ import (
 
 type ProductsController struct {
 	Controller
-	UserServices *services.UserService
-	ProductServices *services.ProductService
+	UserService *services.UserService
+	ProductService *services.ProductService
 }
 
 func (ctx *ProductsController) CreateRoutes(router *mux.Router, path string) {
@@ -47,7 +47,7 @@ func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.
 	sort := strings.TrimSpace(q.Get("sort"))
 
 	products, err := ctx.
-		ProductServices.
+		ProductService.
 		Search(search, limit, page, float32(minPrice), float32(maxPrice), sort)
 	if err != nil {
 		errors = append(errors, err.Error())
@@ -82,7 +82,7 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	new_product, _, err := ctx.ProductServices.CreateOrUpdate(&create_product)
+	new_product, _, err := ctx.ProductService.CreateOrUpdate(&create_product)
 	if err != nil {
 		utils.FailResponse(w, []string{"could not create product", err.Error()})
 		return
@@ -93,7 +93,7 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Request) {
 	query_params := mux.Vars(r)
 	id := query_params["id"]
-	product, err := ctx.ProductServices.Find(id)
+	product, err := ctx.ProductService.Find(id)
 	if err != nil {
 		utils.FailResponse(w, "product not found")
 		return

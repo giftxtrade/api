@@ -16,9 +16,10 @@ func AutoMigrate(db *gorm.DB) error {
 	)
 }
 
-func (app *AppBase) CreateSchemas() {
+func (app *AppBase) CreateSchemas() *AppBase {
 	if err := AutoMigrate(app.DB); err != nil {
 		log.Fatal("Could not generate schema.\n")
 		panic(err)
 	}
+	return app
 }

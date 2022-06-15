@@ -1,8 +1,6 @@
 package app
 
 import (
-	"database/sql"
-
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -18,24 +16,19 @@ type AppBase struct {
 }
 
 type IAppBase interface {
-	NewBaseHandler(conn *sql.DB)
-	CreateRoutes(router *mux.Router)
+	NewBaseHandler() *AppBase
+	// database
+	AutoMigrate(db *gorm.DB) error
+	CreateSchemas() *AppBase
+	// routes
+	CreateRoutes() *AppBase
+	// services
+	CreateServices() *AppBase
 }
 
-func (app *AppBase) NewBaseHandler(conn *gorm.DB, router *mux.Router) *AppBase {
-	app.DB = conn
-	app.Router = router
-	app.UserService = &services.UserService{
-		Service: services.New(conn, "users"),
-	}
-	app.CategoryService = &services.CategoryService{
-		Service: services.New(conn, "categories"),
-	}
-	app.ProductService = &services.ProductService{
-		Service: services.New(conn, "products"),
-		CategoryService: app.CategoryService,
-	}
-	
+// Given app.AppBase.DB, and app.AppBase.Router
+// creates db migrations, db services, oauth, and routes
+func (app *AppBase) NewBaseHandler() *AppBase {
 	tokens, tokens_err := utils.ParseTokens()
 	if tokens_err != nil {
 		panic(tokens_err)
@@ -43,6 +36,7 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB, router *mux.Router) *AppBase {
 	app.Tokens = &tokens
 
 	app.CreateSchemas() // create schemas
+	app.CreateServices() // create services
 	utils.SetupOauthProviders(tokens) // oauth providers
 	app.CreateRoutes()
 	return app
@@ -50,5 +44,7 @@ func (app *AppBase) NewBaseHandler(conn *gorm.DB, router *mux.Router) *AppBase {
 
 func New(conn *gorm.DB, router *mux.Router) *AppBase {
 	app := AppBase{}
-	return app.NewBaseHandler(conn, router)
+	app.DB = conn
+	app.Router = router
+	return app.NewBaseHandler()
 }

@@ -19,7 +19,8 @@ func (service *ProductService) Create(create_product *types.CreateProduct) (*typ
 		return nil, err
 	}
 
-	category, _, category_err := service.CategoryService.FindOrCreate(create_product.Category)
+	var category types.Category
+	_, category_err := service.CategoryService.FindOrCreate(create_product.Category, &category)
 	if category_err != nil {
 		return nil, category_err
 	}
@@ -34,7 +35,7 @@ func (service *ProductService) Create(create_product *types.CreateProduct) (*typ
 		OriginalUrl: create_product.OriginalUrl,
 		TotalReviews: create_product.TotalReviews,
 		CategoryId: category.ID,
-		Category: *category,
+		Category: category,
 	}
 	// add website origin
 	parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
@@ -102,10 +103,11 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 		changed = true
 	}
 	if create_product.Category != product.Category.Name {
-		new_category, _, category_err := service.CategoryService.FindOrCreate(create_product.Category)
+		var new_category types.Category
+		_, category_err := service.CategoryService.FindOrCreate(create_product.Category, &new_category)
 		if category_err == nil {
 			product.CategoryId = new_category.ID
-			product.Category = *new_category
+			product.Category = new_category
 			changed = true
 		}
 	}

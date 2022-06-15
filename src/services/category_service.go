@@ -10,54 +10,46 @@ type CategoryService struct {
 	*Service
 }
 
-func (service *CategoryService) Create(create_category *types.CreateCategory) (*types.Category, error) {
+func (service *CategoryService) Create(create_category *types.CreateCategory, category *types.Category) error {
 	if create_category.Name == "" {
-		return nil, fmt.Errorf("at least CreateCategory.Name must be provided")
+		return fmt.Errorf("name cannot be empty")
 	}
 
-	category := types.Category{
-		Name: create_category.Name,
-		Description: create_category.Description,
-		Url: create_category.Url,
-	}
-	err := service.DB.
+	category.Name = create_category.Name
+	category.Description = create_category.Description
+	category.Url = create_category.Url
+	return service.DB.
 		Table(service.TABLE).
-		Create(&category).
+		Create(category).
 		Error
-	return &category, err
 }
 
-func (service *CategoryService) Find(name string) (*types.Category, error) {
-	var category types.Category
-	err := service.DB.
+func (service *CategoryService) Find(name string, category *types.Category) error {
+	return service.DB.
 		Table(service.TABLE).
 		Where("name = ?", name).
-		First(&category).
+		First(category).
 		Error
-	return &category, err
 }
 
-func (service *CategoryService) FindAll() (*[]types.Category, error) {
-	categories := new([]types.Category)
-	err := service.DB.
+func (service *CategoryService) FindAll(categories []types.Category) error {
+	return service.DB.
 		Table(service.TABLE).
 		Find(categories).
 		Error
-	return categories, err
 }
 
 // find or create a new category
-// boolean value is true if a new user is created, otherwise false
-func (service *CategoryService) FindOrCreate(name string) (*types.Category, bool, error) {
-	category, err := service.Find(name)
-	if err != nil {
-		category, err = service.Create(&types.CreateCategory{
+// boolean value is true if a new category is created, otherwise false
+func (service *CategoryService) FindOrCreate(name string, category *types.Category) (bool, error) {
+	if err := service.Find(name, category); err != nil {
+		err = service.Create(&types.CreateCategory{
 			Name: name,
-		})
+		}, category)
 		if err != nil {
-			return nil, false, err
+			return false, err
 		}
-		return category, true, nil
+		return true, nil
 	}
-	return category, false, nil
+	return false, nil
 }

@@ -1,9 +1,8 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/giftxtrade/api/src/types"
+	"github.com/go-playground/validator/v10"
 )
 
 type CategoryService struct {
@@ -11,10 +10,11 @@ type CategoryService struct {
 }
 
 func (service *CategoryService) Create(create_category *types.CreateCategory, category *types.Category) error {
-	if create_category.Name == "" {
-		return fmt.Errorf("name cannot be empty")
+	validate := validator.New()
+	if err := validate.Struct(create_category); err != nil {
+		return err
 	}
-
+	
 	category.Name = create_category.Name
 	category.Description = create_category.Description
 	category.Url = create_category.Url

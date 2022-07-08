@@ -57,19 +57,20 @@ func (ctx *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	user, _, err := ctx.UserService.FindOrCreate(&check_user)
+	var user types.User
+	_, err = ctx.UserService.FindOrCreate(&check_user, &user)
 	if err != nil {
 		utils.FailResponse(w, "something went wrong")
 		return
 	}
-	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, user)
+	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, &user)
 	if err != nil {
 		utils.FailResponse(w, "could not generate token")
 		return
 	}
 	auth := types.Auth{
 		Token: token,
-		User: *user,
+		User: user,
 	}
 	utils.JsonResponse(w, &auth)
 }

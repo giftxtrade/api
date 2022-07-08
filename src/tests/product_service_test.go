@@ -22,74 +22,65 @@ func TestProductService(t *testing.T) {
 				TotalReviews: 124,
 				Category: "test category 1",
 			}
+			var product types.Product
 
 			cp_input := input
 			cp_input.ProductKey = ""
-			product, err := product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("product_key should be required")
 			}
 
 			cp_input = input
 			cp_input.Title = ""
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("title should be required")
 			}
 
 			cp_input = input
 			cp_input.OriginalUrl = ""
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product);err == nil {
 				t.Fatalf("original_url should be required")
 			}
 
 			cp_input = input
 			cp_input.Rating = 0
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("rating should be required")
 			}
 
 			cp_input = input
 			cp_input.Rating = -4
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("rating cannot be negative")
 			}
 
 			cp_input = input
 			cp_input.Rating = 5.1
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("rating cannot be greater than 5")
 			}
 
 			cp_input = input
 			cp_input.Price = 0
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("price should be required")
 			}
 
 			cp_input = input
 			cp_input.Price = -100.1
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("price cannot be negative")
 			}
 
 			cp_input = input
 			cp_input.TotalReviews = 0
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("total_reviews should be required")
 			}
 
 			cp_input = input
 			cp_input.Category = ""
-			product, err = product_service.Create(&cp_input)
-			if err == nil || product != nil {
+			if err := product_service.Create(&cp_input, &product); err == nil {
 				t.Fatalf("category should be required")
 			}
 		})
@@ -104,8 +95,8 @@ func TestProductService(t *testing.T) {
 				TotalReviews: 124,
 				Category: "any",
 			}
-			product, err := product_service.Create(&input)
-			if err != nil {
+			var product types.Product
+			if err := product_service.Create(&input, &product); err != nil {
 				t.Fatal(err)
 			}
 
@@ -117,8 +108,8 @@ func TestProductService(t *testing.T) {
 			input2.Title = "Product 2"
 			input2.ProductKey = "token2"
 			input2.Price = 1.50
-			product2, err := product_service.Create(&input2)
-			if err != nil {
+			var product2 types.Product
+			if err := product_service.Create(&input2, &product2); err != nil {
 				t.Fatal(err)
 			}
 
@@ -133,8 +124,8 @@ func TestProductService(t *testing.T) {
 				input.OriginalUrl = "https://www.amazon.com/gp/product/B07G5MSF3G/ref=ppx_yo_dt_b_search_asin_image?ie=UTF8&psc=1"
 				input.ProductKey = "x"
 				input.Price = 19.99
-				product, err := product_service.Create(&input)
-				if err != nil {
+				var product types.Product
+				if err := product_service.Create(&input, &product); err != nil {
 					t.Fatal(err)
 				}
 
@@ -149,7 +140,8 @@ func TestProductService(t *testing.T) {
 				input.Category = "test"
 				input.OriginalUrl = "invalid url"
 				input.ProductKey = "y"
-				if _, err := product_service.Create(&input); err == nil {
+				var product types.Product
+				if err := product_service.Create(&input, &product); err == nil {
 					t.Fatal("should not parse invalid url: " + input.OriginalUrl)
 				}
 			})
@@ -157,7 +149,8 @@ func TestProductService(t *testing.T) {
 			t.Run("should not create with duplicate product key", func(t *testing.T) {
 				input := input
 				input.Title = "Different Product"
-				if _, err := product_service.Create(&input); err == nil {
+				var product types.Product
+				if err := product_service.Create(&input, &product); err == nil {
 					t.Fatal("should not create product with a duplicate product_key")
 				}
 			})
@@ -168,8 +161,8 @@ func TestProductService(t *testing.T) {
 		var new_product types.Product
 
 		t.Run("find by product_key", func(t *testing.T) {
-			product, err := product_service.Find("token")
-			if err != nil || product == nil {
+			var product types.Product
+			if err := product_service.Find("token", &product); err != nil {
 				t.Fatal(err, product)
 			}
 
@@ -186,31 +179,33 @@ func TestProductService(t *testing.T) {
 				TotalReviews: 4,
 				Category: "New Category",
 			}
-			product, create_err := product_service.Create(&input)
-			if create_err != nil {
-				t.Fatal(create_err)
+			
+			product = types.Product{}
+			if err := product_service.Create(&input, &product); err != nil {
+				t.Fatal(err, product)
 			}
-			found_product, found_err := product_service.Find(product.ProductKey)
+			var found_product types.Product
+			found_err := product_service.Find(input.ProductKey, &found_product)
 			if found_err != nil || !reflect.DeepEqual(found_product, product) {
 				t.Fatal(found_err, product, found_product)
 			}
-			new_product = *product
+			new_product = product
 
-			if _, err = product_service.Find("some random token that doesn't exist"); err == nil {
+			if err := product_service.Find("some random token that doesn't exist", &types.Product{}); err == nil {
 				t.Fatal("product with key doesn't exist")
 			}
 		})
 
 		t.Run("find by id", func(t *testing.T) {
-			product, err := product_service.Find(new_product.ID.String())
-			if err != nil {
+			var product types.Product
+			if err := product_service.Find(new_product.ID.String(), &product); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(*product, new_product) {
+			if !reflect.DeepEqual(product, new_product) {
 				t.Fatal(product, new_product)
 			}
 
-			if _, err = product_service.Find(uuid.NewString()); err == nil {
+			if err := product_service.Find(uuid.NewString(), &types.Product{}); err == nil {
 				t.Fatal("product with key doesn't exist")
 			}
 		})
@@ -226,7 +221,8 @@ func TestProductService(t *testing.T) {
 			TotalReviews: 4,
 			Category: "New Category",
 		}
-		product, created, err := product_service.CreateOrUpdate(&input)
+		var product types.Product
+		created, err := product_service.CreateOrUpdate(&input, &product)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -241,7 +237,8 @@ func TestProductService(t *testing.T) {
 		input2 := input
 		input2.ProductKey = "my_new_key_input2"
 		input2.Price = 50
-		product2, created2, err2 := product_service.CreateOrUpdate(&input2)
+		var product2 types.Product
+		created2, err2 := product_service.CreateOrUpdate(&input2, &product2)
 		if err2 != nil {
 			t.Fatal(err)
 		}
@@ -318,12 +315,12 @@ func TestProductService(t *testing.T) {
 			}
 			{
 				product := (*products2)[0]
-				found_product, err := product_service.Find(product.ProductKey)
-				if err != nil {
+				var found_product types.Product
+				if err := product_service.Find(product.ProductKey, &found_product); err != nil {
 					t.Fatal("product with key not found", product.ProductKey)
 				}
-				if !reflect.DeepEqual(product, *found_product) {
-					t.Fatal(product, *found_product)
+				if !reflect.DeepEqual(product, found_product) {
+					t.Fatal(product, found_product)
 				}
 				if !(product.Price >= min || product.Price <= max) {
 					t.Fatal("price does not match")

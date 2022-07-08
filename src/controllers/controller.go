@@ -43,14 +43,15 @@ func (ctx *Controller) UseJwtAuth(next http.Handler) http.Handler {
 			}
 
 			// Get user from id, username, email
-			user, err := user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string))
+			var user types.User
+			err = user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string), &user)
 			if err != nil {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), types.AuthKey, types.Auth{
 				Token: raw_token,
-				User: *user,
+				User: user,
 			}))
 			// Serve handler with updated request
 			next.ServeHTTP(w, r)

@@ -21,8 +21,8 @@ func TestCategoryService(t *testing.T) {
 			t.Cleanup(func() {
 				category_service.DB.Exec("delete from categories")
 			})
-			input_created, err := category_service.Create(&input)
-			if err != nil {
+			var input_created types.Category
+			if err := category_service.Create(&input, &input_created); err != nil {
 				t.Fatal(err.Error())
 			}
 			if input_created.Name != input.Name || input_created.Url != input.Url || input_created.Description != input.Description {
@@ -34,8 +34,9 @@ func TestCategoryService(t *testing.T) {
 			input := types.CreateCategory{
 				Name: "",
 			}
-			created, err := category_service.Create(&input)
-			if err == nil || created != nil {
+			var created types.Category
+			err := category_service.Create(&input, &created)
+			if err == nil {
 				t.Fatal(err.Error())
 			}
 		})
@@ -43,13 +44,13 @@ func TestCategoryService(t *testing.T) {
 
 	t.Run("find category", func(t *testing.T) {
 		t.Run("should return created category", func(t *testing.T) {
-			input_created, err := category_service.Create(&input)
-			if err != nil {
+			var input_created types.Category
+			if err := category_service.Create(&input, &input_created); err != nil {
 				t.Fatal(err.Error())
 			}
 
-			found_category, err := category_service.Find(input_created.Name)
-			if err != nil {
+			var found_category types.Category
+			if err := category_service.Find(input_created.Name, &found_category); err != nil {
 				t.Fatal(err)
 			}
 			if !reflect.DeepEqual(found_category, input_created) {

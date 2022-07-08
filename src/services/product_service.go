@@ -1,10 +1,10 @@
 package services
 
 import (
-	"fmt"
 	"net/url"
 
 	"github.com/giftxtrade/api/src/types"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -14,7 +14,8 @@ type ProductService struct {
 }
 
 func (service *ProductService) Create(create_product *types.CreateProduct, product *types.Product) error {
-	if err := validate_create_product_input(create_product); err != nil {
+	validate := validator.New()
+	if err := validate.Struct(create_product); err != nil {
 		return err
 	}
 
@@ -140,32 +141,4 @@ func (service *ProductService) Search(search string, limit int, page int, minPri
 		Find(products).
 		Error
 	return products, err
-}
-
-func validate_create_product_input(create_product *types.CreateProduct) error {
-	if create_product.Title == "" {
-		return fmt.Errorf("title is required")
-	}
-	if create_product.ProductKey == "" {
-		return fmt.Errorf("productKey is required")
-	}
-	if create_product.Rating <= 0 {
-		return fmt.Errorf("rating is required")
-	}
-	if create_product.Rating > 5 {
-		return fmt.Errorf("rating should be between interval (0, 5]")
-	}
-	if create_product.Price <= 0 {
-		return fmt.Errorf("price is required")
-	}
-	if create_product.OriginalUrl == "" {
-		return fmt.Errorf("originalUrl is required")
-	}
-	if create_product.TotalReviews == 0 {
-		return fmt.Errorf("totalReviews is required")
-	}
-	if create_product.Category == "" {
-		return fmt.Errorf("category is required")
-	}
-	return nil
 }

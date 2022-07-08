@@ -69,23 +69,11 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// validation
-	var errors []string
-	if create_product.ProductKey == "" {
-		errors = append(errors, "product key is required")
-	}
-	if create_product.Category == "" {
-		errors = append(errors, "category name is required")
-	}
-	if len(errors) > 0 {
-		utils.FailResponse(w, &errors)
-		return
-	}
-
 	var new_product types.Product
 	_, err := ctx.ProductService.CreateOrUpdate(&create_product, &new_product)
 	if err != nil {
-		utils.FailResponse(w, []string{"could not create product", err.Error()})
+		errors := strings.Split(err.Error(), "\n")
+		utils.FailResponse(w, errors)
 		return
 	}
 	utils.DataResponse(w, new_product)

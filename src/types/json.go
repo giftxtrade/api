@@ -50,25 +50,25 @@ type Auth struct {
 }
 
 type CreateUser struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	ImageUrl string `json:"imageUrl"`
+	Name string `json:"name" validate:"required"`
+	Email string `json:"email" validate:"required,email"`
+	ImageUrl string `json:"imageUrl" validate:"omitempty,url"`
 }
 
 type CreateCategory struct {
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 	Description string `json:"description"`
-	Url string `json:"url"`
+	Url string `json:"url" validate:"omitempty,url"`
 }
 
 type CreateProduct struct {
-	Title string `json:"title"`
+	Title string `json:"title" validate:"required"`
 	Description string `json:"description"`
-	ProductKey string `json:"productKey"`
-	ImageUrl string `json:"imageUrl"`
-	Rating float32 `json:"rating"`
-	Price float32 `json:"price"`
-	OriginalUrl string `json:"originalUrl"`
-	TotalReviews uint `json:"totalReviews"`
-	Category string `json:"category"`
+	ProductKey string `json:"productKey" validate:"required"`
+	ImageUrl string `json:"imageUrl" validate:"omitempty,url"`
+	Rating float32 `json:"rating" validate:"required,min=1,max=5"`
+	Price float32 `json:"price" validate:"required,gte=1"`
+	OriginalUrl string `json:"originalUrl" validate:"omitempty,url"`
+	TotalReviews uint `json:"totalReviews" validate:"required,gte=1"`
+	Category string `json:"category" validate:"required"`
 }

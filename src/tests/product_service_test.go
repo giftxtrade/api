@@ -251,10 +251,18 @@ func TestProductService(t *testing.T) {
 	})
 
 	t.Run("should filter products", func(t *testing.T) {
+		filter := types.ProductFilter{
+			Search: "hello",
+			Limit: 1,
+			Page: 1,
+			MinPrice: 0,
+			MaxPrice: 5000,
+			Sort: "",
+		}
 		t.Run("filter with limit and page", func(t *testing.T) {
-			limit := 1
-			page := 1
-			products, err := product_service.Search("", limit, page, 0, 5000, "")
+			filter.Limit = 1
+			filter.Page = 1
+			products, err := product_service.Search(filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -265,8 +273,8 @@ func TestProductService(t *testing.T) {
 				t.Fatal("wrong first product", (*products)[0])
 			}
 
-			limit = 10
-			products, err = product_service.Search("", limit, page, 0, 5000, "")
+			filter.Limit = 10
+			products, err = product_service.Search(filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -274,8 +282,8 @@ func TestProductService(t *testing.T) {
 				t.Fatal("total products should be 5")
 			}
 
-			limit = 5
-			products2, err2 := product_service.Search("", limit, page, 0, 5000, "")
+			filter.Limit = 5
+			products2, err2 := product_service.Search(filter)
 			if err2 != nil {
 				t.Fatal(err2)
 			}
@@ -288,7 +296,11 @@ func TestProductService(t *testing.T) {
 		})
 
 		t.Run("filter with min and max price", func(t *testing.T) {
-			products1, err1 := product_service.Search("", 5, 1, 10000, 10000, "")
+			filter.Limit = 5
+			filter.Page = 1
+			filter.MinPrice = 10000
+			filter.MaxPrice = 10000
+			products1, err1 := product_service.Search(filter)
 			if err1 != nil {
 				t.Fatal(err1)
 			}
@@ -296,7 +308,8 @@ func TestProductService(t *testing.T) {
 				t.Fatal("products1 length should be 0")
 			}
 
-			products1, err1 = product_service.Search("", 5, 1, 10000, 20000, "")
+			filter.MaxPrice = 20000
+			products1, err1 = product_service.Search(filter)
 			if err1 != nil {
 				t.Fatal(err1)
 			}
@@ -304,9 +317,9 @@ func TestProductService(t *testing.T) {
 				t.Fatal("products1 length should be 0")
 			}
 
-			var min float32 = 1.0
-			var max float32 = 2.0
-			products2, err2 := product_service.Search("", 5, 1, min, max, "")
+			filter.MinPrice = 1.0
+			filter.MaxPrice = 2.0
+			products2, err2 := product_service.Search(filter)
 			if err2 != nil {
 				t.Fatal(err2)
 			}
@@ -322,7 +335,7 @@ func TestProductService(t *testing.T) {
 				if !reflect.DeepEqual(product, found_product) {
 					t.Fatal(product, found_product)
 				}
-				if !(product.Price >= min || product.Price <= max) {
+				if !(product.Price >= filter.MinPrice || product.Price <= filter.MaxPrice) {
 					t.Fatal("price does not match")
 				}
 			}

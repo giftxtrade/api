@@ -72,3 +72,12 @@ type CreateProduct struct {
 	TotalReviews uint `json:"totalReviews" validate:"required,gte=1"`
 	Category string `json:"category" validate:"required"`
 }
+
+type ProductFilter struct {
+	Search string `json:"search" validate:"required"`
+	Limit int `json:"limit" validate:"required,min=1,max=200"`
+	Page int `json:"page" validate:"required,gte=1"`
+	MinPrice float32 `json:"minPrice" validate:"omitempty,gte=1,ltefield=MaxPrice"`
+	MaxPrice float32 `json:"maxPrice" validate:"omitempty,gtefield=MinPrice"`
+	Sort string `json:"sort" validate:"omitempty"`
+}

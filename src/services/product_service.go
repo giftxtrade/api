@@ -115,18 +115,24 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 	return false, err
 }
 
-func (service *ProductService) Search(search string, limit int, page int, minPrice float32, maxPrice float32, sort string) (*[]types.Product, error) {
-	offset := (page - 1) * limit
+func (service *ProductService) Search(filter types.ProductFilter) (*[]types.Product, error) {
+	validate := validator.New()
+	if err := validate.Struct(filter); err != nil {
+		return nil, err
+	}
+
 	products := new([]types.Product)
+	offset := (filter.Page - 1) * filter.Limit
 	query := service.DB.
-		Limit(limit).
+		Limit(filter.Limit).
 		Offset(offset)
 	
-	if minPrice > 0 && maxPrice >= minPrice {
+	if filter.MinPrice > 0 || filter.MaxPrice > 0 {
 		query.
-			Where("price BETWEEN ? AND ?", minPrice, maxPrice)
+			Where("price BETWEEN ? AND ?", filter.MinPrice, filter.MaxPrice)
 	}
-	switch sort {
+
+	switch filter.Sort {
 	case "rating":
 		query.Order("rating DESC")
 	case "price":

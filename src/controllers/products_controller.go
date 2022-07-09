@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/giftxtrade/api/src/services"
@@ -25,38 +24,21 @@ func (ctx *ProductsController) CreateRoutes(router *mux.Router, path string) {
 }
 
 func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.Request) {
-	var errors []string
-	q := r.URL.Query()
-	search := strings.TrimSpace(q.Get("search"))
-	limit, err := strconv.Atoi(q.Get("limit"))
-	if err != nil || limit <= 0 {
-		limit = 10
+	var filter types.ProductFilter
+	if err := json.NewDecoder(r.Body).Decode(&filter); err != nil {
+		utils.FailResponse(w, "could not parse body data")
+		return
 	}
-	page, err := strconv.Atoi(q.Get("page"))
-	if err != nil || page <= 0 {
-		page = 1
-	}
-	minPrice, err := strconv.ParseFloat(q.Get("minPrice"), 32)
-	if err != nil || minPrice < 0 {
-		minPrice = 0
-	}
-	maxPrice, err := strconv.ParseFloat(q.Get("maxPrice"), 32)
-	if err != nil || maxPrice < minPrice {
-		maxPrice = 5000
-	}
-	sort := strings.TrimSpace(q.Get("sort"))
-
+	
 	products, err := ctx.
 		ProductService.
-		Search(search, limit, page, float32(minPrice), float32(maxPrice), sort)
+		Search(filter)
 	if err != nil {
-		errors = append(errors, err.Error())
-	}
-
-	if len(errors) > 0 {
+		errors := strings.Split(err.Error(), "\n")
 		utils.FailResponse(w, errors)
 		return
 	}
+
 	utils.JsonResponse(w, types.Result{
 		Data: products,
 	})

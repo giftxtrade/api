@@ -74,7 +74,7 @@ type CreateProduct struct {
 }
 
 type ProductFilter struct {
-	Search string `json:"search" validate:"required"`
+	Search string `json:"search" validate:"omitempty"`
 	Limit int `json:"limit" validate:"required,min=1,max=200"`
 	Page int `json:"page" validate:"required,gte=1"`
 	MinPrice float32 `json:"minPrice" validate:"omitempty,gte=1,ltefield=MaxPrice"`

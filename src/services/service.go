@@ -2,18 +2,44 @@ package services
 
 import "gorm.io/gorm"
 
-type Service struct {
+type ServiceBase struct {
 	DB *gorm.DB
 	TABLE string
 }
 
-type IService interface {
-	New(db *gorm.DB, table_name string) *Service
+type Service struct {
+	DB *gorm.DB
+	UserService UserService
+	CategoryService CategoryService
+	ProductService ProductService
 }
 
-func New(db *gorm.DB, table_name string) *Service {
-	return &Service{
+type IService interface {
+	CreateService(db *gorm.DB, table string) ServiceBase
+	New(db *gorm.DB) Service
+}
+
+func CreateService(db *gorm.DB, table string) ServiceBase {
+	return ServiceBase{
 		DB: db,
-		TABLE: table_name,
+		TABLE: table,
 	}
+}
+
+func New(db *gorm.DB) Service {
+	service := Service{
+		DB: db,
+	}
+
+	service.UserService = UserService{
+		ServiceBase: CreateService(db, "users"),
+	}
+	service.CategoryService = CategoryService{
+		ServiceBase: CreateService(db, "categories"),
+	}
+	service.ProductService = ProductService{
+		ServiceBase: CreateService(db, "products"),
+		CategoryService: service.CategoryService,
+	}
+	return service
 }

@@ -4,11 +4,15 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 )
 
 func TestCategoryService(t *testing.T) {
-	category_service := SetupMockCategoryService(t)
+	db := SetupMockCategoryService(t)
+	category_service := services.CategoryService{
+		ServiceBase: services.CreateService(db, "categories"),
+	}
 
 	input := types.CreateCategory{
 		Name: "Fashion",

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
@@ -13,8 +12,6 @@ import (
 
 type ProductsController struct {
 	Controller
-	UserService *services.UserService
-	ProductService *services.ProductService
 }
 
 func (ctx *ProductsController) CreateRoutes(router *mux.Router, path string) {
@@ -31,6 +28,7 @@ func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.
 	}
 	
 	products, err := ctx.
+		Service.
 		ProductService.
 		Search(filter)
 	if err != nil {
@@ -52,7 +50,7 @@ func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Req
 	}
 
 	var new_product types.Product
-	_, err := ctx.ProductService.CreateOrUpdate(&create_product, &new_product)
+	_, err := ctx.Service.ProductService.CreateOrUpdate(&create_product, &new_product)
 	if err != nil {
 		errors := strings.Split(err.Error(), "\n")
 		utils.FailResponse(w, errors)
@@ -65,7 +63,7 @@ func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Reque
 	query_params := mux.Vars(r)
 	id := query_params["id"]
 	var product types.Product
-	if ctx.ProductService.Find(id, &product) != nil {
+	if ctx.Service.ProductService.Find(id, &product) != nil {
 		utils.FailResponse(w, "product not found")
 		return
 	}

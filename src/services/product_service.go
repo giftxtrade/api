@@ -9,8 +9,8 @@ import (
 )
 
 type ProductService struct {
-	*Service
-	CategoryService *CategoryService
+	ServiceBase
+	CategoryService CategoryService
 }
 
 func (service *ProductService) Create(create_product *types.CreateProduct, product *types.Product) error {

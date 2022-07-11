@@ -6,7 +6,7 @@ import (
 )
 
 type CategoryService struct {
-	*Service
+	ServiceBase
 }
 
 func (service *CategoryService) Create(create_category *types.CreateCategory, category *types.Category) error {

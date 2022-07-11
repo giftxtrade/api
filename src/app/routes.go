@@ -10,7 +10,8 @@ import (
 func (app *AppBase) CreateRoutes() *AppBase {
 	router := app.Router
 	controller := controllers.Controller{
-		AppContext: &app.AppContext,
+		AppContext: app.AppContext,
+		Service: app.Service,
 	}
 
 	home_controller := controllers.HomeController{
@@ -20,14 +21,11 @@ func (app *AppBase) CreateRoutes() *AppBase {
 
 	auth_controller := controllers.AuthController{
 		Controller: controller,
-		UserService: app.UserService,
 	}
 	auth_controller.CreateRoutes(router, "/auth")
 
 	products_controller := controllers.ProductsController{
 		Controller: controller,
-		UserService: app.UserService,
-		ProductService: app.ProductService,
 	}
 	products_controller.CreateRoutes(router, "/products")
 

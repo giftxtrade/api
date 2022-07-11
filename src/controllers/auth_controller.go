@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gorilla/mux"
@@ -13,7 +12,6 @@ import (
 
 type AuthController struct {
 	Controller
-	UserService *services.UserService
 }
 
 func (ctx *AuthController) CreateRoutes(router *mux.Router, path string) {
@@ -58,7 +56,7 @@ func (ctx *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 		ImageUrl: provider_user.AvatarURL,
 	}
 	var user types.User
-	_, err = ctx.UserService.FindOrCreate(&check_user, &user)
+	_, err = ctx.Service.UserService.FindOrCreate(&check_user, &user)
 	if err != nil {
 		utils.FailResponse(w, "something went wrong")
 		return

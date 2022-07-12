@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/google/uuid"
 )
 
 func TestUserService(t *testing.T) {
-	user_service := SetupMockUserService(t)
+	db := SetupMockUserService(t)
+	user_service := services.UserService{
+		ServiceBase: services.CreateService(db, "users"),
+	}
 
 	test_user1 := types.CreateUser{
 		Email: "john_doe@email.com",

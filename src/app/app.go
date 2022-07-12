@@ -10,9 +10,7 @@ import (
 
 type AppBase struct {
 	types.AppContext
-	UserService *services.UserService
-	CategoryService *services.CategoryService
-	ProductService *services.ProductService
+	Service services.Service
 }
 
 type IAppBase interface {
@@ -36,7 +34,7 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	app.Tokens = &tokens
 
 	app.CreateSchemas() // create schemas
-	app.CreateServices() // create services
+	app.Service = services.New(app.DB) // create services
 	utils.SetupOauthProviders(tokens) // oauth providers
 	app.CreateRoutes()
 	return app

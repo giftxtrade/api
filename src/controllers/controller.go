@@ -11,7 +11,8 @@ import (
 )
 
 type Controller struct {
-	*types.AppContext
+	types.AppContext
+	Service services.Service
 }
 
 type IController interface {
@@ -21,9 +22,6 @@ type IController interface {
 // Authentication middleware. Saves user data in request context within types.AuthKey key
 func (ctx *Controller) UseJwtAuth(next http.Handler) http.Handler {
 	const AUTH_REQ string = "authorization required"
-	user_services := services.UserService{
-		Service: services.New(ctx.DB, "users"),
-	}
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +42,7 @@ func (ctx *Controller) UseJwtAuth(next http.Handler) http.Handler {
 
 			// Get user from id, username, email
 			var user types.User
-			err = user_services.FindByIdAndEmail(claims["id"].(string), claims["email"].(string), &user)
+			err = ctx.Service.UserService.FindByIdAndEmail(claims["id"].(string), claims["email"].(string), &user)
 			if err != nil {
 				utils.FailResponseUnauthorized(w, AUTH_REQ)
 				return

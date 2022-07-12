@@ -15,11 +15,11 @@ import (
 )
 
 func TestAuthController(t *testing.T) {
-	user_service := SetupMockUserService(t)
+	db := SetupMockUserService(t)
 	auth_controller := controllers.AuthController{
-		Controller: *SetupMockController(user_service.DB),
-		UserService: user_service,
+		Controller: SetupMockController(db),
 	}
+	user_service := auth_controller.Service.UserService
 	token := auth_controller.Tokens.JwtKey
 
 	t.Run("auth middleware", func(t *testing.T) {

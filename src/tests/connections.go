@@ -49,44 +49,44 @@ func MockMigration(t *testing.T, callback func(db *gorm.DB)) *gorm.DB {
 	return db
 }
 
-func SetupMockController(db *gorm.DB) *controllers.Controller {
-	return &controllers.Controller{
-		AppContext: &types.AppContext{
+func SetupMockController(db *gorm.DB) controllers.Controller {
+	return controllers.Controller{
+		AppContext: types.AppContext{
 			DB: db,
 			Tokens: &types.Tokens{
 				JwtKey: "my-secret-jwt-token",
 			},
 		},
+		Service: services.New(db),
 	}
 }
 
-func SetupMockUserService(t *testing.T) (*services.UserService) {
+func SetupMockUserService(t *testing.T) *gorm.DB {
 	db := MockMigration(t, func(db *gorm.DB) {
 		db.Exec("delete from users")
 	})
-
-	return &services.UserService{
-		Service: services.New(db, "users"),
+	if db.Error != nil {
+		t.FailNow()
 	}
+	return db
 }
 
-func SetupMockCategoryService(t *testing.T) (*services.CategoryService) {
+func SetupMockCategoryService(t *testing.T) *gorm.DB {
 	db := MockMigration(t, func(db *gorm.DB) {
 		db.Exec("delete from categories")
 	})
-
-	return &services.CategoryService{
-		Service: services.New(db, "categories"),
+	if db.Error != nil {
+		t.FailNow()
 	}
+	return db
 }
 
-func SetupMockProductService(t *testing.T) (*services.ProductService) {
+func SetupMockProductService(t *testing.T) *gorm.DB {
 	db := MockMigration(t, func(db *gorm.DB) {
 		db.Exec("delete from products")
 	})
-
-	return &services.ProductService{
-		Service: services.New(db, "products"),
-		CategoryService: SetupMockCategoryService(t),
+	if db.Error != nil {
+		t.FailNow()
 	}
+	return db
 }

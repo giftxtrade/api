@@ -6,7 +6,7 @@ import (
 )
 
 type UserService struct {
-	*Service
+	ServiceBase
 }
 
 func (service *UserService) FindByEmail(email string, user *types.User) error {

@@ -68,7 +68,7 @@ type CreateProduct struct {
 	ImageUrl string `json:"imageUrl" validate:"omitempty,url"`
 	Rating float32 `json:"rating" validate:"required,min=1,max=5"`
 	Price float32 `json:"price" validate:"required,gte=1"`
-	OriginalUrl string `json:"originalUrl" validate:"omitempty,url"`
+	OriginalUrl string `json:"originalUrl" validate:"required,url"`
 	TotalReviews uint `json:"totalReviews" validate:"required,gte=1"`
 	Category string `json:"category" validate:"required"`
 }

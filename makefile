@@ -5,7 +5,7 @@ run:
 	go run src/server.go
 
 watch:
-	nodemon --watch './src/**/*.go' -e go --signal SIGTERM --exec 'make' run
+	go run github.com/go-playground/justdoit -build="make build" -run="./server"
 
 test:
 	go test -v ./src/tests

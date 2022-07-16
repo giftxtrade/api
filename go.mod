@@ -10,6 +10,7 @@ require (
 	github.com/go-playground/justdoit v0.0.0-20180413125108-f398c5dd9bd7 // indirect
 	github.com/go-playground/log v6.3.0+incompatible // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
+	github.com/gofiber/fiber/v2 v2.35.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0

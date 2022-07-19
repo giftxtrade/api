@@ -1,10 +1,11 @@
 package app
 
 import (
+	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -36,13 +37,13 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	app.CreateSchemas() // create schemas
 	app.Service = services.New(app.DB) // create services
 	utils.SetupOauthProviders(tokens) // oauth providers
-	app.CreateRoutes()
+	controllers.New(app.AppContext, app.Service)
 	return app
 }
 
-func New(conn *gorm.DB, router *mux.Router) *AppBase {
+func New(conn *gorm.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
-	app.Router = router
+	app.Server = server
 	return app.NewBaseHandler()
 }

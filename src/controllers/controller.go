@@ -78,18 +78,24 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 	return nil
 }
 
-// Admin only access middleware (uses UseJwtAuth)
-func (ctx *Controller) UseAdminOnly(next http.Handler) http.Handler {
-	return ctx.UseJwtAuth(
-		http.HandlerFunc(
-			func(w http.ResponseWriter, r *http.Request) {
-				auth := utils.ParseAuthContext(r.Context())
-				if !auth.User.IsAdmin {
-					utils.FailResponseUnauthorized(w, "access for admin users only")
-					return
-				}
-				next.ServeHTTP(w, r)
-			},
-		),
-	)
+func New(app_ctx types.AppContext, service services.Service) Controller {
+	controller := Controller{
+		AppContext: app_ctx,
+		Service: service,
+	}
+	server := app_ctx.Server
+
+	// create routes
+	server.Get("/", controller.Home)
+	{
+		auth := server.Group("/auth")
+		profile := auth.Group("/profile")
+		{
+			profile.Use(controller.UseJwtAuth)
+			profile.Get("", controller.GetProfile)
+		}
+		auth.Get("/:provider", controller.SignIn)
+		auth.Get("/:provider/callback", controller.Callback)
+	}
+	return controller
 }

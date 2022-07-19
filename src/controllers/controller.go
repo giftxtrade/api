@@ -24,15 +24,19 @@ func New(app_ctx types.AppContext, service services.Service) Controller {
 
 	// create routes
 	server.Get("/", controller.Home)
-	{
-		auth := server.Group("/auth")
-		profile := auth.Group("/profile")
-		{
-			profile.Use(controller.UseJwtAuth)
-			profile.Get("", controller.GetProfile)
-		}
+	auth := server.Group("/auth")
+	{ // auth
+		auth.Get("/profile", controller.UseJwtAuth, controller.GetProfile)
 		auth.Get("/:provider", controller.SignIn)
 		auth.Get("/:provider/callback", controller.Callback)
 	}
+
+	products := server.Group("/products")
+	{
+		products.Post("", controller.UseAdminOnly, controller.CreateProduct)
+		products.Get("", controller.UseAdminOnly, controller.FindAllProducts)
+		products.Get("/:id", controller.UseJwtAuth, controller.FindProduct)
+	}
+	server.Get("*", controller.NotFound)
 	return controller
 }

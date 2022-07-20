@@ -1,26 +1,40 @@
 package tests
 
 import (
+	"encoding/json"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/giftxtrade/api/src/types"
+	"github.com/gofiber/fiber/v2"
 )
 
 func TestHomeController(t *testing.T) {
-	// req, err := http.NewRequest("GET", "/", nil)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	db, err := NewMockDB(t)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	controller := SetupMockController(db)
+	app := fiber.New()
+	app.Get("/", controller.Home)
 
-	// rr := httptest.NewRecorder()
-	// home_controller := controllers.HomeController{}
-	// handler := http.HandlerFunc(home_controller.Home)
-	// handler.ServeHTTP(rr, req)
+	req := httptest.NewRequest("GET", "/", nil)
+	res, err_res := app.Test(req)
+	if err_res != nil {
+		t.Fatal(err_res.Error())
+	}
 
-	// // Check the response body is what we expect.
-	// expected := types.Response{Message: "GiftTrade REST API ⚡"}
-	// var parsed_body types.Response
-	// err = json.Unmarshal(rr.Body.Bytes(), &parsed_body)
-	// if err != nil || parsed_body != expected {
-	// 	t.Errorf("home handler did not return Response struct")
-	// 	return
-	// }
+	// Check the response body is what we expect.
+	expected := types.Response{Message: "GiftTrade REST API ⚡"}
+	if res.StatusCode != fiber.StatusOK {
+		t.Fatal("incorrect response type", res.StatusCode)
+	}
+
+	var body types.Response
+	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	if body != expected {
+		t.Fatal(expected)
+	}
 }

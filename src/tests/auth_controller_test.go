@@ -1,7 +1,9 @@
 package tests
 
 import (
+	"encoding/json"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/giftxtrade/api/src/types"
@@ -16,7 +18,6 @@ func TestAuthController(t *testing.T) {
 	user_service := controller.Service.UserService
 	token := controller.Tokens.JwtKey
 	app := fiber.New()
-	const path = "/auth/profile"
 
 	t.Run("auth middleware", func(t *testing.T) {
 		t.Run("should throw status 401", func(t *testing.T) {
@@ -173,37 +174,47 @@ func TestAuthController(t *testing.T) {
 		})
 	})
 
-	// t.Run("[GET] /auth/profile", func(t *testing.T) {
-	// 	t.Run("should return auth struct", func(t *testing.T) {
-	// 		req := httptest.NewRequest("GET", path, nil)
+	t.Run("[GET] /auth/profile", func(t *testing.T) {
+		t.Run("should return auth struct", func(t *testing.T) {
+			var user types.User
+			_, err := user_service.FindOrCreate(&types.CreateUser{
+				Name: "Get Profile User",
+				Email: "get_profile_user@gmail.com",
+			}, &user)
+			if err != nil {
+				t.Fatal(err)
+			}
+			jwt, err := utils.GenerateJWT(token, &user)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	// 		mock_auth := types.Auth{
-	// 			User: types.User{},
-	// 			Token: token,
-	// 		}
+			mock_auth := types.Auth{
+				Token: jwt,
+				User: user,
+			}
 
-	// 		req = req.WithContext(context.WithValue(
-	// 			req.Context(),
-	// 			types.AuthKey,
-	// 			mock_auth,
-	// 		))
-	// 		rr := httptest.NewRecorder()
-	// 		handler := http.HandlerFunc(controller.GetProfile)
-	// 		handler.ServeHTTP(rr, req)
+			req := httptest.NewRequest("GET", "/auth/profile", nil)
+			req.Header.Set("Authorization", "Bearer " + jwt)
+			app.Get("/auth/profile", controller.UseJwtAuth, controller.GetProfile)
+			res, err_res := app.Test(req)
 
-	// 		if rr.Code != 200 {
-	// 			t.Fatal("response must be ok (200).")
-	// 		}
+			if err_res != nil {
+				t.Fatal(err_res)
+			}
+			if res.StatusCode != 200 {
+				t.Fatal("response must be ok (200).", res.StatusCode)
+			}
 
-	// 		var res struct {
-	// 			Data types.Auth
-	// 		}
-	// 		if json.Unmarshal(rr.Body.Bytes(), &res) != nil {
-	// 			t.Fatal("could not parse response")
-	// 		}
-	// 		if !reflect.DeepEqual(res.Data, mock_auth) {
-	// 			t.Fatal(res.Data, mock_auth)
-	// 		}
-	// 	})
-	// })
+			var body struct {
+				Data types.Auth
+			}
+			if json.NewDecoder(res.Body).Decode(&body) != nil {
+				t.Fatal("could not parse response")
+			}
+			if !reflect.DeepEqual(body.Data, mock_auth) {
+				t.Fatal(body.Data, mock_auth)
+			}
+		})
+	})
 }

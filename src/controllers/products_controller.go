@@ -1,30 +1,17 @@
 package controllers
 
 import (
-	"encoding/json"
-	"net/http"
 	"strings"
 
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
-type ProductsController struct {
-	Controller
-}
-
-func (ctx *ProductsController) CreateRoutes(router *mux.Router, path string) {
-	router.Handle(path, ctx.Controller.UseJwtAuth(http.HandlerFunc(ctx.find_all_products))).Methods("GET")
-	router.Handle(path, ctx.Controller.UseAdminOnly(http.HandlerFunc(ctx.create_product))).Methods("POST")
-	router.Handle(path + "/{id}", ctx.Controller.UseJwtAuth(http.HandlerFunc(ctx.find_product))).Methods("GET")
-}
-
-func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.Request) {
+func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
 	var filter types.ProductFilter
-	if err := json.NewDecoder(r.Body).Decode(&filter); err != nil {
-		utils.FailResponse(w, "could not parse body data")
-		return
+	if c.BodyParser(&filter) != nil {
+		return utils.FailResponse(c, "could not parse body data")
 	}
 	
 	products, err := ctx.
@@ -33,39 +20,30 @@ func (ctx *ProductsController) find_all_products(w http.ResponseWriter, r *http.
 		Search(filter)
 	if err != nil {
 		errors := strings.Split(err.Error(), "\n")
-		utils.FailResponse(w, errors)
-		return
+		return utils.FailResponse(c, errors...)
 	}
-
-	utils.JsonResponse(w, types.Result{
-		Data: products,
-	})
+	return utils.DataResponse(c, products)
 }
 
-func (ctx *ProductsController) create_product(w http.ResponseWriter, r *http.Request) {
+func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
 	var create_product types.CreateProduct
-	if err := json.NewDecoder(r.Body).Decode(&create_product); err != nil {
-		utils.FailResponse(w, "could not parse body data")
-		return
+	if c.BodyParser(&create_product) != nil {
+		return utils.FailResponse(c, "could not parse body data")
 	}
 
 	var new_product types.Product
 	_, err := ctx.Service.ProductService.CreateOrUpdate(&create_product, &new_product)
 	if err != nil {
-		errors := strings.Split(err.Error(), "\n")
-		utils.FailResponse(w, errors)
-		return
+		return utils.FailResponse(c, strings.Split(err.Error(), "\n")...)
 	}
-	utils.DataResponse(w, new_product)
+	return utils.DataResponse(c, new_product)
 }
 
-func (ctx *ProductsController) find_product(w http.ResponseWriter, r *http.Request) {
-	query_params := mux.Vars(r)
-	id := query_params["id"]
+func (ctx Controller) FindProduct(c *fiber.Ctx) error {
+	id := c.Params("id")
 	var product types.Product
 	if ctx.Service.ProductService.Find(id, &product) != nil {
-		utils.FailResponse(w, "product not found")
-		return
+		return utils.FailResponse(c, "product not found")
 	}
-	utils.DataResponse(w, product)
+	return utils.DataResponse(c, product)
 }

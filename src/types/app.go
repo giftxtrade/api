@@ -1,14 +1,14 @@
 package types
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 type AppContext struct {
 	DB *gorm.DB
 	Tokens *Tokens
-	Router *mux.Router
+	Server *fiber.App
 }
 
 type DbConnectionOptions struct {

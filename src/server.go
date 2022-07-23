@@ -2,11 +2,10 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/giftxtrade/api/src/app"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -16,15 +15,14 @@ func main() {
 		log.Fatal("Could not connect to database.\n", err)
 		return
 	}
-	
-	// Create router instance
-	router := mux.NewRouter()
-	// Create server base with DB connection and router instance
-	app.New(conn, router)
+
+	server := fiber.New(fiber.Config{
+		ServerHeader: "giftxtrade api v2",
+	})
+	app.New(conn, server)
 
 	const port = "8080"
-	log.Printf("🚀 server starting on port %s\n", port)
-	if err := http.ListenAndServe(":" + port, router); err != nil {
+	if err := server.Listen(":" + port); err != nil {
 		log.Fatalf("❌ port %s already in use. could not start server\n\n", port)
 		log.Fatal(err)
 	}

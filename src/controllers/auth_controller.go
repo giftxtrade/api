@@ -1,53 +1,31 @@
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/gorilla/mux"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/gothic"
+	"github.com/gofiber/fiber/v2"
+	"github.com/shareed2k/goth_fiber"
 )
 
-type AuthController struct {
-	Controller
+func (ctx Controller) GetProfile(c *fiber.Ctx) error {
+	auth := utils.ParseAuthContext(c.UserContext())
+	return c.JSON(types.Result{
+		Data: auth,
+	})
 }
 
-func (ctx *AuthController) CreateRoutes(router *mux.Router, path string) {
-	router.Handle(path + "/profile", ctx.Controller.UseJwtAuth(http.HandlerFunc(ctx.GetProfile))).Methods("GET")
-	router.HandleFunc(path + "/{provider}", ctx.SignIn).Methods("GET")
-	router.HandleFunc(path + "/{provider}/callback", ctx.Callback).Methods("GET")
-}
-
-func (ctx *AuthController) GetProfile(w http.ResponseWriter, r *http.Request) {
-	auth := utils.ParseAuthContext(r.Context())
-	utils.DataResponse(w, &auth)
-}
-
-
-// [GET] /auth/{provider}
-func (ctx *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	provider := params["provider"]
-	
-	callback_url := r.URL.Query().Get("callbackUrl")
-	if callback_url != "" {
-		switch provider {
-		case "google":
-			goth.UseProviders(utils.CreateGoogleProvider(callback_url, ctx.Tokens.Google))
-		}
-	}
-
-	gothic.BeginAuthHandler(w, r)
+// [GET] /auth/:provider
+func (ctx Controller) SignIn(c *fiber.Ctx) error {
+	return goth_fiber.BeginAuthHandler(c)
 }
 
 // [GET] /auth/{provider}/Callback
-func (ctx *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
-	provider_user, err := gothic.CompleteUserAuth(w, r)
+func (ctx Controller) Callback(c *fiber.Ctx) error {
+	provider_user, err := goth_fiber.CompleteUserAuth(c)
 	if err != nil {
-		utils.FailResponse(w, "could not complete authentication")
-		return
+		return c.JSON(types.Errors{
+			Errors: []string{"could not complete oauth transaction"},
+		})
 	}
 
 	check_user := types.CreateUser{
@@ -58,17 +36,21 @@ func (ctx *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 	var user types.User
 	_, err = ctx.Service.UserService.FindOrCreate(&check_user, &user)
 	if err != nil {
-		utils.FailResponse(w, "something went wrong")
-		return
+		return c.JSON(types.Errors{
+			Errors: []string{"authentication could not succeed"},
+		})
 	}
 	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, &user)
 	if err != nil {
-		utils.FailResponse(w, "could not generate token")
-		return
+		return c.JSON(types.Errors{
+			Errors: []string{"could not generate token"},
+		})
 	}
 	auth := types.Auth{
 		Token: token,
 		User: user,
 	}
-	utils.JsonResponse(w, &auth)
+	return c.JSON(types.Result{
+		Data: auth,
+	})
 }

@@ -24,11 +24,13 @@ type TwitterKeys struct {
 	ApiKey string `json:"apiKey"`
 	ApiKeySecret string `json:"apiKeySecret"`
 	BearerToken string `json:"bearerToken"`
+	CallbackUrl string `json:"callbackUrl"`
 }
 
 type GoogleKeys struct {
 	ClientId string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
+	CallbackUrl string `json:"callbackUrl"`
 }
 
 type SendgridKeys struct {

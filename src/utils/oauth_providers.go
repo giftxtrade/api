@@ -9,8 +9,8 @@ import (
 
 func SetupOauthProviders(tokens types.Tokens) {
 	goth.UseProviders(
-		CreateTwitterProvider("", tokens.Twitter), 
-		CreateGoogleProvider("https://giftxtrade.com/auth/google/callback", tokens.Google),
+		CreateTwitterProvider(tokens.Twitter.CallbackUrl, tokens.Twitter), 
+		CreateGoogleProvider(tokens.Google.CallbackUrl, tokens.Google),
 	)
 }
 

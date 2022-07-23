@@ -1,29 +1,19 @@
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
-type HomeController struct {
-	Controller
-}
-
-func (controller *HomeController) CreateRoutes(router *mux.Router, path string) {
-	router.HandleFunc(path, controller.Home).Methods("GET")
-}
-
-func (controller *HomeController) Home(w http.ResponseWriter, r *http.Request) {
-	utils.JsonResponse(w, types.Response{
+func (ctx Controller) Home(c *fiber.Ctx) error {
+	return utils.JsonResponse(c, types.Response{
 		Message: "GiftTrade REST API ⚡",
 	})
 }
 
-func (controller *HomeController) NotFound(w http.ResponseWriter, r *http.Request) {
-	utils.ResponseWithStatusCode(w, 404, types.Errors{
+func (ctx Controller) NotFound(c *fiber.Ctx) error {
+	return utils.ResponseWithStatusCode(c, 404, types.Errors{
 		Errors: []string{"resource not found"},
 	})
 }

@@ -12,9 +12,7 @@ import (
 // Authentication middleware. Saves user data in request context within types.AuthKey key
 func (ctx *Controller) UseJwtAuth(c *fiber.Ctx) error {
 	if err := ctx.authenticate_user(c); err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{err.Error()},
-		})
+		return utils.FailResponseUnauthorized(c, []string{err.Error()})
 	}
 	return c.Next()
 }
@@ -22,9 +20,7 @@ func (ctx *Controller) UseJwtAuth(c *fiber.Ctx) error {
 // Admin only access middleware (uses UseJwtAuth)
 func (ctx *Controller) UseAdminOnly(c *fiber.Ctx) error {
 	if err := ctx.authenticate_user(c); err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{err.Error()},
-		})
+		return utils.FailResponseUnauthorized(c, []string{err.Error()})
 	}
 	
 	auth := utils.ParseAuthContext(c.UserContext())

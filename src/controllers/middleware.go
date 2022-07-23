@@ -25,9 +25,10 @@ func (ctx *Controller) UseAdminOnly(c *fiber.Ctx) error {
 	
 	auth := utils.ParseAuthContext(c.UserContext())
 	if !auth.User.IsAdmin {
-		return c.JSON(types.Errors{
-			Errors: []string{"access for admin users only"},
-		})
+		return utils.FailResponseUnauthorized(
+			c, 
+			[]string{"access for admin users only"},
+		)
 	}
 	return c.Next()
 }

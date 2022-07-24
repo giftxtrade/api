@@ -1,7 +1,6 @@
 <p align="center">
     <a href="http://giftxtrade.com/" target="blank">
-        <!-- <img src="https://giftxtrade.com/logos/logo_profile_rounded.svg" width='50' alt="GiftTrade Logo" /> -->
-        <img src="https://giftxtrade.com/logos/logotype_rounded_color.svg" width='250' alt="GiftTrade Logo" />
+        <img src="https://raw.githubusercontent.com/giftxtrade/logos/master/logotype_rounded_color.svg" width='250' alt="GiftTrade Logo" />
     </a>
 </p>
 
@@ -16,8 +15,9 @@
 - [GORM](https://gorm.io) - ORM to interact with the database programmatically
 - [Postgres for GORM](https://github.com/go-gorm/postgres) - Postgres Driver for GORM
 - [Google UUID](https://pkg.go.dev/github.com/google/uuid@v1.3.0) - Generates UUID before inserts
-- [gorilla/mux](https://github.com/gorilla/mux) - Router built using the standard Go `http.Handler` interface
+- [Fiber](https://github.com/gofiber/fiber) - Express.js inspired framework for Go (uses [Fasthttp](https://github.com/valyala/fasthttp))
 - [Goth](https://github.com/markbates/goth) - OAuth support for multiple platforms
+- [Goth Fiber](https://github.com/Shareed2k/goth_fiber) - Goth implementation for Fiber
 
 ## Instructions
 
@@ -48,10 +48,12 @@ In addition to the `db_config.json`, you will also need to create a `tokens.json
         "apiKey": "[Twitter OAuth 1.0 API Key]",
         "apiKeySecret": "[Twitter OAuth 1.0 API Secret]",
         "bearerToken": "[Twitter OAuth Bearer Token]",
+        "callbackUrl": "http://localhost:8080/auth/twitter/callback"
     },
     "google": {
         "clientId": "[Google Client Id]",
-        "clientSecret": "[Google Secret Key]"
+        "clientSecret": "[Google Secret Key]",
+        "callbackUrl": "http://localhost:8080/auth/twitter/callback"
     }
 }
 ```

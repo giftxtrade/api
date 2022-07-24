@@ -9,9 +9,7 @@ import (
 
 func (ctx Controller) GetProfile(c *fiber.Ctx) error {
 	auth := utils.ParseAuthContext(c.UserContext())
-	return c.JSON(types.Result{
-		Data: auth,
-	})
+	return utils.DataResponse(c, auth)
 }
 
 // [GET] /auth/:provider
@@ -50,7 +48,5 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 		Token: token,
 		User: user,
 	}
-	return c.JSON(types.Result{
-		Data: auth,
-	})
+	return utils.DataResponse(c, auth)
 }

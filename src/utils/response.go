@@ -6,32 +6,38 @@ import (
 )
 
 func ResponseWithStatusCode(c *fiber.Ctx, statusCode int, data interface{}) error {
-	c.Response().SetStatusCode(statusCode)
-	return c.JSON(data)
+	return c.Status(statusCode).JSON(data)
 }
 
+// Generic json response with status code 200
 func JsonResponse(c *fiber.Ctx, data interface{}) error {
-	return ResponseWithStatusCode(c, 200, data)
+	return ResponseWithStatusCode(c, fiber.StatusOK, data)
 }
 
-// Writes a types.Errors json response to the http.ResponseWriter,
-// with a default Http 400 status
+// types.Error json response with status code 400
 func FailResponse(c *fiber.Ctx, errors ...string) error {
-	return ResponseWithStatusCode(c, 400, types.Errors{
+	return ResponseWithStatusCode(c, fiber.StatusBadRequest, types.Errors{
 		Errors: errors,
 	})
 }
 
-func FailResponseUnauthorized(c *fiber.Ctx, errors interface{}) error {
-	return ResponseWithStatusCode(c, 401, types.Errors{
+// types.Error json response with status code 401
+func FailResponseUnauthorized(c *fiber.Ctx, errors ...string) error {
+	return ResponseWithStatusCode(c, fiber.StatusUnauthorized, types.Errors{
 		Errors: errors,
 	})
 }
 
-// Writes a types.Data json response to the http.ResponseWriter,
-// with a default Http 200 status
+// types.Data json response with status code 200
 func DataResponse(c *fiber.Ctx, data interface{}) error {
-	return ResponseWithStatusCode(c, 200, types.Result{
+	return ResponseWithStatusCode(c, fiber.StatusOK, types.Result{
+		Data: data,
+	})
+}
+
+// types.Data json response with status code 201
+func DataResponseCreated(c *fiber.Ctx, data interface{}) error {
+	return ResponseWithStatusCode(c, fiber.StatusCreated, types.Result{
 		Data: data,
 	})
 }

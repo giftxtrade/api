@@ -32,9 +32,12 @@ func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	var new_product types.Product
-	_, err := ctx.Service.ProductService.CreateOrUpdate(&create_product, &new_product)
+	created, err := ctx.Service.ProductService.CreateOrUpdate(&create_product, &new_product)
 	if err != nil {
 		return utils.FailResponse(c, strings.Split(err.Error(), "\n")...)
+	}
+	if created {
+		return utils.DataResponseCreated(c, new_product)
 	}
 	return utils.DataResponse(c, new_product)
 }

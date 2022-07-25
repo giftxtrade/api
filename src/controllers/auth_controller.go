@@ -7,6 +7,7 @@ import (
 	"github.com/shareed2k/goth_fiber"
 )
 
+// [GET] /auth/profile (authentication required)
 func (ctx Controller) GetProfile(c *fiber.Ctx) error {
 	auth := utils.ParseAuthContext(c.UserContext())
 	return utils.DataResponse(c, auth)
@@ -17,13 +18,11 @@ func (ctx Controller) SignIn(c *fiber.Ctx) error {
 	return goth_fiber.BeginAuthHandler(c)
 }
 
-// [GET] /auth/{provider}/Callback
+// [GET] /auth/:provider/callback
 func (ctx Controller) Callback(c *fiber.Ctx) error {
 	provider_user, err := goth_fiber.CompleteUserAuth(c)
 	if err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{"could not complete oauth transaction"},
-		})
+		return utils.FailResponse(c, "could not complete oauth transaction")
 	}
 
 	check_user := types.CreateUser{
@@ -32,21 +31,21 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 		ImageUrl: provider_user.AvatarURL,
 	}
 	var user types.User
-	_, err = ctx.Service.UserService.FindOrCreate(&check_user, &user)
+	created, err := ctx.Service.UserService.FindOrCreate(&check_user, &user)
 	if err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{"authentication could not succeed"},
-		})
+		return utils.FailResponse(c, "authentication could not succeed")
 	}
 	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, &user)
 	if err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{"could not generate token"},
-		})
+		return utils.FailResponse(c, "could not generate token")
 	}
 	auth := types.Auth{
 		Token: token,
 		User: user,
+	}
+
+	if created {
+		return utils.DataResponseCreated(c, auth)
 	}
 	return utils.DataResponse(c, auth)
 }

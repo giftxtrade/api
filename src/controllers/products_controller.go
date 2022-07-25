@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// [GET] /products
 func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
 	var filter types.ProductFilter
 	if c.BodyParser(&filter) != nil {
@@ -25,6 +26,7 @@ func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
 	return utils.DataResponse(c, products)
 }
 
+// [POST] /products
 func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
 	var create_product types.CreateProduct
 	if c.BodyParser(&create_product) != nil {
@@ -42,6 +44,7 @@ func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
 	return utils.DataResponse(c, new_product)
 }
 
+// [GET] /products/:id
 func (ctx Controller) FindProduct(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var product types.Product

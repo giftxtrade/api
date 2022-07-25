@@ -7,6 +7,7 @@ import (
 	"github.com/shareed2k/goth_fiber"
 )
 
+// [GET] /auth/profile (authentication required)
 func (ctx Controller) GetProfile(c *fiber.Ctx) error {
 	auth := utils.ParseAuthContext(c.UserContext())
 	return utils.DataResponse(c, auth)
@@ -17,7 +18,7 @@ func (ctx Controller) SignIn(c *fiber.Ctx) error {
 	return goth_fiber.BeginAuthHandler(c)
 }
 
-// [GET] /auth/{provider}/Callback
+// [GET] /auth/:provider/callback
 func (ctx Controller) Callback(c *fiber.Ctx) error {
 	provider_user, err := goth_fiber.CompleteUserAuth(c)
 	if err != nil {

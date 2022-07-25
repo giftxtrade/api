@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// [GET] /
 func (ctx Controller) Home(c *fiber.Ctx) error {
 	return utils.JsonResponse(c, types.Response{
 		Message: "GiftTrade REST API ⚡",

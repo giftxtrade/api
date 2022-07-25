@@ -21,9 +21,7 @@ func (ctx Controller) SignIn(c *fiber.Ctx) error {
 func (ctx Controller) Callback(c *fiber.Ctx) error {
 	provider_user, err := goth_fiber.CompleteUserAuth(c)
 	if err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{"could not complete oauth transaction"},
-		})
+		return utils.FailResponse(c, "could not complete oauth transaction")
 	}
 
 	check_user := types.CreateUser{
@@ -34,15 +32,11 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 	var user types.User
 	_, err = ctx.Service.UserService.FindOrCreate(&check_user, &user)
 	if err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{"authentication could not succeed"},
-		})
+		return utils.FailResponse(c, "authentication could not succeed")
 	}
 	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, &user)
 	if err != nil {
-		return c.JSON(types.Errors{
-			Errors: []string{"could not generate token"},
-		})
+		return utils.FailResponse(c, "could not generate token")
 	}
 	auth := types.Auth{
 		Token: token,

@@ -19,10 +19,6 @@ type IAppBase interface {
 	// database
 	AutoMigrate(db *gorm.DB) error
 	CreateSchemas() *AppBase
-	// routes
-	CreateRoutes() *AppBase
-	// services
-	CreateServices() *AppBase
 }
 
 // Given app.AppBase.DB, and app.AppBase.Router

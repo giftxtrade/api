@@ -11,7 +11,7 @@ type EventService struct {
 	UserService UserService
 }
 
-func (service *EventService) Create(create_event *types.CreateEvent, event *types.Event) error {
+func (service *EventService) Create(create_event *types.CreateEvent, user *types.User, event *types.Event) error {
 	validate := validator.New()
 	if err := validate.Struct(create_event); err != nil {
 		return err
@@ -26,10 +26,10 @@ func (service *EventService) Create(create_event *types.CreateEvent, event *type
 		CloseAt: create_event.CloseAt,
 		Slug: slug.Make(create_event.Name),
 		UserActionBase: types.UserActionBase{
-			CreatedById: create_event.CreatedBy.ID,
-			CreatedBy: create_event.CreatedBy,
-			ModifiedById: create_event.CreatedBy.ID,
-			ModifiedBy: create_event.CreatedBy,
+			CreatedById: user.ID,
+			CreatedBy: *user,
+			ModifiedById: user.ID,
+			ModifiedBy: *user,
 		},
 	}
 	return service.DB.

@@ -93,5 +93,4 @@ type CreateEvent struct {
 	InviteMessage string `json:"inviteMessage"`
 	DrawAt time.Time `json:"drawAt" validate:"required,datetime"`
 	CloseAt time.Time `json:"closeAt" validate:"required,datetime"`
-	CreatedBy User `json:"created_by" validate:"required"`
 }

@@ -34,6 +34,6 @@ func (service *EventService) Create(create_event *types.CreateEvent, user *types
 	}
 	return service.DB.
 		Table(service.TABLE).
-		Create(new_event).
+		Create(&new_event).
 		Error
 }

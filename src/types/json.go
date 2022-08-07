@@ -91,6 +91,6 @@ type CreateEvent struct {
 	Description string `json:"description"`
 	Budget float32 `json:"budget" validate:"required,gte=1"`
 	InviteMessage string `json:"inviteMessage"`
-	DrawAt time.Time `json:"drawAt" validate:"required,datetime"`
-	CloseAt time.Time `json:"closeAt" validate:"required,datetime"`
+	DrawAt time.Time `json:"drawAt" validate:"required"`
+	CloseAt time.Time `json:"closeAt" validate:"required"`
 }

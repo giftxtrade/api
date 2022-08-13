@@ -9,7 +9,7 @@ import (
 )
 
 func TestEventService(t *testing.T) {
-	db := SetupMockProductService(t)
+	db := SetupMockEventService(t)
 	event_service := services.EventService{
 		ServiceBase: services.CreateService(db, "events"),
 		UserService: services.UserService{
@@ -30,16 +30,30 @@ func TestEventService(t *testing.T) {
 
 	t.Run("create event", func(t *testing.T) {
 		now := time.Now()
-		event_input := types.CreateEvent{
+		input := types.CreateEvent{
 			Name: "Event 1",
 			Budget: 10,
 			DrawAt: now,
 			CloseAt: now,
 		}
-		created_event := types.Event{}
-		err := event_service.Create(&event_input, &my_user, &created_event)
+		event := types.Event{}
+		err := event_service.Create(&input, &my_user, &event)
+		if err != nil {
+			t.Fatal("could not create event", err, input)
+		}
+		if event.Name != input.Name || event.Budget != input.Budget || event.DrawAt != input.DrawAt || event.CloseAt != input.CloseAt || event.ModifiedById != event.CreatedById {
+			t.Fatal("created event does not have values from input", event, input)
+		}
+		if event.CreatedBy.ID != my_user.ID || event.ModifiedBy.ID != my_user.ID {
+			t.Fatal("incorrect event owner")
+		}
+	})
 		if err != nil {
 			t.Fatal("could not create event", err, event_input)
 		}
+	})
+
+	t.Cleanup(func() {
+		event_service.DB.Exec("delete from users, events")
 	})
 }

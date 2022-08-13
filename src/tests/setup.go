@@ -83,7 +83,17 @@ func SetupMockCategoryService(t *testing.T) *gorm.DB {
 
 func SetupMockProductService(t *testing.T) *gorm.DB {
 	db := MockMigration(t, func(db *gorm.DB) {
-		db.Exec("delete from products")
+		db.Exec("delete from categories, products")
+	})
+	if db.Error != nil {
+		t.FailNow()
+	}
+	return db
+}
+
+func SetupMockEventService(t *testing.T) *gorm.DB {
+	db := MockMigration(t, func(db *gorm.DB) {
+		db.Exec("delete from users, events")
 	})
 	if db.Error != nil {
 		t.FailNow()

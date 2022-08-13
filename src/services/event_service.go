@@ -17,21 +17,23 @@ func (service *EventService) Create(create_event *types.CreateEvent, user *types
 		return err
 	}
 
-	new_event := types.Event{
-		Name: create_event.Name,
-		Description: event.Description,
-		Budget: create_event.Budget,
-		InviteMessage: create_event.InviteMessage,
-		DrawAt: create_event.DrawAt,
-		CloseAt: create_event.CloseAt,
-		Slug: slug.Make(create_event.Name),
-		UserActionBase: types.UserActionBase{
-			CreatedById: user.ID,
-			CreatedBy: *user,
-			ModifiedById: user.ID,
-			ModifiedBy: *user,
-		},
-	}
+	event.Name = create_event.Name
+	event.Description = create_event.Description
+	event.Budget = create_event.Budget
+	event.InviteMessage = create_event.InviteMessage
+	event.DrawAt = create_event.DrawAt
+	event.CloseAt = create_event.CloseAt
+	event.Slug = slug.Make(create_event.Name)
+	event.CreatedById = user.ID
+	event.CreatedBy = *user
+	event.ModifiedById = user.ID
+	event.ModifiedBy = *user
+	
+	return service.DB.
+		Table(service.TABLE).
+		Create(event).
+		Error
+}
 	return service.DB.
 		Table(service.TABLE).
 		Create(&new_event).

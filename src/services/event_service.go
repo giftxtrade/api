@@ -34,8 +34,13 @@ func (service *EventService) Create(create_event *types.CreateEvent, user *types
 		Create(event).
 		Error
 }
+
+func (service *EventService) FindById(id string, event *types.Event) error {
 	return service.DB.
 		Table(service.TABLE).
-		Create(&new_event).
+		Preload("CreatedBy").
+		Preload("ModifiedBy").
+		Where("id = ?", id).
+		First(event).
 		Error
 }

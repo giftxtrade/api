@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -48,8 +49,28 @@ func TestEventService(t *testing.T) {
 			t.Fatal("incorrect event owner")
 		}
 	})
+
+	t.Run("find event by id", func(t *testing.T) {
+		now := time.Now()
+		input := types.CreateEvent{
+			Name: "Event 2",
+			Budget: 6.99,
+			DrawAt: now,
+			CloseAt: now,
+		}
+		event := types.Event{}
+		err := event_service.Create(&input, &my_user, &event)
 		if err != nil {
-			t.Fatal("could not create event", err, event_input)
+			t.Fatal("could not create event", err, input)
+		}
+
+		event_by_id := types.Event{}
+		found_err := event_service.FindById(event.ID.String(), &event_by_id)
+		if found_err != nil {
+			t.Fatal(found_err)
+		}
+		if !reflect.DeepEqual(event_by_id, event) {
+			t.Fatal("events not equal", event, event_by_id)
 		}
 	})
 

@@ -155,6 +155,23 @@ func TestUserService(t *testing.T) {
 		})
 	})
 
+	t.Run("delete user", func(t *testing.T) {
+		t.Run("delete by id", func(t *testing.T) {
+			var user types.User
+			err := user_service.Create(&types.CreateUser{
+				Name: "GORM",
+				Email: "gorm@email.com",
+			}, &user)
+			if err != nil {
+				t.Fatal("could not create user")
+			}
+
+			if err := user_service.DeleteById(user.ID.String()); err != nil {
+				t.Fatal("could not delete by id", err)
+			}
+		})
+	})
+
 	t.Cleanup(func() {
 		user_service.DB.Exec(fmt.Sprintf("DELETE FROM %s", user_service.TABLE))
 	})

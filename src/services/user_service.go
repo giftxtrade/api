@@ -67,3 +67,11 @@ func (service *UserService) Create(create_user *types.CreateUser, user *types.Us
 		Create(user).
 		Error
 }
+
+func (service *UserService) DeleteById(key string) error {
+	return service.DB.
+		Table(service.TABLE).
+		Where("id = ?", key).
+		Delete(&types.User{}).
+		Error
+}

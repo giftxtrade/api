@@ -9,7 +9,7 @@ import (
 )
 
 func TestCategoryService(t *testing.T) {
-	db := SetupMockCategoryService(t)
+	db := MockMigration(t)
 	category_service := services.CategoryService{
 		ServiceBase: services.CreateService(db, "categories"),
 	}

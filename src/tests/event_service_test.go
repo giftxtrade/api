@@ -9,7 +9,7 @@ import (
 )
 
 func TestEventService(t *testing.T) {
-	db := SetupMockEventService(t)
+	db := MockMigration(t)
 	event_service := services.EventService{
 		ServiceBase: services.CreateService(db, "events"),
 		UserService: services.UserService{

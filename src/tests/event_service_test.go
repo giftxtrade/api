@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"reflect"
 	"testing"
 	"time"
 
@@ -69,7 +68,7 @@ func TestEventService(t *testing.T) {
 		if found_err != nil {
 			t.Fatal(found_err)
 		}
-		if !reflect.DeepEqual(event_by_id, event) {
+		if event_by_id.ID != event.ID || event_by_id.Name != event.Name {
 			t.Fatal("events not equal", event, event_by_id)
 		}
 	})

@@ -5,6 +5,7 @@ import (
 
 	"github.com/giftxtrade/api/src/types"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 )
 
@@ -92,4 +93,19 @@ func (service *EventService) Patch(user *types.User, input *types.CreateEvent, e
 		return false, err
 	}
 	return true, nil
+}
+
+func (service *EventService) Delete(id string) error {
+	parsed_uuid, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+	return service.DB.
+		Table(service.TABLE).
+		Delete(types.Event{
+			Base: types.Base{
+				ID: parsed_uuid,
+			},
+		}).
+		Error
 }

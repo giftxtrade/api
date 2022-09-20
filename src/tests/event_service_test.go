@@ -152,6 +152,32 @@ func TestEventService(t *testing.T) {
 		})
 	})
 
+	t.Run("delete event", func(t *testing.T) {
+		now := time.Now()
+		input := types.CreateEvent{
+			Name: "Event to be deleted",
+			Budget: 499.99,
+			DrawAt: now,
+			CloseAt: now,
+			Description: "Some random even description",
+		}
+		var event types.Event
+		if err := event_service.Create(&input, &my_user, &event); err != nil {
+			t.Fatal(err)
+		}
+		event_id := event.ID.String()
+
+		t.Run("valid event id", func(t *testing.T) {
+			if err := event_service.Delete(event_id); err != nil {
+				t.Fatal("should delete event with id", event_id)
+			}
+			found_event := types.Event{}
+			if err := event_service.FindById(event_id, &found_event); err == nil {
+				t.Fatal("event should have been deleted already")
+			}
+		})
+	})
+
 	t.Cleanup(func() {
 		event_service.DB.Exec("delete from users, events")
 	})

@@ -33,9 +33,15 @@ func New(app_ctx types.AppContext, service services.Service) Controller {
 	products := server.Group("/products")
 	{
 		products.Post("", controller.UseAdminOnly, controller.CreateProduct)
-		products.Get("", controller.UseAdminOnly, controller.FindAllProducts)
+		products.Get("", controller.UseJwtAuth, controller.FindAllProducts)
 		products.Get("/:id", controller.UseJwtAuth, controller.FindProduct)
 	}
+
+	events := server.Group("/events")
+	{
+		events.Post("", controller.UseJwtAuth, controller.CreateEvent)
+	}
+
 	server.Get("*", controller.NotFound)
 	return controller
 }

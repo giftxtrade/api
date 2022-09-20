@@ -73,6 +73,49 @@ func TestEventService(t *testing.T) {
 		}
 	})
 
+	t.Run("patch event", func(t *testing.T) {
+		now := time.Now()
+		input := types.CreateEvent{
+			Name: "Event 2",
+			Budget: 6.99,
+			DrawAt: now,
+			CloseAt: now,
+		}
+		var event types.Event
+		if err := event_service.Create(&input, &my_user, &event); err != nil {
+			t.Fatal(err)
+		}
+
+		t.Run("patch nothing", func(t *testing.T) {
+			original_event := event
+			t.Run("default values", func(t *testing.T) {
+				updated, err := event_service.Patch(event.ID.String(), &my_user, &types.CreateEvent{}, &event)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if updated == true {
+					t.Fatal("event should not update. all default values")
+				}
+				if event.ModifiedBy.ID != original_event.ModifiedBy.ID {
+					t.Fatal("modified by user should not be changed")
+				}
+			})
+
+			t.Run("original event values", func(t *testing.T) {
+				updated, err := event_service.Patch(event.ID.String(), &my_user, &input, &event)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if updated == true {
+					t.Fatal("event should not update. values did not change", event)
+				}
+				if event.ModifiedBy.ID != original_event.ModifiedBy.ID {
+					t.Fatal("modified by user should not be changed")
+				}
+			})
+		})
+	})
+
 	t.Cleanup(func() {
 		event_service.DB.Exec("delete from users, events")
 	})

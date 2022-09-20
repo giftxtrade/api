@@ -10,7 +10,7 @@ import (
 )
 
 func TestProductService(t *testing.T) {
-	db := SetupMockProductService(t)
+	db := MockMigration(t)
 	product_service := services.ProductService{
 		ServiceBase: services.CreateService(db, "products"),
 		CategoryService: services.CategoryService{

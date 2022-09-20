@@ -10,7 +10,7 @@ import (
 )
 
 func TestUserService(t *testing.T) {
-	db := SetupMockUserService(t)
+	db := MockMigration(t)
 	user_service := services.UserService{
 		ServiceBase: services.CreateService(db, "users"),
 	}
@@ -151,6 +151,23 @@ func TestUserService(t *testing.T) {
 			}
 			if user2.Email != test_user1.Email {
 				t.Fatal("email does not match", user1, test_user1)
+			}
+		})
+	})
+
+	t.Run("delete user", func(t *testing.T) {
+		t.Run("delete by id", func(t *testing.T) {
+			var user types.User
+			err := user_service.Create(&types.CreateUser{
+				Name: "GORM",
+				Email: "gorm@email.com",
+			}, &user)
+			if err != nil {
+				t.Fatal("could not create user")
+			}
+
+			if err := user_service.DeleteById(user.ID.String()); err != nil {
+				t.Fatal("could not delete by id", err)
 			}
 		})
 	})

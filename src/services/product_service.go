@@ -13,57 +13,57 @@ type ProductService struct {
 	CategoryService CategoryService
 }
 
-func (service *ProductService) Create(create_product *types.CreateProduct, product *types.Product) error {
+func (service *ProductService) Create(input *types.CreateProduct, output *types.Product) error {
 	validate := validator.New()
-	if err := validate.Struct(create_product); err != nil {
+	if err := validate.Struct(input); err != nil {
 		return err
 	}
 
 	var category types.Category
-	_, category_err := service.CategoryService.FindOrCreate(create_product.Category, &category)
+	_, category_err := service.CategoryService.FindOrCreate(input.Category, &category)
 	if category_err != nil {
 		return category_err
 	}
 
-	product.Title = create_product.Title
-	product.Description = create_product.Description
-	product.ProductKey = create_product.ProductKey
-	product.ImageUrl = create_product.ImageUrl
-	product.Rating = create_product.Rating
-	product.Price = create_product.Price
-	product.OriginalUrl = create_product.OriginalUrl
-	product.TotalReviews = create_product.TotalReviews
-	product.CategoryId = category.ID
-	product.Category = category
+	output.Title = input.Title
+	output.Description = input.Description
+	output.ProductKey = input.ProductKey
+	output.ImageUrl = input.ImageUrl
+	output.Rating = input.Rating
+	output.Price = input.Price
+	output.OriginalUrl = input.OriginalUrl
+	output.TotalReviews = input.TotalReviews
+	output.CategoryId = category.ID
+	output.Category = category
 	// add website origin
-	parsed_url, err := url.ParseRequestURI(create_product.OriginalUrl)
+	parsed_url, err := url.ParseRequestURI(input.OriginalUrl)
 	if err == nil {
-		product.WebsiteOrigin = parsed_url.Host
+		output.WebsiteOrigin = parsed_url.Host
 	} else {
 		return err
 	}
 
 	return service.DB.
 		Table(service.TABLE).
-		Create(product).
+		Create(output).
 		Error
 }
 
-func (service *ProductService) Find(key string, product *types.Product) error {
+func (service *ProductService) Find(key string, output *types.Product) error {
 	id, _ := uuid.Parse(key)
 	return service.DB.
 		Table(service.TABLE).
 		Preload("Category").
 		Where("products.product_key = ? OR products.id = ?", key, id).
-		First(product).
+		First(output).
 		Error
 }
 
 // create a new product or update existing product with input
 // boolean value is true if a new user is created, otherwise false
-func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduct, product *types.Product) (bool, error) {
-	if service.Find(create_product.ProductKey, product) != nil {
-		create_err := service.Create(create_product, product)
+func (service *ProductService) CreateOrUpdate(input *types.CreateProduct, output *types.Product) (bool, error) {
+	if service.Find(input.ProductKey, output) != nil {
+		create_err := service.Create(input, output)
 		if create_err == nil {
 			return true, nil
 		}
@@ -72,36 +72,36 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 	
 	// product already exists, so update...
 	changed := false
-	if create_product.Title != product.Title {
-		product.Title = create_product.Title
+	if input.Title != output.Title {
+		output.Title = input.Title
 		changed = true
 	}
-	if create_product.Description != product.Description {
-		product.Description = create_product.Description
+	if input.Description != output.Description {
+		output.Description = input.Description
 		changed = true
 	}
-	if create_product.ImageUrl != product.ImageUrl {
-		product.ImageUrl = create_product.ImageUrl
+	if input.ImageUrl != output.ImageUrl {
+		output.ImageUrl = input.ImageUrl
 		changed = true
 	}
-	if create_product.Price != product.Price {
-		product.Price = create_product.Price
+	if input.Price != output.Price {
+		output.Price = input.Price
 		changed = true
 	}
-	if create_product.Rating != product.Rating {
-		product.Rating = create_product.Rating
+	if input.Rating != output.Rating {
+		output.Rating = input.Rating
 		changed = true
 	}
-	if create_product.TotalReviews != product.TotalReviews {
-		product.TotalReviews = create_product.TotalReviews
+	if input.TotalReviews != output.TotalReviews {
+		output.TotalReviews = input.TotalReviews
 		changed = true
 	}
-	if create_product.Category != product.Category.Name {
+	if input.Category != output.Category.Name {
 		var new_category types.Category
-		_, category_err := service.CategoryService.FindOrCreate(create_product.Category, &new_category)
+		_, category_err := service.CategoryService.FindOrCreate(input.Category, &new_category)
 		if category_err == nil {
-			product.CategoryId = new_category.ID
-			product.Category = new_category
+			output.CategoryId = new_category.ID
+			output.Category = new_category
 			changed = true
 		}
 	}
@@ -109,7 +109,7 @@ func (service *ProductService) CreateOrUpdate(create_product *types.CreateProduc
 	var err error
 	if changed {
 		err = service.DB.
-			Save(product).
+			Save(output).
 			Error
 	}
 	return false, err

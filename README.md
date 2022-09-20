@@ -53,7 +53,7 @@ In addition to the `db_config.json`, you will also need to create a `tokens.json
     "google": {
         "clientId": "[Google Client Id]",
         "clientSecret": "[Google Secret Key]",
-        "callbackUrl": "http://localhost:8080/auth/twitter/callback"
+        "callbackUrl": "http://localhost:8080/auth/google/callback"
     }
 }
 ```

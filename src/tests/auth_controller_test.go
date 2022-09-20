@@ -11,7 +11,7 @@ import (
 )
 
 func TestAuthController(t *testing.T) {
-	db := SetupMockUserService(t)
+	db := MockMigration(t)
 	controller := SetupMockController(db)
 	user_service := controller.Service.UserService
 	token := controller.Tokens.JwtKey

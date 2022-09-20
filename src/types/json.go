@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type Response struct {
 	Message string `json:"message"`
 }
@@ -82,4 +84,13 @@ type ProductFilter struct {
 	MinPrice float32 `json:"minPrice" validate:"omitempty,gte=1,ltefield=MaxPrice"`
 	MaxPrice float32 `json:"maxPrice" validate:"omitempty,gtefield=MinPrice"`
 	Sort string `json:"sort" validate:"omitempty"`
+}
+
+type CreateEvent struct {
+	Name string `json:"name" validate:"required"`
+	Description string `json:"description"`
+	Budget float32 `json:"budget" validate:"required,gte=1"`
+	InviteMessage string `json:"inviteMessage"`
+	DrawAt time.Time `json:"drawAt" validate:"required"`
+	CloseAt time.Time `json:"closeAt" validate:"required"`
 }

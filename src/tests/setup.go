@@ -35,17 +35,17 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 	return db, nil
 }
 
-func MockMigration(t *testing.T, callback func(db *gorm.DB)) *gorm.DB {
+func MockMigration(t *testing.T) *gorm.DB {
 	db, err := NewMockDB(t)
 	if err != nil {
 		t.FailNow()
 	}
 
+	db.Exec("drop table events, users, products, categories")
+
 	if err = app.AutoMigrate(db); err != nil {
 		t.Fatal("migration failed", err)
 	}
-
-	callback(db)
 	return db
 }
 
@@ -59,34 +59,4 @@ func SetupMockController(db *gorm.DB) controllers.Controller {
 		},
 		Service: services.New(db),
 	}
-}
-
-func SetupMockUserService(t *testing.T) *gorm.DB {
-	db := MockMigration(t, func(db *gorm.DB) {
-		db.Exec("delete from users")
-	})
-	if db.Error != nil {
-		t.FailNow()
-	}
-	return db
-}
-
-func SetupMockCategoryService(t *testing.T) *gorm.DB {
-	db := MockMigration(t, func(db *gorm.DB) {
-		db.Exec("delete from categories")
-	})
-	if db.Error != nil {
-		t.FailNow()
-	}
-	return db
-}
-
-func SetupMockProductService(t *testing.T) *gorm.DB {
-	db := MockMigration(t, func(db *gorm.DB) {
-		db.Exec("delete from products")
-	})
-	if db.Error != nil {
-		t.FailNow()
-	}
-	return db
 }

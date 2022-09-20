@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
-	"github.com/gorilla/mux"
 )
 
 type Controller struct {
@@ -12,7 +11,7 @@ type Controller struct {
 }
 
 type IController interface {
-	CreateController(router *mux.Router, path string)
+	New(app_ctx types.AppContext, service services.Service) Controller
 }
 
 func New(app_ctx types.AppContext, service services.Service) Controller {

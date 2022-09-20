@@ -25,6 +25,13 @@ func (base *Base) BeforeUpdate(tx *gorm.DB) error {
 	return nil
 }
 
+type UserActionBase struct {
+	CreatedById uuid.UUID `gorm:"type:uuid; index; not null" json:"-"`
+	CreatedBy User `gorm:"foreignKey:CreatedById" json:"created_by"`
+	ModifiedById uuid.UUID `gorm:"type:uuid; index; not null" json:"-"`
+	ModifiedBy User `gorm:"foreignKey:ModifiedById" json:"modified_by"`
+}
+
 type User struct {
 	Base
 	Email string `gorm:"varchar(255); not null; index; unique" json:"email"`
@@ -65,10 +72,12 @@ type Product struct {
 
 type Event struct {
 	Base
+	UserActionBase
 	Name string `gorm:"type:varchar(255); not null" json:"name"`
 	Description string `gorm:"type:text" json:"description"`
 	Budget float32 `gorm:"type:float(2); not null; index" json:"budget"`
 	InviteMessage string `gorm:"type:text" json:"inviteMessage"`
 	DrawAt time.Time `gorm:"index; not null" json:"drawAt"`
 	CloseAt time.Time `gorm:"index; not null" json:"closeAt"`
+	Slug string `gorm:"type:varchar(255); not null" json:"slug"`
 }

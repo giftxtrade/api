@@ -13,6 +13,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
+	github.com/gosimple/slug v1.12.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/markbates/goth v1.72.0
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect

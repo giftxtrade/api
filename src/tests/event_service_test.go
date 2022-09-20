@@ -87,32 +87,68 @@ func TestEventService(t *testing.T) {
 		}
 
 		t.Run("patch nothing", func(t *testing.T) {
-			original_event := event
 			t.Run("default values", func(t *testing.T) {
-				updated, err := event_service.Patch(event.ID.String(), &my_user, &types.CreateEvent{}, &event)
+				updated_event := event
+				updated, err := event_service.Patch(&my_user, &types.CreateEvent{}, &event)
 				if err != nil {
 					t.Fatal(err)
 				}
 				if updated == true {
 					t.Fatal("event should not update. all default values")
 				}
-				if event.ModifiedBy.ID != original_event.ModifiedBy.ID {
+				if updated_event.ModifiedBy.ID != event.ModifiedBy.ID {
 					t.Fatal("modified by user should not be changed")
 				}
 			})
 
 			t.Run("original event values", func(t *testing.T) {
-				updated, err := event_service.Patch(event.ID.String(), &my_user, &input, &event)
+				updated_event := event
+				updated, err := event_service.Patch(&my_user, &input, &updated_event)
 				if err != nil {
 					t.Fatal(err)
 				}
 				if updated == true {
 					t.Fatal("event should not update. values did not change", event)
 				}
-				if event.ModifiedBy.ID != original_event.ModifiedBy.ID {
+				if updated_event.ModifiedBy.ID != event.ModifiedBy.ID {
 					t.Fatal("modified by user should not be changed")
 				}
 			})
+		})
+
+		t.Run("update values", func(t *testing.T) {
+			input := types.CreateEvent{
+				Name: "Event 2 (Updated)",
+			}
+			updated_event := event
+
+			// create new user
+			new_user_input := types.CreateUser{
+				Email: "json@batman.com",
+				Name: "Json Todd",
+			}
+			new_user := types.User{}
+			_, user_create_err := event_service.UserService.FindOrCreate(&new_user_input, &new_user)
+			if user_create_err != nil {
+				t.Fatal("could not create new user", user_create_err)
+			}
+
+			updated, err := event_service.Patch(&new_user, &input, &updated_event)
+			if err != nil {
+				t.Fatal("could not patch event", err)
+			}
+			if !updated {
+				t.Fatal("event was not updated", updated_event)
+			}
+			if updated_event.Name != input.Name {
+				t.Fatal("event name was not updated", updated_event, input)
+			}
+			if updated_event.ID != event.ID {
+				t.Fatal("event id should never update")
+			}
+			if updated_event.ModifiedById != new_user.ID {
+				t.Fatal("modified user not assigned properly")
+			}
 		})
 	})
 

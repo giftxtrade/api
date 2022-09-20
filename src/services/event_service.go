@@ -13,43 +13,44 @@ type EventService struct {
 	UserService UserService
 }
 
-func (service *EventService) Create(create_event *types.CreateEvent, user *types.User, event *types.Event) error {
+func (service *EventService) Create(input *types.CreateEvent, user *types.User, output *types.Event) error {
 	validate := validator.New()
-	if err := validate.Struct(create_event); err != nil {
+	if err := validate.Struct(input); err != nil {
 		return err
 	}
 
-	event.Name = create_event.Name
-	event.Description = create_event.Description
-	event.Budget = create_event.Budget
-	event.InviteMessage = create_event.InviteMessage
-	event.DrawAt = create_event.DrawAt
-	event.CloseAt = create_event.CloseAt
-	event.Slug = slug.Make(create_event.Name)
-	event.CreatedById = user.ID
-	event.CreatedBy = *user
-	event.ModifiedById = user.ID
-	event.ModifiedBy = *user
+	output.Name = input.Name
+	output.Description = input.Description
+	output.Budget = input.Budget
+	output.InviteMessage = input.InviteMessage
+	output.DrawAt = input.DrawAt
+	output.CloseAt = input.CloseAt
+	output.Slug = slug.Make(input.Name)
+	output.CreatedById = user.ID
+	output.CreatedBy = *user
+	output.ModifiedById = user.ID
+	output.ModifiedBy = *user
 	
 	return service.DB.
 		Table(service.TABLE).
-		Create(event).
+		Create(output).
 		Error
 }
 
-func (service *EventService) FindById(id string, event *types.Event) error {
+func (service *EventService) FindById(id string, output *types.Event) error {
 	return service.DB.
 		Table(service.TABLE).
 		Preload("CreatedBy").
 		Preload("ModifiedBy").
 		Where("id = ?", id).
-		First(event).
+		First(output).
 		Error
 }
 
-// update event given an event_id, user that modified it, and the destination.
+// update event given a user that modified it.
+// event must be an already existing row.
 // Boolean value is true if event was updated, otherwise false (with error).
-func (service *EventService) Patch(id string, user *types.User, input *types.CreateEvent, event *types.Event) (bool, error) {
+func (service *EventService) Patch(user *types.User, input *types.CreateEvent, event *types.Event) (bool, error) {
 	updated := false
 
 	if input.Name != "" && input.Name != event.Name {
@@ -85,7 +86,6 @@ func (service *EventService) Patch(id string, user *types.User, input *types.Cre
 	event.ModifiedBy = *user
 	err := service.DB.
 		Table(service.TABLE).
-		Where("id = ?", id).
 		Save(event).
 		Error
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/giftxtrade/api/src/types"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 )
@@ -15,8 +14,7 @@ type EventService struct {
 }
 
 func (service *EventService) Create(input *types.CreateEvent, user *types.User, output *types.Event) error {
-	validate := validator.New()
-	if err := validate.Struct(input); err != nil {
+	if err := service.Validator.Struct(input); err != nil {
 		return err
 	}
 	// TODO: Make sure draw at date is before today

@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/giftxtrade/api/src/types"
-	"github.com/go-playground/validator/v10"
 )
 
 type CategoryService struct {
@@ -10,8 +9,7 @@ type CategoryService struct {
 }
 
 func (service *CategoryService) Create(input *types.CreateCategory, output *types.Category) error {
-	validate := validator.New()
-	if err := validate.Struct(input); err != nil {
+	if err := service.Validator.Struct(input); err != nil {
 		return err
 	}
 	

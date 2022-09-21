@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/giftxtrade/api/src/types"
-	"github.com/go-playground/validator/v10"
 )
 
 type UserService struct {
@@ -54,8 +53,7 @@ func (service *UserService) FindOrCreate(input *types.CreateUser, output *types.
 }
 
 func (service *UserService) Create(input *types.CreateUser, output *types.User) error {
-	validate := validator.New()
-	if err := validate.Struct(input); err != nil {
+	if err := service.Validator.Struct(input); err != nil {
 		return err
 	}
 

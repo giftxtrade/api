@@ -116,8 +116,7 @@ func (service *ProductService) CreateOrUpdate(input *types.CreateProduct, output
 }
 
 func (service *ProductService) Search(filter types.ProductFilter) (*[]types.Product, error) {
-	validate := validator.New()
-	if err := validate.Struct(filter); err != nil {
+	if err := service.Validator.Struct(filter); err != nil {
 		return nil, err
 	}
 

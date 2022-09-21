@@ -27,18 +27,7 @@ type IAppBase interface {
 
 // Given app.AppBase.DB, and app.AppBase.Router
 // creates db migrations, db services, oauth, and routes
-func (app *AppBase) NewBaseHandler(is_mock bool) *AppBase {
-	if is_mock {
-		app.Tokens = &types.Tokens{
-			JwtKey: "my-secret-jwt-token",
-		}
-	} else {
-		tokens, tokens_err := utils.ParseTokens()
-		if tokens_err != nil {
-			panic(tokens_err)
-		}
-		app.Tokens = &tokens
-	}
+func (app *AppBase) NewBaseHandler() *AppBase {
 	app.Validator = validator.New()
 	app.Validator.RegisterTagNameFunc(func(field reflect.StructField) string {
 		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
@@ -54,9 +43,25 @@ func (app *AppBase) NewBaseHandler(is_mock bool) *AppBase {
 	return app
 }
 
-func New(conn *gorm.DB, server *fiber.App, is_mock bool) *AppBase {
+func New(conn *gorm.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
-	return app.NewBaseHandler(is_mock)
+	// initialize tokens
+	tokens, tokens_err := utils.ParseTokens()
+	if tokens_err != nil {
+		panic(tokens_err)
+	}
+	app.Tokens = &tokens
+	return app.NewBaseHandler()
+}
+
+func NewMock(conn *gorm.DB, server *fiber.App) *AppBase {
+	app := AppBase{}
+	app.DB = conn
+	app.Server = server
+	app.Tokens = &types.Tokens{
+		JwtKey: "my-secret-jwt-token",
+	}
+	return app.NewBaseHandler()
 }

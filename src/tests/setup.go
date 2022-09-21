@@ -51,7 +51,7 @@ func MockMigration(t *testing.T) *gorm.DB {
 
 func New(t *testing.T) *app.AppBase {
 	db := MockMigration(t)
-	return app.New(db, fiber.New(), true)
+	return app.NewMock(db, fiber.New())
 }
 
 func SetupMockController(app *app.AppBase) controllers.Controller {

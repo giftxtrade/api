@@ -19,7 +19,7 @@ func main() {
 	server := fiber.New(fiber.Config{
 		ServerHeader: "giftxtrade api v2",
 	})
-	app.New(conn, server, false)
+	app.New(conn, server)
 
 	const port = "8080"
 	if err := server.Listen(":" + port); err != nil {

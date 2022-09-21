@@ -9,9 +9,9 @@ import (
 
 	"github.com/giftxtrade/api/src/app"
 	"github.com/giftxtrade/api/src/controllers"
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
+	"github.com/gofiber/fiber/v2"
 )
 
 func NewMockDB(t *testing.T) (*gorm.DB, error) {
@@ -49,14 +49,14 @@ func MockMigration(t *testing.T) *gorm.DB {
 	return db
 }
 
-func SetupMockController(db *gorm.DB) controllers.Controller {
+func New(t *testing.T) *app.AppBase {
+	db := MockMigration(t)
+	return app.New(db, fiber.New(), true)
+}
+
+func SetupMockController(app *app.AppBase) controllers.Controller {
 	return controllers.Controller{
-		AppContext: types.AppContext{
-			DB: db,
-			Tokens: &types.Tokens{
-				JwtKey: "my-secret-jwt-token",
-			},
-		},
-		Service: services.New(db),
+		AppContext: app.AppContext,
+		Service: app.Service,
 	}
 }

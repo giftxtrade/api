@@ -4,19 +4,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/google/uuid"
 )
 
 func TestProductService(t *testing.T) {
-	db := MockMigration(t)
-	product_service := services.ProductService{
-		ServiceBase: services.CreateService(db, "products"),
-		CategoryService: services.CategoryService{
-			ServiceBase: services.CreateService(db, "categories"),
-		},
-	}
+	app := New(t)
+	product_service := app.Service.ProductService
 
 	t.Run("create product", func(t *testing.T) {
 		t.Run("should not create product", func(t *testing.T) {

@@ -19,6 +19,8 @@ func (service *EventService) Create(input *types.CreateEvent, user *types.User, 
 	if err := validate.Struct(input); err != nil {
 		return err
 	}
+	// TODO: Make sure draw at date is before today
+	// TODO: Make sure close at date is after draw at date
 
 	output.Name = input.Name
 	output.Description = input.Description

@@ -11,20 +11,20 @@ import (
 )
 
 func TestAuthController(t *testing.T) {
-	db := MockMigration(t)
-	controller := SetupMockController(db)
-	user_service := controller.Service.UserService
-	token := controller.Tokens.JwtKey
-	app := fiber.New()
+	app := New(t)
+	controller := SetupMockController(app)
+	user_service := app.Service.UserService
+	token := app.Tokens.JwtKey
+	server := fiber.New()
 
 	t.Run("auth middleware", func(t *testing.T) {
 		t.Run("should throw status 401", func(t *testing.T) {
 			t.Run("no authorization header", func(t *testing.T) {
-				app.Get("/no_auth_header", controller.UseJwtAuth, func(c *fiber.Ctx) error {
+				server.Get("/no_auth_header", controller.UseJwtAuth, func(c *fiber.Ctx) error {
 					return nil
 				})
 				req := httptest.NewRequest("GET", "/no_auth_header", nil)
-				res, err_res := app.Test(req)
+				res, err_res := server.Test(req)
 				if err_res != nil {
 					t.Fatal(err_res)
 				}
@@ -34,12 +34,12 @@ func TestAuthController(t *testing.T) {
 			})
 
 			t.Run("invalid bearer token", func(t *testing.T) {
-				app.Get("/invalid_bearer_token", controller.UseJwtAuth, func(c *fiber.Ctx) error {
+				server.Get("/invalid_bearer_token", controller.UseJwtAuth, func(c *fiber.Ctx) error {
 					return nil
 				})
 				req := httptest.NewRequest("GET", "/invalid_bearer_token", nil)
 				req.Header.Set("Authorization", "Bearer some-random-jwt")
-				res, err_res := app.Test(req)
+				res, err_res := server.Test(req)
 				if err_res != nil {
 					t.Fatal(err_res)
 				}
@@ -61,13 +61,13 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				app.Get("/invalid_jwt", controller.UseJwtAuth, func(c *fiber.Ctx) error {
+				server.Get("/invalid_jwt", controller.UseJwtAuth, func(c *fiber.Ctx) error {
 					return nil
 				})
 				req := httptest.NewRequest("GET", "/invalid_jwt", nil)
 				req.Header.Set("Authorization", "Bearer " + jwt)
 
-				res, err_res := app.Test(req)
+				res, err_res := server.Test(req)
 				if err_res != nil {
 					t.Fatal(err_res)
 				}
@@ -91,12 +91,12 @@ func TestAuthController(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			app.Get("/valid_jwt", controller.UseJwtAuth, func(c *fiber.Ctx) error {
+			server.Get("/valid_jwt", controller.UseJwtAuth, func(c *fiber.Ctx) error {
 				return nil
 			})
 			req := httptest.NewRequest("GET", "/valid_jwt", nil)
 			req.Header.Set("Authorization", "Bearer " + jwt)
-			res, err_res := app.Test(req)
+			res, err_res := server.Test(req)
 
 			if err_res != nil {
 				t.Fatal(err_res)
@@ -121,12 +121,12 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				app.Get("/non_admin_user", controller.UseAdminOnly, func(c *fiber.Ctx) error {
+				server.Get("/non_admin_user", controller.UseAdminOnly, func(c *fiber.Ctx) error {
 					return nil
 				})
 				req := httptest.NewRequest("GET", "/non_admin_user", nil)
 				req.Header.Set("Authorization", "Bearer " + jwt)
-				res, err_res := app.Test(req)
+				res, err_res := server.Test(req)
 				if err_res != nil {
 					t.Fatal(err_res)
 				}
@@ -155,12 +155,12 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				app.Get("/admin_user", controller.UseAdminOnly, func(c *fiber.Ctx) error {
+				server.Get("/admin_user", controller.UseAdminOnly, func(c *fiber.Ctx) error {
 					return nil
 				})
 				req := httptest.NewRequest("GET", "/admin_user", nil)
 				req.Header.Set("Authorization", "Bearer " + jwt)
-				res, err_res := app.Test(req)
+				res, err_res := server.Test(req)
 
 				if err_res != nil {
 					t.Fatal(err_res)
@@ -194,8 +194,8 @@ func TestAuthController(t *testing.T) {
 
 			req := httptest.NewRequest("GET", "/auth/profile", nil)
 			req.Header.Set("Authorization", "Bearer " + jwt)
-			app.Get("/auth/profile", controller.UseJwtAuth, controller.GetProfile)
-			res, err_res := app.Test(req)
+			server.Get("/auth/profile", controller.UseJwtAuth, controller.GetProfile)
+			res, err_res := server.Test(req)
 
 			if err_res != nil {
 				t.Fatal(err_res)

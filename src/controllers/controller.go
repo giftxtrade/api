@@ -23,6 +23,7 @@ func New(app_ctx types.AppContext, service services.Service) Controller {
 
 	// create routes
 	server.Get("/", controller.Home)
+	
 	auth := server.Group("/auth")
 	{ // auth
 		auth.Get("/profile", controller.UseJwtAuth, controller.GetProfile)

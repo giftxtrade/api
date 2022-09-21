@@ -7,6 +7,11 @@ import (
 	"github.com/giftxtrade/api/src/types"
 )
 
+func get_tomorrow() time.Time {
+	now := time.Now().Add(24 * time.Hour)
+	return now
+}
+
 func TestEventService(t *testing.T) {
 	app := New(t)
 	event_service := app.Service.EventService
@@ -23,7 +28,7 @@ func TestEventService(t *testing.T) {
 	}
 
 	t.Run("create event", func(t *testing.T) {
-		now := time.Now()
+		now := get_tomorrow()
 		input := types.CreateEvent{
 			Name: "Event 1",
 			Budget: 10,
@@ -44,7 +49,7 @@ func TestEventService(t *testing.T) {
 	})
 
 	t.Run("find event by id", func(t *testing.T) {
-		now := time.Now()
+		now := get_tomorrow()
 		input := types.CreateEvent{
 			Name: "Event 2",
 			Budget: 6.99,
@@ -68,7 +73,7 @@ func TestEventService(t *testing.T) {
 	})
 
 	t.Run("patch event", func(t *testing.T) {
-		now := time.Now()
+		now := get_tomorrow()
 		input := types.CreateEvent{
 			Name: "Event 2",
 			Budget: 6.99,
@@ -147,7 +152,7 @@ func TestEventService(t *testing.T) {
 	})
 
 	t.Run("delete event", func(t *testing.T) {
-		now := time.Now()
+		now := get_tomorrow()
 		input := types.CreateEvent{
 			Name: "Event to be deleted",
 			Budget: 499.99,

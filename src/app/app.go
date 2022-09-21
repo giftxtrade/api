@@ -1,6 +1,9 @@
 package app
 
 import (
+	"reflect"
+	"strings"
+
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
@@ -37,6 +40,13 @@ func (app *AppBase) NewBaseHandler(is_mock bool) *AppBase {
 		app.Tokens = &tokens
 	}
 	app.Validator = validator.New()
+	app.Validator.RegisterTagNameFunc(func(field reflect.StructField) string {
+		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
 	app.CreateSchemas() // create schemas
 	app.Service = services.New(app.DB, app.Validator) // create services
 	utils.SetupOauthProviders(*app.Tokens) // oauth providers

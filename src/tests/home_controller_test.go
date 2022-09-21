@@ -10,16 +10,13 @@ import (
 )
 
 func TestHomeController(t *testing.T) {
-	db, err := NewMockDB(t)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-	controller := SetupMockController(db)
-	app := fiber.New()
-	app.Get("/", controller.Home)
+	app := New(t)
+	controller := SetupMockController(app)
+	server := fiber.New()
 
+	server.Get("/", controller.Home)
 	req := httptest.NewRequest("GET", "/", nil)
-	res, err_res := app.Test(req)
+	res, err_res := server.Test(req)
 	if err_res != nil {
 		t.Fatal(err_res.Error())
 	}

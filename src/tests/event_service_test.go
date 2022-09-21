@@ -4,18 +4,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 )
 
 func TestEventService(t *testing.T) {
-	db := MockMigration(t)
-	event_service := services.EventService{
-		ServiceBase: services.CreateService(db, "events"),
-		UserService: services.UserService{
-			ServiceBase: services.CreateService(db, "users"),
-		},
-	}
+	app := New(t)
+	event_service := app.Service.EventService
 	my_user := types.User{}
 	_, user_create_err := event_service.UserService.FindOrCreate(
 		&types.CreateUser{

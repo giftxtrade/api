@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/giftxtrade/api/src/types"
@@ -17,8 +18,14 @@ func (service *EventService) Create(input *types.CreateEvent, user *types.User, 
 	if err := service.Validator.Struct(input); err != nil {
 		return err
 	}
-	// TODO: Make sure draw at date is before today
-	// TODO: Make sure close at date is after draw at date
+	
+	today := time.Now()
+	if input.DrawAt.Before(today) {
+		return fmt.Errorf("drawAt date cannot be before todays date")
+	}
+	if input.CloseAt.Before(input.DrawAt) {
+		return fmt.Errorf("closeAt cannot be before drawAt date")
+	}
 
 	output.Name = input.Name
 	output.Description = input.Description

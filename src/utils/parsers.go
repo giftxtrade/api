@@ -23,12 +23,6 @@ func FileMapper(filename string, dest interface{}) error {
 	return nil
 }
 
-func DbConfig() (types.DbConnection, error) {
-	var db_config types.DbConnection
-	err := FileMapper("db_config.json", &db_config)
-	return db_config, err
-}
-
 func ParseTokens() (types.Tokens, error) {
 	var tokens types.Tokens
 	err := FileMapper("tokens.json", &tokens)

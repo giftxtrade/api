@@ -30,6 +30,12 @@ func CreateDbConnection(options types.DbConnectionOptions) (*gorm.DB, error) {
 	return gorm.Open(postgres.Open(dns), config)
 }
 
+func DbConfig() (types.DbConnection, error) {
+	var db_config types.DbConnection
+	err := FileMapper("db_config.json", &db_config)
+	return db_config, err
+}
+
 func NewDbConnection() (*gorm.DB, error) {
 	config, err := DbConfig()
 	if err != nil {

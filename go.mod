@@ -18,7 +18,11 @@ require (
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/go-playground/ansi v2.1.0+incompatible // indirect
+	github.com/go-playground/errors v3.3.0+incompatible // indirect
+	github.com/go-playground/justdoit v0.0.0-20180413125108-f398c5dd9bd7 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
+	github.com/go-playground/log v6.3.0+incompatible // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
@@ -48,4 +52,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
+	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 )

@@ -25,3 +25,14 @@ func (ctx Controller) CreateEvent(c *fiber.Ctx) error {
 
 	return utils.DataResponseCreated(c, &new_event)
 }
+
+func (ctx Controller) GetAllEvents(c *fiber.Ctx) error {
+	event_service := ctx.Service.EventService
+	cur_auth := utils.ParseAuthContext(c.UserContext())
+
+	events := new([]types.Event)
+	if err := event_service.FindAllForUser(&cur_auth.User, events); err != nil {
+		return utils.FailResponse(c, err.Error())
+	}
+	return utils.DataResponse(c, events)
+}

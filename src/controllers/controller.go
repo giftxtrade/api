@@ -41,6 +41,7 @@ func New(app_ctx types.AppContext, service services.Service) Controller {
 	events := server.Group("/events")
 	{
 		events.Post("", controller.UseJwtAuth, controller.CreateEvent)
+		events.Get("", controller.UseJwtAuth, controller.GetAllEvents)
 	}
 
 	server.Get("*", controller.NotFound)

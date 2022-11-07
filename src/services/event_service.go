@@ -116,3 +116,14 @@ func (service *EventService) Delete(id string) error {
 		}).
 		Error
 }
+
+func (service *EventService) FindAllForUser(user *types.User, output *[]types.Event) error {
+	user_id := user.ID.String()
+	return service.DB.
+		Table(service.TABLE).
+		Joins("CreatedBy").
+		Joins("ModifiedBy").
+		Where("created_by_id = ?", user_id).
+		Find(output).
+		Error
+}

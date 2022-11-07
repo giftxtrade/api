@@ -48,8 +48,8 @@ func (service *EventService) Create(input *types.CreateEvent, user *types.User, 
 func (service *EventService) FindById(id string, output *types.Event) error {
 	return service.DB.
 		Table(service.TABLE).
-		Preload("CreatedBy").
-		Preload("ModifiedBy").
+		Joins("CreatedBy").
+		Joins("ModifiedBy").
 		Where("id = ?", id).
 		First(output).
 		Error

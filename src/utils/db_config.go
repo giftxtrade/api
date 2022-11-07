@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/giftxtrade/api/src/types"
 	"gorm.io/driver/postgres"
@@ -26,6 +28,15 @@ func CreateDbConnection(options types.DbConnectionOptions) (*gorm.DB, error) {
 	config := &gorm.Config{}
 	if options.DisableLogger {
 		config.Logger = logger.Default.LogMode(logger.Silent)
+	} else {
+		config.Logger = logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger.Config{
+				LogLevel: logger.Info,
+				IgnoreRecordNotFoundError: false,
+				Colorful: true,
+			},
+		)
 	}
 	return gorm.Open(postgres.Open(dns), config)
 }
@@ -49,6 +60,6 @@ func NewDbConnection() (*gorm.DB, error) {
 		DbName: config.DbName, 
 		Port: config.Port, 
 		SslMode: false, 
-		DisableLogger: true,
+		DisableLogger: false,
 	})
 }

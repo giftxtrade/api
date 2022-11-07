@@ -50,7 +50,7 @@ func (service *EventService) FindById(id string, output *types.Event) error {
 		Table(service.TABLE).
 		Joins("CreatedBy").
 		Joins("ModifiedBy").
-		Where("id = ?", id).
+		Where("events.id = ?", id).
 		First(output).
 		Error
 }

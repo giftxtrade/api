@@ -11,7 +11,7 @@ type UserService struct {
 func (service *UserService) FindByEmail(email string, output *types.User) error {
 	return service.DB.
 		Table(service.TABLE).
-		Where("email = ?", email).
+		Where("users.email = ?", email).
 		First(output).
 		Error
 }
@@ -19,7 +19,7 @@ func (service *UserService) FindByEmail(email string, output *types.User) error 
 func (service *UserService) FindById(id string, output *types.User) error {
 	return service.DB.
 		Table(service.TABLE).
-		Where("id = ?", id).
+		Where("users.id = ?", id).
 		First(output).
 		Error
 }
@@ -27,7 +27,7 @@ func (service *UserService) FindById(id string, output *types.User) error {
 func (service *UserService) FindByIdAndEmail(id string, email string, output *types.User) error {
 	return service.DB.
 		Table(service.TABLE).
-		Where("id = ? AND email = ?", id, email).
+		Where("users.id = ? AND users.email = ?", id, email).
 		First(output).
 		Error
 }
@@ -35,7 +35,7 @@ func (service *UserService) FindByIdAndEmail(id string, email string, output *ty
 func (service *UserService) FindByIdOrEmail(id string, email string, output *types.User) error {
 	return service.DB.
 		Table(service.TABLE).
-		Where("id = ? OR email = ?", id, email).
+		Where("users.id = ? OR users.email = ?", id, email).
 		First(output).
 		Error
 }
@@ -69,7 +69,7 @@ func (service *UserService) Create(input *types.CreateUser, output *types.User) 
 func (service *UserService) DeleteById(key string) error {
 	return service.DB.
 		Table(service.TABLE).
-		Where("id = ?", key).
+		Where("users.id = ?", key).
 		Delete(&types.User{}).
 		Error
 }

@@ -123,7 +123,7 @@ func (service *EventService) FindAllForUser(user *types.User, output *[]types.Ev
 		Table(service.TABLE).
 		Joins("CreatedBy").
 		Joins("ModifiedBy").
-		Where("created_by_id = ?", user_id).
+		Where("events.created_by_id = ?", user_id).
 		Find(output).
 		Error
 }

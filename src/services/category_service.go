@@ -25,7 +25,7 @@ func (service *CategoryService) Create(input *types.CreateCategory, output *type
 func (service *CategoryService) Find(name string, output *types.Category) error {
 	return service.DB.
 		Table(service.TABLE).
-		Where("name = ?", name).
+		Where("categories.name = ?", name).
 		First(output).
 		Error
 }

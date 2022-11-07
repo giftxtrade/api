@@ -53,7 +53,7 @@ func (service *ProductService) Find(key string, output *types.Product) error {
 	id, _ := uuid.Parse(key)
 	return service.DB.
 		Table(service.TABLE).
-		Preload("Category").
+		Joins("Category").
 		Where("products.product_key = ? OR products.id = ?", key, id).
 		First(output).
 		Error
@@ -128,21 +128,21 @@ func (service *ProductService) Search(filter types.ProductFilter) (*[]types.Prod
 	
 	if filter.MinPrice > 0 || filter.MaxPrice > 0 {
 		query.
-			Where("price BETWEEN ? AND ?", filter.MinPrice, filter.MaxPrice)
+			Where("products.price BETWEEN ? AND ?", filter.MinPrice, filter.MaxPrice)
 	}
 
 	switch filter.Sort {
 	case "rating":
-		query.Order("rating DESC")
+		query.Order("products.rating DESC")
 	case "price":
-		query.Order("price DESC")
+		query.Order("products.price DESC")
 	case "totalReviews":
-		query.Order("total_reviews DESC")
+		query.Order("products.total_reviews DESC")
 	default:
-		query.Order("updated_at DESC")
+		query.Order("products.updated_at DESC")
 	}
 	err := query.
-		Preload("Category").
+		Joins("Category").
 		Find(products).
 		Error
 	return products, err

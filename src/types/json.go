@@ -94,3 +94,12 @@ type CreateEvent struct {
 	DrawAt time.Time `json:"drawAt" validate:"required"`
 	CloseAt time.Time `json:"closeAt" validate:"required"`
 }
+
+type CreateParticipant struct {
+	Email string `json:"email" validate:"required,email"`
+	Nickname string `json:"nickname" validate:"omitempty"`
+	Address string `json:"address" validate:"omitempty"`
+	Organizer bool `json:"organizer" validate:"required,boolean"`
+	Participates bool `json:"participates" validate:"required,boolean"`
+	EventId string `json:"eventId" validate:"required,uuid4"`
+}

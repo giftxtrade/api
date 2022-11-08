@@ -13,6 +13,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&types.Category{},
 		&types.Product{},
 		&types.Event{},
+		&types.Participant{},
 	)
 }
 

@@ -80,4 +80,18 @@ type Event struct {
 	DrawAt time.Time `gorm:"index; not null" json:"drawAt"`
 	CloseAt time.Time `gorm:"index; not null" json:"closeAt"`
 	Slug string `gorm:"type:varchar(255); not null" json:"slug"`
+	Participants []Participant `json:"participants,omitempty"`
+}
+
+type Participant struct {
+	Base
+	UserActionBase
+	Email string `gorm:"type:varchar(255); not null; index; unique" json:"email"`
+	Nickname string `gorm:"type:varchar(255)" json:"nickname"`
+	Address string `gorm:"type:varchar(255)" json:"address"`
+	Organizer bool `gorm:"type:boolean; default:false; not null" json:"organizer"`
+	Participates bool `gorm:"type:boolean; default:true; not null" json:"participates"`
+	Accepted bool `gorm:"type:boolean; default:false; not null" json:"accepted"`
+	EventId uuid.UUID `gorm:"type:uuid; index; not null" json:"-"`
+	Event Event `gorm:"foreignKey:EventId" json:"event"`
 }

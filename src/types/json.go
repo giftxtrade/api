@@ -99,6 +99,6 @@ type CreateParticipant struct {
 	Email string `json:"email" validate:"required,email"`
 	Nickname string `json:"nickname" validate:"omitempty"`
 	Address string `json:"address" validate:"omitempty"`
-	Organizer bool `json:"organizer" validate:"required,boolean"`
-	Participates bool `json:"participates" validate:"required,boolean"`
+	Organizer bool `json:"organizer" validate:"required"`
+	Participates bool `json:"participates" validate:"required"`
 }

@@ -101,5 +101,4 @@ type CreateParticipant struct {
 	Address string `json:"address" validate:"omitempty"`
 	Organizer bool `json:"organizer" validate:"required,boolean"`
 	Participates bool `json:"participates" validate:"required,boolean"`
-	EventId string `json:"eventId" validate:"required,uuid4"`
 }

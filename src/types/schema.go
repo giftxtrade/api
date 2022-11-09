@@ -94,4 +94,6 @@ type Participant struct {
 	Accepted bool `gorm:"type:boolean; default:false; not null" json:"accepted"`
 	EventId uuid.UUID `gorm:"type:uuid; index; not null" json:"-"`
 	Event Event `gorm:"foreignKey:EventId" json:"event"`
+	UserId uuid.UUID `gorm:"type:uuid; index" json:"-"`
+	User User `gorm:"foreignKey:UserId" json:"user"`
 }

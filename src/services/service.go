@@ -17,6 +17,7 @@ type Service struct {
 	CategoryService CategoryService
 	ProductService ProductService
 	EventService EventService
+	ParticipantService ParticipantService
 }
 
 type IService interface {
@@ -49,6 +50,10 @@ func New(db *gorm.DB, validator *validator.Validate) Service {
 	}
 	service.EventService = EventService{
 		ServiceBase: CreateService(db, "events", validator),
+		UserService: service.UserService,
+	}
+	service.ParticipantService = ParticipantService{
+		ServiceBase: CreateService(db, "participants", validator),
 		UserService: service.UserService,
 	}
 	return service

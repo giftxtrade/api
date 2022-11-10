@@ -19,6 +19,8 @@ func (service ParticipantService) Create(user *types.User, participant_user *typ
 		return err
 	}
 
+	// TODO: Check if email for this event already exists...
+
 	output.CreatedBy = *user
 	output.CreatedById = user.ID
 	output.ModifiedBy = *user
@@ -52,5 +54,33 @@ func (service ParticipantService) Create(user *types.User, participant_user *typ
 	return service.DB.
 		Table(service.TABLE).
 		Create(output).
+		Error
+}
+
+func (service ParticipantService) FindById(id string, output *types.Participant) error {
+	return service.DB.
+		Table(service.TABLE).
+		Joins("CreatedBy").
+		Joins("ModifiedBy").
+		Joins("Event").
+		Joins("User").
+		Where("participants.id = ?", id).
+		First(output).
+		Error
+}
+
+func (service ParticipantService) Find(email string, event_id string, output *types.Participant) error {
+	return service.DB.
+		Table(service.TABLE).
+		Joins("CreatedBy").
+		Joins("ModifiedBy").
+		Joins("Event").
+		Joins("User").
+		Where(
+			"participants.event_id = ? AND participants.email = ?", 
+			event_id, 
+			email,
+		).
+		First(output).
 		Error
 }

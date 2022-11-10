@@ -8,4 +8,4 @@ watch:
 	go run github.com/go-playground/justdoit -build="make build" -run="./server"
 
 test:
-	go test -v ./src/tests
+	go run github.com/rakyll/gotest -v ./src/tests

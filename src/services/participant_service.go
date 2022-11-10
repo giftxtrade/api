@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/giftxtrade/api/src/types"
 	"github.com/google/uuid"
 )
@@ -32,6 +34,11 @@ func (service ParticipantService) Create(user *types.User, participant_user *typ
 	output.Event = *event
 
 	if participant_user != nil {
+		// check if participant_user.Email matches Email
+		if participant_user.Email != input.Email {
+			return fmt.Errorf("emails don't match")
+		}
+
 		output.Accepted = true
 		output.User = *participant_user
 		output.UserId = uuid.NullUUID{

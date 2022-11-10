@@ -1,6 +1,9 @@
 package services
 
-import "github.com/giftxtrade/api/src/types"
+import (
+	"github.com/giftxtrade/api/src/types"
+	"github.com/google/uuid"
+)
 
 type ParticipantService struct {
 	ServiceBase
@@ -31,7 +34,12 @@ func (service ParticipantService) Create(user *types.User, participant_user *typ
 	if participant_user != nil {
 		output.Accepted = true
 		output.User = *participant_user
-		output.UserId = participant_user.ID
+		output.UserId = uuid.NullUUID{
+			Valid: true,
+			UUID: participant_user.ID,
+		}
+	} else {
+		output.Accepted = false
 	}
 
 	return service.DB.

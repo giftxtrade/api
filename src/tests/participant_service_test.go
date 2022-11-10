@@ -48,6 +48,7 @@ func TestParticipantService(t *testing.T) {
 				Participates: true,
 			}
 			participant := types.Participant{}
+
 			err := participant_service.Create(&my_user, nil, &event, &input, &participant)
 			if err != nil {
 				t.Fatal("could not create participant", err)
@@ -56,9 +57,13 @@ func TestParticipantService(t *testing.T) {
 			if participant.Event.ID != event.ID {
 				t.Fatal("incorrect event id", participant.Event, event)
 			}
-			if (participant.User != types.User{}) || participant.UserId != uuid.Nil {
+			if participant.UserId.Valid && participant.UserId.UUID != uuid.Nil {
 				t.Fatal("user must not be defined")
 			}
 		})
+	})
+
+	t.Cleanup(func() {
+		event_service.DB.Exec("delete from participants, events, users")
 	})
 }

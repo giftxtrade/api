@@ -19,6 +19,7 @@ func (service ParticipantService) Create(user *types.User, participant_user *typ
 		return err
 	}
 
+	// check if participant with the email already exists for the event
 	found_participant := types.Participant{}
 	found_err := service.find_no_joins(input.Email, event.ID.String(), &found_participant)
 	if found_err == nil {
@@ -99,5 +100,20 @@ func (service ParticipantService) Find(email string, event_id string, output *ty
 			email,
 		).
 		First(output).
+		Error
+}
+
+func (service ParticipantService) Delete(id string) error {
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+	return service.DB.
+		Table(service.TABLE).
+		Delete(&types.Participant{
+			Base: types.Base{
+				ID: uuid,
+			},
+		}).
 		Error
 }

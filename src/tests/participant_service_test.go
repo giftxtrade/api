@@ -236,6 +236,31 @@ func TestParticipantService(t *testing.T) {
 		})
 	})
 
+	t.Run("delete participant", func(t *testing.T) {
+		input := types.CreateParticipant{
+			Email: "hiphopvm@giftxtrade.com",
+		}
+		participant := types.Participant{}
+		err := participant_service.Create(&my_user, nil, &event, &input, &participant)
+		if err != nil {
+			t.Fatal("could not create participant", err)
+		}
+		id := participant.ID.String()
+
+		t.Run("valid participant", func(t *testing.T) {
+			delete_err := participant_service.Delete(id)
+			if delete_err != nil {
+				t.Fatal("could not delete participant", delete_err)
+			}
+
+			find_participant := types.Participant{}
+			find_err := participant_service.FindById(id, &find_participant)
+			if find_err == nil {
+				t.Fatal("participant should not exist")
+			}
+		})
+	})
+
 	t.Cleanup(func() {
 		event_service.DB.Exec("delete from participants, events, users")
 	})

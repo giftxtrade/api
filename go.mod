@@ -47,6 +47,8 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect
 	github.com/rakyll/gotest v0.0.6 // indirect
+	github.com/tkrajina/go-reflector v0.5.5 // indirect
+	github.com/tkrajina/typescriptify-golang-structs v0.1.8 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.38.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

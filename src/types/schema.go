@@ -8,9 +8,9 @@ import (
 )
 
 type Base struct {
-	ID uuid.UUID `gorm:"type:uuid; primary key" json:"id"`
-	CreatedAt time.Time `gorm:"index; not null; default: now()" json:"createdAt"`
-	UpdatedAt time.Time `gorm:"index; not null; default: now()" json:"updatedAt"`
+	ID uuid.UUID `gorm:"type:uuid; primary key" json:"id" ts_type:"string"`
+	CreatedAt time.Time `gorm:"index; not null; default: now()" json:"createdAt" ts_type:"Date"`
+	UpdatedAt time.Time `gorm:"index; not null; default: now()" json:"updatedAt" ts_type:"Date"`
 }
 
 func (base *Base) BeforeCreate(tx *gorm.DB) error {
@@ -77,8 +77,8 @@ type Event struct {
 	Description string `gorm:"type:text" json:"description,omitempty"`
 	Budget float32 `gorm:"type:float(2); not null; index" json:"budget"`
 	InviteMessage string `gorm:"type:text" json:"inviteMessage,omitempty"`
-	DrawAt time.Time `gorm:"index; not null" json:"drawAt"`
-	CloseAt time.Time `gorm:"index; not null" json:"closeAt"`
+	DrawAt time.Time `gorm:"index; not null" json:"drawAt" ts_type:"Date"`
+	CloseAt time.Time `gorm:"index; not null" json:"closeAt" ts_type:"Date"`
 	Slug string `gorm:"type:varchar(255); not null" json:"slug"`
 	Participants []Participant `json:"participants,omitempty"`
 }

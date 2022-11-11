@@ -3,4 +3,4 @@ server
 db_config.json
 *tokens.json
 
-node_modules
+typescript

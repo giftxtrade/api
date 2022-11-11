@@ -11,4 +11,4 @@ test:
 	go run github.com/rakyll/gotest -v ./src/tests
 
 typegen:
-	go run github.com/tkrajina/typescriptify-golang-structs/tscriptify -package=github.com/giftxtrade/api/src/types -target=typescript/types.ts -interface -all
+	go run github.com/tkrajina/typescriptify-golang-structs/tscriptify -package=github.com/giftxtrade/api/src/types -target=typescript/types.ts -interface Product Event

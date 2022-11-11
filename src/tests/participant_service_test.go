@@ -157,6 +157,59 @@ func TestParticipantService(t *testing.T) {
 
 	})
 
+	t.Run("find participant", func(t *testing.T) {
+		input := types.CreateParticipant{
+			Email: "find_particpant_test@giftxtrade.com",
+			Organizer: true,
+			Participates: true,
+		}
+		participant := types.Participant{}
+		create_err := participant_service.Create(&my_user, nil, &event, &input, &participant)
+		if create_err != nil {
+			t.Fatal("could not create participant", create_err)
+		}
+
+		findTest := func(t *testing.T, result *types.Participant) {
+			if result.ID != participant.ID {
+				t.Fatal("incorrect event id")
+			}
+			if result.Email != participant.Email {
+				t.Fatal("incorrect email")
+			}
+
+			// test for correct joins
+			if result.ModifiedById != participant.ModifiedById && result.ModifiedBy != participant.ModifiedBy {
+				t.Fatal("incorrect join for ModifiedBy field", result, participant)
+			}
+			if result.CreatedById != participant.CreatedById && result.CreatedBy != participant.CreatedBy {
+				t.Fatal("incorrect join for CreatedBy field", result, participant)
+			}
+			if result.Event.ID != event.ID {
+				t.Fatal("incorrect join for event", result, participant)
+			}
+		}
+
+		t.Run("find by id", func(t *testing.T) {
+			result := types.Participant{}
+			err := participant_service.FindById(participant.ID.String(), &result)
+			if err != nil {
+				t.Fatal("could not find participant", err)
+			}
+
+			findTest(t, &result)
+		})
+
+		t.Run("find by email and event id", func(t *testing.T) {
+			result := types.Participant{}
+			err := participant_service.Find(participant.Email, event.ID.String(), &result)
+			if err != nil {
+				t.Fatal("could not find participant", err)
+			}
+
+			findTest(t, &result)
+		})
+	})
+
 	t.Cleanup(func() {
 		event_service.DB.Exec("delete from participants, events, users")
 	})

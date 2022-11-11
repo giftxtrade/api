@@ -155,6 +155,32 @@ func TestParticipantService(t *testing.T) {
 			})
 		})
 
+		t.Run("duplicate participant", func(t *testing.T) {
+			const EMAIL = "og_participant@giftxtrade.com"
+
+			input := types.CreateParticipant{
+				Nickname: "OG Participant",
+				Email: EMAIL,
+				Address: "123 Churchill Rd",
+			}
+			participant := types.Participant{}
+			create_err := participant_service.Create(&my_user, nil, &event, &input, &participant)
+			if create_err != nil {
+				t.Fatal("could not create participant", create_err)
+			}
+
+			// create duplicate participant
+			duplicate_input := types.CreateParticipant{
+				Email: EMAIL,
+				Organizer: true,
+				Participates: false,
+			}
+			duplicate_participant := types.Participant{}
+			create_err = participant_service.Create(&my_user, nil, &event, &duplicate_input, &duplicate_participant)
+			if create_err == nil {
+				t.Fatal("should not insert duplicate participant")
+			}
+		})
 	})
 
 	t.Run("find participant", func(t *testing.T) {

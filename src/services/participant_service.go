@@ -19,7 +19,11 @@ func (service ParticipantService) Create(user *types.User, participant_user *typ
 		return err
 	}
 
-	// TODO: Check if email for this event already exists...
+	found_participant := types.Participant{}
+	found_err := service.find_no_joins(input.Email, event.ID.String(), &found_participant)
+	if found_err == nil {
+		return fmt.Errorf("participant already exists")
+	}
 
 	output.CreatedBy = *user
 	output.CreatedById = user.ID
@@ -65,6 +69,19 @@ func (service ParticipantService) FindById(id string, output *types.Participant)
 		Joins("Event").
 		Joins("User").
 		Where("participants.id = ?", id).
+		First(output).
+		Error
+}
+
+// Identical to Find but with no joins
+func (service ParticipantService) find_no_joins(email string, event_id string, output *types.Participant) error {
+	return service.DB.
+		Table(service.TABLE).
+		Where(
+			"participants.event_id = ? AND participants.email = ?", 
+			event_id, 
+			email,
+		).
 		First(output).
 		Error
 }

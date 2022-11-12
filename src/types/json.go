@@ -11,7 +11,7 @@ type Result struct {
 }
 
 type Errors struct {
-	Errors interface{} `json:"errors"`
+	Errors []string `json:"errors"`
 }
 
 type DbConnection struct {

@@ -41,7 +41,7 @@ func MockMigration(t *testing.T) *gorm.DB {
 		t.FailNow()
 	}
 
-	db.Exec("drop table events, users, products, categories")
+	db.Exec("drop table participants, events, users, products, categories")
 
 	if err = app.AutoMigrate(db); err != nil {
 		t.Fatal("migration failed", err)

@@ -261,6 +261,66 @@ func TestParticipantService(t *testing.T) {
 		})
 	})
 
+	t.Run("update participant", func(t *testing.T) {
+		const EMAIL = "update_participant_user@giftxtrade.com"
+		participant_input := types.CreateParticipant{
+			Email: "update_participant_user@giftxtrade.com",
+			Participates: true,
+		}
+		participant := types.Participant{}
+		participant_err := participant_service.Create(&my_user, nil, &event, &participant_input, &participant)
+		if participant_err != nil {
+			t.Fatal("could not create participant", participant_err)
+		}
+
+		user_input := types.CreateUser{
+			Email: EMAIL,
+			Name: "Update Participant User",
+		}
+		participant_user := types.User{}
+		user_err := app.Service.UserService.Create(&user_input, &participant_user)
+		if user_err != nil {
+			t.Fatal("could not create user", user_err)
+		}
+
+		t.Run("valid inputs", func(t *testing.T) {
+			nickname := "Some Dude"
+			input := types.CreateParticipant{
+				Nickname: nickname,
+			}
+			updated_participant := types.Participant{}
+			updated, err := participant_service.Update(
+				participant.ID.String(), 
+				&my_user, 
+				&participant_user, 
+				&input,
+				&updated_participant,
+			)
+			if !updated || err != nil {
+				t.Fatal("could not update participant", err)
+			}
+
+			find_participant := types.Participant{}
+			find_err := participant_service.FindById(updated_participant.ID.String(), &find_participant)
+			if find_err != nil {
+				t.Fatal("could not find user")
+			}
+
+			if find_participant.Nickname != input.Nickname {
+				t.Fatal("did not update properly")
+			}
+			if !find_participant.Accepted {
+				t.Fatal("participant should be updated")
+			}
+			if find_participant.ModifiedById != my_user.ID {
+				t.Fatal("incorrect modified user")
+			}
+			if !find_participant.UserId.Valid || find_participant.UserId.UUID != participant_user.ID {
+				t.Fatal("incorrect user value")
+			}
+		})
+	})
+
 	t.Cleanup(func() {
 		event_service.DB.Exec("delete from participants, events, users")
 	})

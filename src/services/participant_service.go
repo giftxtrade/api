@@ -14,7 +14,13 @@ type ParticipantService struct {
 
 // Creates a new participant for a given event.
 // Note that participant_user is optional
-func (service ParticipantService) Create(user *types.User, participant_user *types.User, event *types.Event, input *types.CreateParticipant, output *types.Participant) error {
+func (service ParticipantService) Create(
+	user *types.User, 
+	participant_user *types.User, 
+	event *types.Event, 
+	input *types.CreateParticipant, 
+	output *types.Participant,
+) error {
 	if err := service.Validator.Struct(input); err != nil {
 		return err
 	}
@@ -75,7 +81,11 @@ func (service ParticipantService) FindById(id string, output *types.Participant)
 }
 
 // Identical to Find but with no joins
-func (service ParticipantService) find_no_joins(email string, event_id string, output *types.Participant) error {
+func (service ParticipantService) find_no_joins(
+	email string, 
+	event_id string, 
+	output *types.Participant,
+) error {
 	return service.DB.
 		Table(service.TABLE).
 		Where(
@@ -87,7 +97,11 @@ func (service ParticipantService) find_no_joins(email string, event_id string, o
 		Error
 }
 
-func (service ParticipantService) Find(email string, event_id string, output *types.Participant) error {
+func (service ParticipantService) Find(
+	email string, 
+	event_id string, 
+	output *types.Participant,
+) error {
 	return service.DB.
 		Table(service.TABLE).
 		Joins("CreatedBy").
@@ -101,6 +115,56 @@ func (service ParticipantService) Find(email string, event_id string, output *ty
 		).
 		First(output).
 		Error
+}
+
+func (service ParticipantService) Update(
+	id string, 
+	user *types.User, 
+	participant_user *types.User,
+	input *types.CreateParticipant, 
+	output *types.Participant,
+) (bool, error) {
+	find_err := service.FindById(id, output)
+	if find_err != nil {
+		return false, find_err
+	}
+
+	updated := false
+	if input.Address != "" && input.Address != output.Address {
+		output.Address = input.Address
+		updated = true
+	}
+	if input.Nickname != "" && input.Nickname != output.Nickname {
+		output.Nickname = input.Nickname
+		updated = true
+	}
+	if input.Participates != output.Participates {
+		output.Participates = input.Participates
+		updated = true
+	}
+	if !output.UserId.Valid && participant_user != nil {
+		if participant_user.Email != output.Email {
+			return false, fmt.Errorf("emails don't match")
+		}
+
+		output.UserId = uuid.NullUUID{
+			Valid: true,
+			UUID: participant_user.ID,
+		}
+		output.User = *participant_user
+		output.Accepted = true
+	}
+	
+	if updated {
+		output.ModifiedBy = *user
+		output.ModifiedById = user.ID
+		err := service.DB.
+			Table(service.TABLE).
+			Save(output).
+			Error
+		return true, err
+	}
+	return false, nil	
 }
 
 func (service ParticipantService) Delete(id string) error {

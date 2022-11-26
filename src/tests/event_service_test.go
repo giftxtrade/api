@@ -1,15 +1,37 @@
 package tests
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/giftxtrade/api/src/types"
+	"github.com/google/uuid"
 )
 
 func GetTomorrow() time.Time {
 	now := time.Now().Add(24 * time.Hour)
 	return now
+}
+
+func RandomBool() bool {
+	rand_val := rand.Int31n(2)
+	return rand_val == 1
+}
+
+func CreateParticipantInputs(n uint) []types.CreateParticipant {
+	inputs := make([]types.CreateParticipant, n)
+	for i := 0; i < int(n); i++ {
+		uuid := uuid.NewString()
+		inputs[i] = types.CreateParticipant{
+			Email: fmt.Sprintf("%s@giftxtraded.com", uuid),
+			Nickname: fmt.Sprintf("User %d (%s)", i + 1, uuid),
+			Participates: RandomBool(),
+			Organizer: RandomBool(),
+		}
+	}
+	return inputs
 }
 
 func TestEventService(t *testing.T) {
@@ -46,6 +68,32 @@ func TestEventService(t *testing.T) {
 		if event.CreatedBy.ID != my_user.ID || event.ModifiedBy.ID != my_user.ID {
 			t.Fatal("incorrect event owner")
 		}
+	})
+
+	t.Run("create full event", func(t *testing.T) {
+		now := GetTomorrow()
+		input := types.CreateEvent{
+			Name: "Event 2 (with participants)",
+			Budget: 10,
+			DrawAt: now,
+			CloseAt: now,
+			Participants: CreateParticipantInputs(5),
+		}
+
+		t.Run("valid input", func(t *testing.T) {
+			event := types.Event{}
+			err := event_service.CreateFull(&input, &my_user, &event)
+			if err != nil {
+				t.Fatal("could not create event with participants", err)
+			}
+
+			if event.CreatedBy.ID != my_user.ID || event.ModifiedBy.ID != my_user.ID {
+				t.Fatal("incorrect event owner")
+			}
+			if len(event.Participants) != len(input.Participants) {
+				t.Fatal("did not insert all participants", len(event.Participants), len(input.Participants))
+			}
+		})
 	})
 
 	t.Run("find event by id", func(t *testing.T) {
@@ -178,6 +226,6 @@ func TestEventService(t *testing.T) {
 	})
 
 	t.Cleanup(func() {
-		event_service.DB.Exec("delete from users, events")
+		event_service.DB.Exec("delete from users, events, participants")
 	})
 }

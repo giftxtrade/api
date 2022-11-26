@@ -93,6 +93,7 @@ type CreateEvent struct {
 	InviteMessage string `json:"inviteMessage,omitempty"`
 	DrawAt time.Time `json:"drawAt" validate:"required"`
 	CloseAt time.Time `json:"closeAt" validate:"required"`
+	Participants []CreateParticipant `json:"participants,omitempty" validate:"omitempty"`
 }
 
 type CreateParticipant struct {

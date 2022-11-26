@@ -48,13 +48,14 @@ func New(db *gorm.DB, validator *validator.Validate) Service {
 		ServiceBase: CreateService(db, "products", validator),
 		CategoryService: service.CategoryService,
 	}
-	service.EventService = EventService{
-		ServiceBase: CreateService(db, "events", validator),
-		UserService: service.UserService,
-	}
 	service.ParticipantService = ParticipantService{
 		ServiceBase: CreateService(db, "participants", validator),
 		UserService: service.UserService,
+	}
+	service.EventService = EventService{
+		ServiceBase: CreateService(db, "events", validator),
+		UserService: service.UserService,
+		ParticipantService: service.ParticipantService,
 	}
 	return service
 }

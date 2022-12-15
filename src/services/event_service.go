@@ -58,29 +58,12 @@ func (service *EventService) CreateFull(
 		return event_create_err
 	}
 
-	total_participants := len(input.Participants)
-	participants := make([]types.Participant, total_participants)
-	var err error = nil
-	for i, participant_input := range input.Participants {
-		participant := types.Participant{}
-		var participant_user *types.User = nil
-
-		if participant_input.Email == user.Email {
-			participant_user = user
-		}
-		err = service.ParticipantService.Create(
-			user,
-			participant_user,
-			output, // event
-			&participant_input,
-			&participant,
-		)
-		if err != nil {
-			continue
-		}
-		participants[i] = participant
-	}
-	output.Participants = participants
+	var err error
+	output.Participants, err = service.ParticipantService.BulkCreate(
+		user,
+		output,
+		input.Participants,
+	)
 	return err
 }
 

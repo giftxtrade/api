@@ -12,8 +12,10 @@ import (
 type EventService struct {
 	ServiceBase
 	UserService UserService
+	ParticipantService ParticipantService
 }
 
+// Creates an event without inserting any Participants
 func (service *EventService) Create(input *types.CreateEvent, user *types.User, output *types.Event) error {
 	if err := service.Validator.Struct(input); err != nil {
 		return err
@@ -43,6 +45,26 @@ func (service *EventService) Create(input *types.CreateEvent, user *types.User, 
 		Table(service.TABLE).
 		Create(output).
 		Error
+}
+
+// Creates event and all Participants
+func (service *EventService) CreateFull(
+	input *types.CreateEvent, 
+	user *types.User, 
+	output *types.Event,
+) error {
+	event_create_err := service.Create(input, user, output)
+	if event_create_err != nil {
+		return event_create_err
+	}
+
+	var err error
+	output.Participants, err = service.ParticipantService.BulkCreate(
+		user,
+		output,
+		input.Participants,
+	)
+	return err
 }
 
 func (service *EventService) FindById(id string, output *types.Event) error {

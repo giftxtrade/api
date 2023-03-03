@@ -12,8 +12,7 @@ func main() {
 	// Attempt connection with DB
 	conn, err := utils.NewDbConnection()
 	if err != nil {
-		log.Fatal("Could not connect to database.\n", err)
-		return
+		panic(err)
 	}
 
 	server := fiber.New(fiber.Config{

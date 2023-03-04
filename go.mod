@@ -18,7 +18,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/ayaanqui/go-migration-tool v1.0.3 // indirect
+	github.com/ayaanqui/go-migration-tool v1.0.4 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-playground/ansi v2.1.0+incompatible // indirect

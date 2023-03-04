@@ -18,6 +18,8 @@ require (
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/ayaanqui/go-migration-tool v1.0.3 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-playground/ansi v2.1.0+incompatible // indirect
 	github.com/go-playground/errors v3.3.0+incompatible // indirect
@@ -47,8 +49,10 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect
 	github.com/rakyll/gotest v0.0.6 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.5 // indirect
 	github.com/tkrajina/typescriptify-golang-structs v0.1.8 // indirect
+	github.com/urfave/cli v1.22.12 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.38.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

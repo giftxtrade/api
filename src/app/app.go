@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/ayaanqui/go-migration-tool/migration_tool"
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
@@ -36,6 +37,17 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 		}
 		return name
 	})
+
+	db_conn, err := app.DB.DB()
+	if err != nil {
+		panic(err)
+	}
+	m := migration_tool.New(db_conn, &migration_tool.Config{
+		TableName: "migration",
+		Directory: "./migrations",
+	})
+	m.RunMigration()
+
 	app.CreateSchemas() // create schemas
 	app.Service = services.New(app.DB, app.Validator) // create services
 	utils.SetupOauthProviders(*app.Tokens) // oauth providers

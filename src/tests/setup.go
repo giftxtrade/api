@@ -22,7 +22,7 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 	db, err := utils.CreateDbConnection(types.DbConnectionOptions{
 		Host: "localhost", 
 		User: "postgres", 
-		Password: "password", 
+		Password: "postgres", 
 		DbName: test_db, 
 		Port: "5432", 
 		SslMode: false, 
@@ -40,13 +40,14 @@ func MockMigration(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.FailNow()
 	}
-
-	db.Exec("drop table participants, events, users, products, categories")
-
-	if err = app.AutoMigrate(db); err != nil {
-		t.Fatal("migration failed", err)
-	}
-	return db
+	return db.Exec(`
+		DROP TABLE
+			participants, 
+			events, 
+			users, 
+			products, 
+			categories;
+	`)
 }
 
 func New(t *testing.T) *app.AppBase {

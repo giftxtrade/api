@@ -16,13 +16,15 @@ import (
 
 func NewMockDB(t *testing.T) (*gorm.DB, error) {
 	test_db := os.Getenv("TEST_DB")
+	test_password := "password"
 	if (test_db == "") {
 		test_db = "giftxtrade_test_db"
+		test_password = "postgres"
 	}
 	db, err := utils.CreateDbConnection(types.DbConnectionOptions{
 		Host: "localhost", 
 		User: "postgres", 
-		Password: "postgres", 
+		Password: test_password, 
 		DbName: test_db, 
 		Port: "5432", 
 		SslMode: false, 

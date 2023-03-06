@@ -17,6 +17,7 @@ import (
 type AppBase struct {
 	types.AppContext
 	Service services.Service
+	MigrationDirectory string
 }
 
 type IAppBase interface {
@@ -44,7 +45,7 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	}
 	m := migration_tool.New(db_conn, &migration_tool.Config{
 		TableName: "migration",
-		Directory: "./migrations",
+		Directory: app.MigrationDirectory,
 	})
 	m.RunMigration()
 
@@ -64,6 +65,7 @@ func New(conn *gorm.DB, server *fiber.App) *AppBase {
 		panic(tokens_err)
 	}
 	app.Tokens = &tokens
+	app.MigrationDirectory = "./migrations"
 	return app.NewBaseHandler()
 }
 
@@ -74,5 +76,6 @@ func NewMock(conn *gorm.DB, server *fiber.App) *AppBase {
 	app.Tokens = &types.Tokens{
 		JwtKey: "my-secret-jwt-token",
 	}
+	app.MigrationDirectory = "../../migrations"
 	return app.NewBaseHandler()
 }

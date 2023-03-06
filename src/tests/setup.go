@@ -28,9 +28,10 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 		SslMode: false, 
 		DisableLogger: true,
 	})
-	if (err != nil) {
-		fmt.Print(err)
+	if err != nil {
+		fmt.Println(err)
 		t.FailNow()
+		return nil, err
 	}
 	return db, nil
 }
@@ -40,19 +41,22 @@ func MockMigration(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.FailNow()
 	}
-	return db.Exec(`
-		DROP TABLE
-			participants, 
-			events, 
-			users, 
-			products, 
-			categories;
-	`)
+	return db
 }
 
 func New(t *testing.T) *app.AppBase {
 	db := MockMigration(t)
-	return app.NewMock(db, fiber.New())
+	app := app.NewMock(db, fiber.New())
+	err := db.Exec(`
+		DROP SCHEMA public CASCADE;
+		CREATE SCHEMA public;
+	`).Error
+	if err != nil {
+		fmt.Println(err)
+		t.FailNow()
+		return nil
+	}
+	return app
 }
 
 func SetupMockController(app *app.AppBase) controllers.Controller {

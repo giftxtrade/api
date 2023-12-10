@@ -32,7 +32,7 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 	})
 	if err != nil {
 		fmt.Println(err)
-		t.FailNow()
+		t.FailNow() 
 		return nil, err
 	}
 	return db, nil

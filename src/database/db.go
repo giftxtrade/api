@@ -7,6 +7,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 type DBTX interface {
@@ -20,12 +21,108 @@ func New(db DBTX) *Queries {
 	return &Queries{db: db}
 }
 
+func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
+	q := Queries{db: db}
+	var err error
+	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
+	}
+	if q.findUserByEmailStmt, err = db.PrepareContext(ctx, findUserByEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query FindUserByEmail: %w", err)
+	}
+	if q.findUserByIdStmt, err = db.PrepareContext(ctx, findUserById); err != nil {
+		return nil, fmt.Errorf("error preparing query FindUserById: %w", err)
+	}
+	if q.findUserByIdAndEmailStmt, err = db.PrepareContext(ctx, findUserByIdAndEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query FindUserByIdAndEmail: %w", err)
+	}
+	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
+	}
+	return &q, nil
+}
+
+func (q *Queries) Close() error {
+	var err error
+	if q.createUserStmt != nil {
+		if cerr := q.createUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.findUserByEmailStmt != nil {
+		if cerr := q.findUserByEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findUserByEmailStmt: %w", cerr)
+		}
+	}
+	if q.findUserByIdStmt != nil {
+		if cerr := q.findUserByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findUserByIdStmt: %w", cerr)
+		}
+	}
+	if q.findUserByIdAndEmailStmt != nil {
+		if cerr := q.findUserByIdAndEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findUserByIdAndEmailStmt: %w", cerr)
+		}
+	}
+	if q.findUserByIdOrEmailStmt != nil {
+		if cerr := q.findUserByIdOrEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
+		}
+	}
+	return err
+}
+
+func (q *Queries) exec(ctx context.Context, stmt *sql.Stmt, query string, args ...interface{}) (sql.Result, error) {
+	switch {
+	case stmt != nil && q.tx != nil:
+		return q.tx.StmtContext(ctx, stmt).ExecContext(ctx, args...)
+	case stmt != nil:
+		return stmt.ExecContext(ctx, args...)
+	default:
+		return q.db.ExecContext(ctx, query, args...)
+	}
+}
+
+func (q *Queries) query(ctx context.Context, stmt *sql.Stmt, query string, args ...interface{}) (*sql.Rows, error) {
+	switch {
+	case stmt != nil && q.tx != nil:
+		return q.tx.StmtContext(ctx, stmt).QueryContext(ctx, args...)
+	case stmt != nil:
+		return stmt.QueryContext(ctx, args...)
+	default:
+		return q.db.QueryContext(ctx, query, args...)
+	}
+}
+
+func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, args ...interface{}) *sql.Row {
+	switch {
+	case stmt != nil && q.tx != nil:
+		return q.tx.StmtContext(ctx, stmt).QueryRowContext(ctx, args...)
+	case stmt != nil:
+		return stmt.QueryRowContext(ctx, args...)
+	default:
+		return q.db.QueryRowContext(ctx, query, args...)
+	}
+}
+
 type Queries struct {
-	db DBTX
+	db                       DBTX
+	tx                       *sql.Tx
+	createUserStmt           *sql.Stmt
+	findUserByEmailStmt      *sql.Stmt
+	findUserByIdStmt         *sql.Stmt
+	findUserByIdAndEmailStmt *sql.Stmt
+	findUserByIdOrEmailStmt  *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db: tx,
+		db:                       tx,
+		tx:                       tx,
+		createUserStmt:           q.createUserStmt,
+		findUserByEmailStmt:      q.findUserByEmailStmt,
+		findUserByIdStmt:         q.findUserByIdStmt,
+		findUserByIdAndEmailStmt: q.findUserByIdAndEmailStmt,
+		findUserByIdOrEmailStmt:  q.findUserByIdOrEmailStmt,
 	}
 }

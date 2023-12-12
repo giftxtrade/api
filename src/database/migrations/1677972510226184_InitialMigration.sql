@@ -5,7 +5,10 @@ CREATE TABLE "category" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
   "name" VARCHAR(255) NOT NULL,
   "description" TEXT,
-  "category_url" TEXT
+  "category_url" TEXT,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
@@ -13,10 +16,12 @@ CREATE TABLE "category" (
 --
 CREATE TABLE "draw" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
-  "created_at" TIMESTAMPTZ NOT NULL,
-  "drawer_id" BIGINT REFERENCES "participant"("id") NOT NULL,
-  "drawee_id" BIGINT REFERENCES "participant"("id") NOT NULL,
-  "event_id" BIGINT REFERENCES "event"("id") NOT NULL
+  "drawer_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
+  "drawee_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
+  "event_id" BIGINT REFERENCES "event"("id") NOT NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
@@ -28,9 +33,11 @@ CREATE TABLE "event" (
   "description" TEXT,
   "budget" MONEY NOT NULL,
   "invitation_message" TEXT NOT NULL,
-  "created_at" TIMESTAMPTZ NOT NULL,
   "draw_at" TIMESTAMPTZ NOT NULL,
-  "close_at" TIMESTAMPTZ NOT NULL
+  "close_at" TIMESTAMPTZ NOT NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
@@ -39,9 +46,11 @@ CREATE TABLE "event" (
 CREATE TABLE "link" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
   "code" VARCHAR(255) NOT NULL,
-  "created_at" TIMESTAMPTZ NOT NULL,
   "expiration_date" TIMESTAMPTZ NOT NULL,
-  "event_id" BIGINT REFERENCES "event"("id") NOT NULL
+  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
@@ -55,13 +64,21 @@ CREATE TABLE "participant" (
   "organizer" BOOLEAN NOT NULL DEFAULT false,
   "participates" BOOLEAN NOT NULL DEFAULT true,
   "accepted" BOOLEAN NOT NULL DEFAULT false,
-  "event_id" BIGINT REFERENCES "event"("id") NOT NULL,
-  "user_id" BIGINT REFERENCES "user"("id") NOT NULL
+  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
+  "user_id" BIGINT REFERENCES "user"("id") ON DELETE SET NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
 -- Table structure for table products
 --
+CREATE TYPE "currency_type" AS ENUM (
+  'USD',
+  'CAD'
+);
+
 CREATE TABLE "product" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
   "title" TEXT NOT NULL,
@@ -71,10 +88,13 @@ CREATE TABLE "product" (
   "total_reviews" INT NOT NULL,
   "rating" REAL NOT NULL,
   "price" MONEY NOT NULL,
-  "currency" VARCHAR(255) NOT NULL,
+  "currency" "currency_type" NOT NULL DEFAULT 'USD',
   "modified" TIMESTAMPTZ NOT NULL,
   "website" TEXT NOT NULL,
-  "category_id" BIGINT REFERENCES "category"("id") NOT NULL
+  "category_id" BIGINT REFERENCES "category"("id") ON DELETE SET NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
@@ -87,7 +107,10 @@ CREATE TABLE "user" (
   "image_url" VARCHAR(255) NOT NULL,
   "phone" VARCHAR(255),
   "admin" BOOLEAN NOT NULL DEFAULT false,
-  "active" BOOLEAN NOT NULL DEFAULT false
+  "active" BOOLEAN NOT NULL DEFAULT false,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 --
@@ -95,9 +118,11 @@ CREATE TABLE "user" (
 --
 CREATE TABLE "wish" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
-  "created_at" TIMESTAMPTZ NOT NULL,
-  "user_id" BIGINT REFERENCES "user"("id") NOT NULL,
-  "participant_id" BIGINT REFERENCES "participant"("id") NOT NULL,
-  "product_id" BIGINT REFERENCES "product"("id") NOT NULL,
-  "event_id" BIGINT REFERENCES "event"("id") NOT NULL
+  "user_id" BIGINT REFERENCES "user"("id") ON DELETE CASCADE NOT NULL,
+  "participant_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
+  "product_id" BIGINT REFERENCES "product"("id") ON DELETE SET NULL,
+  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -1,5 +1,5 @@
 --
--- Table structure for table categories
+-- Table structure for table categorie
 --
 CREATE TABLE "category" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
@@ -12,67 +12,7 @@ CREATE TABLE "category" (
 );
 
 --
--- Table structure for table draws
---
-CREATE TABLE "draw" (
-  "id" BIGSERIAL UNIQUE PRIMARY KEY,
-  "drawer_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
-  "drawee_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
-  "event_id" BIGINT REFERENCES "event"("id") NOT NULL,
-
-  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
---
--- Table structure for table events
---
-CREATE TABLE "event" (
-  "id" BIGSERIAL UNIQUE PRIMARY KEY,
-  "name" VARCHAR(255) NOT NULL,
-  "description" TEXT,
-  "budget" MONEY NOT NULL,
-  "invitation_message" TEXT NOT NULL,
-  "draw_at" TIMESTAMPTZ NOT NULL,
-  "close_at" TIMESTAMPTZ NOT NULL,
-
-  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
---
--- Table structure for table links
---
-CREATE TABLE "link" (
-  "id" BIGSERIAL UNIQUE PRIMARY KEY,
-  "code" VARCHAR(255) NOT NULL,
-  "expiration_date" TIMESTAMPTZ NOT NULL,
-  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
-
-  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
---
--- Table structure for table participants
---
-CREATE TABLE "participant" (
-  "id" BIGSERIAL UNIQUE PRIMARY KEY,
-  "name" VARCHAR(255) NOT NULL,
-  "email" VARCHAR(255) NOT NULL,
-  "address" VARCHAR(255) NOT NULL,
-  "organizer" BOOLEAN NOT NULL DEFAULT false,
-  "participates" BOOLEAN NOT NULL DEFAULT true,
-  "accepted" BOOLEAN NOT NULL DEFAULT false,
-  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
-  "user_id" BIGINT REFERENCES "user"("id") ON DELETE SET NULL,
-
-  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
---
--- Table structure for table products
+-- Table structure for table product
 --
 CREATE TYPE "currency_type" AS ENUM (
   'USD',
@@ -98,7 +38,7 @@ CREATE TABLE "product" (
 );
 
 --
--- Table structure for table users
+-- Table structure for table user
 --
 CREATE TABLE "user" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
@@ -108,6 +48,66 @@ CREATE TABLE "user" (
   "phone" VARCHAR(255),
   "admin" BOOLEAN NOT NULL DEFAULT false,
   "active" BOOLEAN NOT NULL DEFAULT false,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+--
+-- Table structure for table event
+--
+CREATE TABLE "event" (
+  "id" BIGSERIAL UNIQUE PRIMARY KEY,
+  "name" VARCHAR(255) NOT NULL,
+  "description" TEXT,
+  "budget" MONEY NOT NULL,
+  "invitation_message" TEXT NOT NULL,
+  "draw_at" TIMESTAMPTZ NOT NULL,
+  "close_at" TIMESTAMPTZ NOT NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+--
+-- Table structure for table link
+--
+CREATE TABLE "link" (
+  "id" BIGSERIAL UNIQUE PRIMARY KEY,
+  "code" VARCHAR(255) NOT NULL,
+  "expiration_date" TIMESTAMPTZ NOT NULL,
+  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+--
+-- Table structure for table participant
+--
+CREATE TABLE "participant" (
+  "id" BIGSERIAL UNIQUE PRIMARY KEY,
+  "name" VARCHAR(255) NOT NULL,
+  "email" VARCHAR(255) NOT NULL,
+  "address" VARCHAR(255) NOT NULL,
+  "organizer" BOOLEAN NOT NULL DEFAULT false,
+  "participates" BOOLEAN NOT NULL DEFAULT true,
+  "accepted" BOOLEAN NOT NULL DEFAULT false,
+  "event_id" BIGINT REFERENCES "event"("id") ON DELETE CASCADE NOT NULL,
+  "user_id" BIGINT REFERENCES "user"("id") ON DELETE SET NULL,
+
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+--
+-- Table structure for table draw
+--
+CREATE TABLE "draw" (
+  "id" BIGSERIAL UNIQUE PRIMARY KEY,
+  "drawer_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
+  "drawee_id" BIGINT REFERENCES "participant"("id") ON DELETE CASCADE NOT NULL,
+  "event_id" BIGINT REFERENCES "event"("id") NOT NULL,
 
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
   "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()

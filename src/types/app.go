@@ -19,7 +19,6 @@ type DbConnectionOptions struct {
 	User string
 	Password string
 	DbName string
-	Port string
+	Port uint16
 	SslMode bool
-	DisableLogger bool
 }

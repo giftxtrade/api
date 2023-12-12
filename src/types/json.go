@@ -20,6 +20,7 @@ type DbConnection struct {
 	Password string `json:"password"`
 	Host string `json:"host"`
 	Port string `json:"port"`
+	SslMode bool `json:"sslMode"`
 }
 
 type TwitterKeys struct {

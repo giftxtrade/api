@@ -77,13 +77,6 @@ CREATE TABLE product (
   category_id BIGINT REFERENCES category(id) NOT NULL
 );
 
-ALTER TABLE product
-ADD COLUMN title_ts tsvector
-    GENERATED ALWAYS AS (
-    	setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
-     	setweight(to_tsvector('english', coalesce(description, '')), 'B') 
-    ) STORED;
-
 --
 -- Table structure for table users
 --

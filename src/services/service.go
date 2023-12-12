@@ -9,7 +9,6 @@ import (
 
 type ServiceBase struct {
 	DB *sql.DB
-	TABLE string
 	Validator *validator.Validate
 }
 
@@ -27,10 +26,9 @@ type IService interface {
 	New(db *gorm.DB) Service
 }
 
-func CreateService(db *sql.DB, table string, validator *validator.Validate) ServiceBase {
+func CreateService(db *sql.DB, validator *validator.Validate) ServiceBase {
 	return ServiceBase{
 		DB: db,
-		TABLE: table,
 		Validator: validator,
 	}
 }
@@ -41,21 +39,21 @@ func New(db *sql.DB, validator *validator.Validate) Service {
 	}
 
 	service.UserService = UserService{
-		ServiceBase: CreateService(db, "users", validator),
+		ServiceBase: CreateService(db, validator),
 	}
 	service.CategoryService = CategoryService{
-		ServiceBase: CreateService(db, "categories", validator),
+		ServiceBase: CreateService(db, validator),
 	}
 	service.ProductService = ProductService{
-		ServiceBase: CreateService(db, "products", validator),
+		ServiceBase: CreateService(db, validator),
 		CategoryService: service.CategoryService,
 	}
 	service.ParticipantService = ParticipantService{
-		ServiceBase: CreateService(db, "participants", validator),
+		ServiceBase: CreateService(db, validator),
 		UserService: service.UserService,
 	}
 	service.EventService = EventService{
-		ServiceBase: CreateService(db, "events", validator),
+		ServiceBase: CreateService(db, validator),
 		UserService: service.UserService,
 		ParticipantService: service.ParticipantService,
 	}

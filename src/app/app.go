@@ -7,6 +7,7 @@ import (
 
 	"github.com/ayaanqui/go-migration-tool/migration_tool"
 	"github.com/giftxtrade/api/src/controllers"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -19,6 +20,7 @@ type AppBase struct {
 	types.AppContext
 	Service services.Service
 	MigrationDirectory string
+	Querier *database.Queries
 }
 
 type IAppBase interface {
@@ -47,8 +49,8 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	m.RunMigration()
 
 	app.Service = services.New(app.DB, app.Validator) // create services
-	utils.SetupOauthProviders(*app.Tokens) // oauth providers
-	controllers.New(app.AppContext, app.Service)
+	controllers.SetupOauthProviders(*app.Tokens) // oauth providers
+	controllers.New(app.AppContext, app.Querier, app.Service)
 	return app
 }
 
@@ -56,6 +58,7 @@ func New(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
+	app.Querier = database.New(conn)
 	// initialize tokens
 	tokens, tokens_err := utils.ParseTokens()
 	if tokens_err != nil {

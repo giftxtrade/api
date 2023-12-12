@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 )
@@ -8,16 +9,18 @@ import (
 type Controller struct {
 	types.AppContext
 	Service services.Service
+	Querier *database.Queries
 }
 
 type IController interface {
 	New(app_ctx types.AppContext, service services.Service) Controller
 }
 
-func New(app_ctx types.AppContext, service services.Service) Controller {
+func New(app_ctx types.AppContext, querier *database.Queries, service services.Service) Controller {
 	controller := Controller{
 		AppContext: app_ctx,
 		Service: service,
+		Querier: querier,
 	}
 	server := app_ctx.Server
 

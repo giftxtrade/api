@@ -56,8 +56,12 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 
 	// Get user from id, username, email
 	var user database.User
-	id, email := claims["id"].(string), claims["email"].(string)
-	err = ctx.Service.UserService.FindByIdAndEmail(id, email, &user)
+	id, email := claims["id"].(int64), claims["email"].(string)
+
+	user, err = ctx.Querier.FindUserByIdAndEmail(c.Context(), database.FindUserByIdAndEmailParams{
+		ID: id,
+		Email: email,
+	})
 	if err != nil {
 		return err
 	}

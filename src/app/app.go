@@ -62,7 +62,7 @@ func New(conn *sql.DB, server *fiber.App) *AppBase {
 		panic(tokens_err)
 	}
 	app.Tokens = &tokens
-	app.MigrationDirectory = "./migrations"
+	app.MigrationDirectory = "./src/database/migrations"
 	return app.NewBaseHandler()
 }
 
@@ -73,6 +73,6 @@ func NewMock(conn *sql.DB, server *fiber.App) *AppBase {
 	app.Tokens = &types.Tokens{
 		JwtKey: "my-secret-jwt-token",
 	}
-	app.MigrationDirectory = "../../migrations"
+	app.MigrationDirectory = "../database/migrations"
 	return app.NewBaseHandler()
 }

@@ -14,15 +14,6 @@ type Errors struct {
 	Errors []string `json:"errors"`
 }
 
-type DbConnection struct {
-	DbName string `json:"dbName"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Host string `json:"host"`
-	Port uint16 `json:"port"`
-	SslMode bool `json:"sslMode"`
-}
-
 type TwitterKeys struct {
 	ApiKey string `json:"apiKey"`
 	ApiKeySecret string `json:"apiKeySecret"`
@@ -47,11 +38,6 @@ type Tokens struct {
 	Sendgrid SendgridKeys `json:"sendgrid"`
 	// To add other tokens create a struct and add them here,
 	// make sure to also update tokens.json
-}
-
-type Auth struct {
-	User User `json:"user"`
-	Token string `json:"token"`
 }
 
 type CreateUser struct {

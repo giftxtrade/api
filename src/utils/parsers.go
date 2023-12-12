@@ -3,17 +3,16 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/giftxtrade/api/src/types"
 	"github.com/golang-jwt/jwt"
-	"golang.org/x/net/context"
 )
 
 // Given a JSON file, map the contents into any struct dest
 func FileMapper(filename string, dest interface{}) error {
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("%s not found", filename)
 	}
@@ -57,25 +56,4 @@ func GetJwtClaims(jwt_token string, key string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("could not fetch jwt claims")
 	}
 	return claims, nil
-}
-
-// Generates a JWT with claims, signed with key
-func GenerateJWT(key string, user *types.User) (string, error) {
-	jwt := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": user.ID,
-		"name": user.Name,
-		"email": user.Email,
-		"imageUrl": user.ImageUrl,
-	})
-	token, err := jwt.SignedString([]byte(key))
-	if err != nil {
-		return "", err
-	}
-	return token, nil
-}
-
-// Given a context, find and return the auth struct using the types.AuthKey key
-func ParseAuthContext(context context.Context) types.Auth {
-	auth := context.Value(types.AuthKey).(types.Auth)
-	return auth
 }

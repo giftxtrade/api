@@ -18,3 +18,6 @@ sqlc:
 
 create-migration:
 	go run github.com/ayaanqui/go-migration-tool --directory "./src/database/migrations" create-migration $(fileName)
+
+docker-container:
+	docker compose -f ./docker-compose.yml up

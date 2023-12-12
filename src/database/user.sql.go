@@ -7,46 +7,144 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
 
-const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, name, email, image_url, phone, admin, active FROM "user"
-LIMIT $1
-OFFSET $2
+const createUser = `-- name: CreateUser :one
+INSERT INTO "user" (
+    name,
+    email,
+    image_url,
+    phone,
+    admin,
+    active
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6
+) RETURNING id, name, email, image_url, phone, admin, active
 `
 
-type GetAllUsersParams struct {
-	Limit  int32 `db:"limit" json:"limit"`
-	Offset int32 `db:"offset" json:"offset"`
+type CreateUserParams struct {
+	Name     string         `db:"name" json:"name"`
+	Email    string         `db:"email" json:"email"`
+	ImageUrl string         `db:"image_url" json:"imageUrl"`
+	Phone    sql.NullString `db:"phone" json:"phone"`
+	Admin    bool           `db:"admin" json:"admin"`
+	Active   bool           `db:"active" json:"active"`
 }
 
-func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getAllUsers, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Email,
-			&i.ImageUrl,
-			&i.Phone,
-			&i.Admin,
-			&i.Active,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Name,
+		arg.Email,
+		arg.ImageUrl,
+		arg.Phone,
+		arg.Admin,
+		arg.Active,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ImageUrl,
+		&i.Phone,
+		&i.Admin,
+		&i.Active,
+	)
+	return i, err
+}
+
+const findUserByEmail = `-- name: FindUserByEmail :one
+SELECT id, name, email, image_url, phone, admin, active FROM "user"
+WHERE email = $1
+`
+
+func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ImageUrl,
+		&i.Phone,
+		&i.Admin,
+		&i.Active,
+	)
+	return i, err
+}
+
+const findUserById = `-- name: FindUserById :one
+SELECT id, name, email, image_url, phone, admin, active FROM "user"
+WHERE id = $1
+`
+
+func (q *Queries) FindUserById(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ImageUrl,
+		&i.Phone,
+		&i.Admin,
+		&i.Active,
+	)
+	return i, err
+}
+
+const findUserByIdAndEmail = `-- name: FindUserByIdAndEmail :one
+SELECT id, name, email, image_url, phone, admin, active FROM "user"
+WHERE id = $1 AND email = $2
+`
+
+type FindUserByIdAndEmailParams struct {
+	ID    int64  `db:"id" json:"id"`
+	Email string `db:"email" json:"email"`
+}
+
+func (q *Queries) FindUserByIdAndEmail(ctx context.Context, arg FindUserByIdAndEmailParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByIdAndEmail, arg.ID, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ImageUrl,
+		&i.Phone,
+		&i.Admin,
+		&i.Active,
+	)
+	return i, err
+}
+
+const findUserByIdOrEmail = `-- name: FindUserByIdOrEmail :one
+SELECT id, name, email, image_url, phone, admin, active FROM "user"
+WHERE id = $1 OR email = $2
+`
+
+type FindUserByIdOrEmailParams struct {
+	ID    int64  `db:"id" json:"id"`
+	Email string `db:"email" json:"email"`
+}
+
+func (q *Queries) FindUserByIdOrEmail(ctx context.Context, arg FindUserByIdOrEmailParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByIdOrEmail, arg.ID, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ImageUrl,
+		&i.Phone,
+		&i.Admin,
+		&i.Active,
+	)
+	return i, err
 }

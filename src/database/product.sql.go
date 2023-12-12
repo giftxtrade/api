@@ -13,20 +13,21 @@ import (
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO "product" (
-  title,
-  description,
-  product_key,
-  image_url,
-  total_reviews,
-  rating,
-  price,
-  currency,
-  modified,
-  website,
-  category_id
+  "title",
+  "description",
+  "product_key",
+  "image_url",
+  "total_reviews",
+  "rating",
+  "price",
+  "currency",
+  "modified",
+  "url",
+  "origin",
+  "category_id"
 ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7, $11, $8, $9, $10
-) RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, website, category_id, created_at, updated_at, product_ts
+	$1, $2, $3, $4, $5, $6, $7, $12, $8, $9, $10, $11
+) RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, url, category_id, created_at, updated_at, product_ts, origin
 `
 
 type CreateProductParams struct {
@@ -38,7 +39,8 @@ type CreateProductParams struct {
 	Rating       float32          `db:"rating" json:"rating"`
 	Price        string           `db:"price" json:"price"`
 	Modified     time.Time        `db:"modified" json:"modified"`
-	Website      string           `db:"website" json:"website"`
+	Url          string           `db:"url" json:"url"`
+	Origin       string           `db:"origin" json:"origin"`
 	CategoryID   sql.NullInt64    `db:"category_id" json:"categoryId"`
 	Currency     NullCurrencyType `db:"currency" json:"currency"`
 }
@@ -53,7 +55,8 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Rating,
 		arg.Price,
 		arg.Modified,
-		arg.Website,
+		arg.Url,
+		arg.Origin,
 		arg.CategoryID,
 		arg.Currency,
 	)
@@ -69,18 +72,19 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Price,
 		&i.Currency,
 		&i.Modified,
-		&i.Website,
+		&i.Url,
 		&i.CategoryID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ProductTs,
+		&i.Origin,
 	)
 	return i, err
 }
 
 const filterProducts = `-- name: FilterProducts :many
 SELECT
-  product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.modified, product.website, product.category_id, product.created_at, product.updated_at, product.product_ts,
+  product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.modified, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin,
   category.id, category.name, category.description, category.category_url, category.created_at, category.updated_at
 FROM "product"
 INNER JOIN "category" 
@@ -125,11 +129,12 @@ func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) 
 			&i.Product.Price,
 			&i.Product.Currency,
 			&i.Product.Modified,
-			&i.Product.Website,
+			&i.Product.Url,
 			&i.Product.CategoryID,
 			&i.Product.CreatedAt,
 			&i.Product.UpdatedAt,
 			&i.Product.ProductTs,
+			&i.Product.Origin,
 			&i.Category.ID,
 			&i.Category.Name,
 			&i.Category.Description,
@@ -151,7 +156,7 @@ func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) 
 }
 
 const findProductById = `-- name: FindProductById :one
-SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, website, category_id, created_at, updated_at, product_ts FROM "product"
+SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, url, category_id, created_at, updated_at, product_ts, origin FROM "product"
 WHERE "id" = $1
 `
 
@@ -169,17 +174,18 @@ func (q *Queries) FindProductById(ctx context.Context, id int64) (Product, error
 		&i.Price,
 		&i.Currency,
 		&i.Modified,
-		&i.Website,
+		&i.Url,
 		&i.CategoryID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ProductTs,
+		&i.Origin,
 	)
 	return i, err
 }
 
 const findProductByProductKey = `-- name: FindProductByProductKey :one
-SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, website, category_id, created_at, updated_at, product_ts FROM "product"
+SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, url, category_id, created_at, updated_at, product_ts, origin FROM "product"
 WHERE "product_key" = $1
 `
 
@@ -197,11 +203,12 @@ func (q *Queries) FindProductByProductKey(ctx context.Context, productKey string
 		&i.Price,
 		&i.Currency,
 		&i.Modified,
-		&i.Website,
+		&i.Url,
 		&i.CategoryID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ProductTs,
+		&i.Origin,
 	)
 	return i, err
 }

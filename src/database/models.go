@@ -133,11 +133,12 @@ type Product struct {
 	Price        string         `db:"price" json:"price"`
 	Currency     CurrencyType   `db:"currency" json:"currency"`
 	Modified     time.Time      `db:"modified" json:"modified"`
-	Website      string         `db:"website" json:"website"`
+	Url          string         `db:"url" json:"url"`
 	CategoryID   sql.NullInt64  `db:"category_id" json:"categoryId"`
 	CreatedAt    time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt    time.Time      `db:"updated_at" json:"updatedAt"`
 	ProductTs    interface{}    `db:"product_ts" json:"productTs"`
+	Origin       string         `db:"origin" json:"origin"`
 }
 
 type User struct {

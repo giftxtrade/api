@@ -6,6 +6,8 @@ import (
 	"github.com/giftxtrade/api/src/app"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,6 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 
 	server := fiber.New(fiber.Config{
 		ServerHeader: "giftxtrade api v2",

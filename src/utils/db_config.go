@@ -1,17 +1,13 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/giftxtrade/api/src/types"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-func CreateDbConnection(options types.DbConnectionOptions) (*gorm.DB, error) {
+func DbConnectionString(options types.DbConnectionOptions) string {
 	sslmode_val := "enable"
 	if !options.SslMode {
 		sslmode_val = "disable"
@@ -25,20 +21,7 @@ func CreateDbConnection(options types.DbConnectionOptions) (*gorm.DB, error) {
 		options.Port,
 		sslmode_val,
 	)
-	config := &gorm.Config{}
-	if options.DisableLogger {
-		config.Logger = logger.Default.LogMode(logger.Silent)
-	} else {
-		config.Logger = logger.New(
-			log.New(os.Stdout, "\r\n", log.LstdFlags),
-			logger.Config{
-				LogLevel: logger.Info,
-				IgnoreRecordNotFoundError: false,
-				Colorful: true,
-			},
-		)
-	}
-	return gorm.Open(postgres.Open(dns), config)
+	return dns
 }
 
 func DbConfig() (types.DbConnection, error) {
@@ -47,19 +30,22 @@ func DbConfig() (types.DbConnection, error) {
 	return db_config, err
 }
 
-func NewDbConnection() (*gorm.DB, error) {
+func CreateDbConnection(options types.DbConnectionOptions) (*sql.DB, error) {
+	return sql.Open("postgres", DbConnectionString(options))
+}
+
+func NewDbConnection() (*sql.DB, error) {
 	config, err := DbConfig()
 	if err != nil {
 		return nil, err
 	}
-	// TODO: mark sslmode as true in production
 	return CreateDbConnection(types.DbConnectionOptions{
 		Host: config.Host, 
 		User: config.Username, 
 		Password: config.Password, 
 		DbName: config.DbName, 
 		Port: config.Port, 
-		SslMode: false, 
+		SslMode: false, // TODO: mark sslmode as true in production
 		DisableLogger: false,
 	})
 }

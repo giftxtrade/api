@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"reflect"
 	"strings"
 
@@ -39,11 +40,7 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 		return name
 	})
 
-	db_conn, err := app.DB.DB()
-	if err != nil {
-		panic(err)
-	}
-	m := migration_tool.New(db_conn, &migration_tool.Config{
+	m := migration_tool.New(app.DB, &migration_tool.Config{
 		TableName: "migration",
 		Directory: app.MigrationDirectory,
 	})
@@ -55,7 +52,7 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	return app
 }
 
-func New(conn *gorm.DB, server *fiber.App) *AppBase {
+func New(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
@@ -69,7 +66,7 @@ func New(conn *gorm.DB, server *fiber.App) *AppBase {
 	return app.NewBaseHandler()
 }
 
-func NewMock(conn *gorm.DB, server *fiber.App) *AppBase {
+func NewMock(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server

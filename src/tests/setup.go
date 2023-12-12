@@ -1,11 +1,10 @@
 package tests
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"testing"
-
-	"gorm.io/gorm"
 
 	"github.com/giftxtrade/api/src/app"
 	"github.com/giftxtrade/api/src/controllers"
@@ -14,7 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewMockDB(t *testing.T) (*gorm.DB, error) {
+func NewMockDB(t *testing.T) (*sql.DB, error) {
 	test_db := os.Getenv("TEST_DB")
 	test_password := "password"
 	if (test_db == "") {
@@ -38,7 +37,7 @@ func NewMockDB(t *testing.T) (*gorm.DB, error) {
 	return db, nil
 }
 
-func MockMigration(t *testing.T) *gorm.DB {
+func MockMigration(t *testing.T) *sql.DB {
 	db, err := NewMockDB(t)
 	if err != nil {
 		t.FailNow()
@@ -49,10 +48,10 @@ func MockMigration(t *testing.T) *gorm.DB {
 func New(t *testing.T) *app.AppBase {
 	db := MockMigration(t)
 	app := app.NewMock(db, fiber.New())
-	err := db.Exec(`
+	_, err := db.Exec(`
 		DROP SCHEMA public CASCADE;
 		CREATE SCHEMA public;
-	`).Error
+	`)
 	if err != nil {
 		fmt.Println(err)
 		t.FailNow()

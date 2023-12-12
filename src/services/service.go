@@ -1,18 +1,20 @@
 package services
 
 import (
+	"database/sql"
+
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
 type ServiceBase struct {
-	DB *gorm.DB
+	DB *sql.DB
 	TABLE string
 	Validator *validator.Validate
 }
 
 type Service struct {
-	DB *gorm.DB
+	DB *sql.DB
 	UserService UserService
 	CategoryService CategoryService
 	ProductService ProductService
@@ -25,7 +27,7 @@ type IService interface {
 	New(db *gorm.DB) Service
 }
 
-func CreateService(db *gorm.DB, table string, validator *validator.Validate) ServiceBase {
+func CreateService(db *sql.DB, table string, validator *validator.Validate) ServiceBase {
 	return ServiceBase{
 		DB: db,
 		TABLE: table,
@@ -33,7 +35,7 @@ func CreateService(db *gorm.DB, table string, validator *validator.Validate) Ser
 	}
 }
 
-func New(db *gorm.DB, validator *validator.Validate) Service {
+func New(db *sql.DB, validator *validator.Validate) Service {
 	service := Service{
 		DB: db,
 	}

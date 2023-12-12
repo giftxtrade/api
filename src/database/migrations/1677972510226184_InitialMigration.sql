@@ -13,7 +13,7 @@ CREATE TABLE category (
 --
 CREATE TABLE draw (
   id BIGSERIAL UNIQUE PRIMARY KEY,
-  created_at DATETIME NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   drawer_id BIGINT REFERENCES participant(id) NOT NULL,
   drawee_id BIGINT REFERENCES participant(id) NOT NULL,
   event_id BIGINT REFERENCES event(id) NOT NULL
@@ -28,9 +28,9 @@ CREATE TABLE event (
   description TEXT,
   budget DECIMAL(10,0) NOT NULL,
   invitation_message TEXT NOT NULL,
-  created_at DATETIME NOT NULL,
-  draw_at DATETIME NOT NULL,
-  close_at DATETIME NOT NULL
+  created_at TIMESTAMPTZ NOT NULL,
+  draw_at TIMESTAMPTZ NOT NULL,
+  close_at TIMESTAMPTZ NOT NULL
 );
 
 --
@@ -39,8 +39,8 @@ CREATE TABLE event (
 CREATE TABLE link (
   id BIGSERIAL UNIQUE PRIMARY KEY,
   code VARCHAR(255) NOT NULL,
-  created_at DATETIME NOT NULL,
-  expiration_date DATETIME NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  expiration_date TIMESTAMPTZ NOT NULL,
   event_id BIGINT REFERENCES event(id) NOT NULL
 );
 
@@ -56,7 +56,7 @@ CREATE TABLE participant (
   participates BOOLEAN DEFAULT true,
   accepted BOOLEAN DEFAULT false,
   event_id BIGINT REFERENCES event(id) NOT NULL,
-  user_id BIGINT REFERNCES user(id) NOT NULL
+  user_id BIGINT REFERENCES "user"(id) NOT NULL
 );
 
 --
@@ -69,10 +69,10 @@ CREATE TABLE product (
   product_key VARCHAR(255) UNIQUE NOT NULL,
   image_url TEXT NOT NULL,
   total_reviews INT NOT NULL,
-  rating DOUBLE NOT NULL,
-  price DOUBLE NOT NULL,
+  rating REAL NOT NULL,
+  price MONEY NOT NULL,
   currency VARCHAR(255) NOT NULL,
-  modified DATETIME NOT NULL,
+  modified TIMESTAMPTZ NOT NULL,
   website TEXT NOT NULL,
   category_id BIGINT REFERENCES category(id) NOT NULL
 );
@@ -80,13 +80,14 @@ CREATE TABLE product (
 --
 -- Table structure for table users
 --
-CREATE TABLE user (
+CREATE TABLE "user" (
   id BIGSERIAL UNIQUE PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   image_url VARCHAR(255) NOT NULL,
   phone VARCHAR(255) DEFAULT NULL,
-  admin BOOLEAN DEFAULT false
+  admin BOOLEAN DEFAULT false,
+  active BOOLEAN DEFAULT false
 );
 
 --
@@ -94,8 +95,8 @@ CREATE TABLE user (
 --
 CREATE TABLE wish (
   id BIGSERIAL UNIQUE PRIMARY KEY,
-  created_at DATETIME NOT NULL,
-  user_id BIGINT REFERENCES user(id) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  user_id BIGINT REFERENCES "user"(id) NOT NULL,
   participant_id BIGINT REFERENCES participant(id) NOT NULL,
   product_id BIGINT REFERENCES product(id) NOT NULL,
   event_id BIGINT REFERENCES event(id) NOT NULL

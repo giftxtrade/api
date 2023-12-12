@@ -17,4 +17,4 @@ sqlc:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 
 create-migration:
-	go run github.com/ayaanqui/go-migration-tool --directory "./src/database/migrations" create-migration
+	go run github.com/ayaanqui/go-migration-tool --directory "./src/database/migrations" create-migration $(fileName)

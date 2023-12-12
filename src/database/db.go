@@ -24,8 +24,20 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createProductStmt, err = db.PrepareContext(ctx, createProduct); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateProduct: %w", err)
+	}
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
+	}
+	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
+		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
+	}
+	if q.findProductByIdStmt, err = db.PrepareContext(ctx, findProductById); err != nil {
+		return nil, fmt.Errorf("error preparing query FindProductById: %w", err)
+	}
+	if q.findProductByProductKeyStmt, err = db.PrepareContext(ctx, findProductByProductKey); err != nil {
+		return nil, fmt.Errorf("error preparing query FindProductByProductKey: %w", err)
 	}
 	if q.findUserByEmailStmt, err = db.PrepareContext(ctx, findUserByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByEmail: %w", err)
@@ -44,9 +56,29 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createProductStmt != nil {
+		if cerr := q.createProductStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createProductStmt: %w", cerr)
+		}
+	}
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.filterProductsStmt != nil {
+		if cerr := q.filterProductsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing filterProductsStmt: %w", cerr)
+		}
+	}
+	if q.findProductByIdStmt != nil {
+		if cerr := q.findProductByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findProductByIdStmt: %w", cerr)
+		}
+	}
+	if q.findProductByProductKeyStmt != nil {
+		if cerr := q.findProductByProductKeyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findProductByProductKeyStmt: %w", cerr)
 		}
 	}
 	if q.findUserByEmailStmt != nil {
@@ -106,23 +138,31 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                       DBTX
-	tx                       *sql.Tx
-	createUserStmt           *sql.Stmt
-	findUserByEmailStmt      *sql.Stmt
-	findUserByIdStmt         *sql.Stmt
-	findUserByIdAndEmailStmt *sql.Stmt
-	findUserByIdOrEmailStmt  *sql.Stmt
+	db                          DBTX
+	tx                          *sql.Tx
+	createProductStmt           *sql.Stmt
+	createUserStmt              *sql.Stmt
+	filterProductsStmt          *sql.Stmt
+	findProductByIdStmt         *sql.Stmt
+	findProductByProductKeyStmt *sql.Stmt
+	findUserByEmailStmt         *sql.Stmt
+	findUserByIdStmt            *sql.Stmt
+	findUserByIdAndEmailStmt    *sql.Stmt
+	findUserByIdOrEmailStmt     *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                       tx,
-		tx:                       tx,
-		createUserStmt:           q.createUserStmt,
-		findUserByEmailStmt:      q.findUserByEmailStmt,
-		findUserByIdStmt:         q.findUserByIdStmt,
-		findUserByIdAndEmailStmt: q.findUserByIdAndEmailStmt,
-		findUserByIdOrEmailStmt:  q.findUserByIdOrEmailStmt,
+		db:                          tx,
+		tx:                          tx,
+		createProductStmt:           q.createProductStmt,
+		createUserStmt:              q.createUserStmt,
+		filterProductsStmt:          q.filterProductsStmt,
+		findProductByIdStmt:         q.findProductByIdStmt,
+		findProductByProductKeyStmt: q.findProductByProductKeyStmt,
+		findUserByEmailStmt:         q.findUserByEmailStmt,
+		findUserByIdStmt:            q.findUserByIdStmt,
+		findUserByIdAndEmailStmt:    q.findUserByIdAndEmailStmt,
+		findUserByIdOrEmailStmt:     q.findUserByIdOrEmailStmt,
 	}
 }

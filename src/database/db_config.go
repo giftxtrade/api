@@ -1,10 +1,11 @@
-package utils
+package database
 
 import (
 	"database/sql"
 	"fmt"
 
 	"github.com/giftxtrade/api/src/types"
+	"github.com/giftxtrade/api/src/utils"
 )
 
 func DbConnectionString(options types.DbConnectionOptions) string {
@@ -26,7 +27,7 @@ func DbConnectionString(options types.DbConnectionOptions) string {
 
 func DbConfig() (types.DbConnection, error) {
 	var db_config types.DbConnection
-	err := FileMapper("db_config.json", &db_config)
+	err := utils.FileMapper("db_config.json", &db_config)
 	return db_config, err
 }
 
@@ -46,6 +47,5 @@ func NewDbConnection() (*sql.DB, error) {
 		DbName: config.DbName, 
 		Port: config.Port, 
 		SslMode: false, // TODO: mark sslmode as true in production
-		DisableLogger: false,
 	})
 }

@@ -52,9 +52,9 @@ CREATE TABLE participant (
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
   address VARCHAR(255) NOT NULL,
-  organizer BOOLEAN DEFAULT false,
-  participates BOOLEAN DEFAULT true,
-  accepted BOOLEAN DEFAULT false,
+  organizer BOOLEAN NOT NULL DEFAULT false,
+  participates BOOLEAN NOT NULL DEFAULT true,
+  accepted BOOLEAN NOT NULL DEFAULT false,
   event_id BIGINT REFERENCES event(id) NOT NULL,
   user_id BIGINT REFERENCES "user"(id) NOT NULL
 );
@@ -85,9 +85,9 @@ CREATE TABLE "user" (
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   image_url VARCHAR(255) NOT NULL,
-  phone VARCHAR(255) DEFAULT NULL,
-  admin BOOLEAN DEFAULT false,
-  active BOOLEAN DEFAULT false
+  phone VARCHAR(255),
+  admin BOOLEAN NOT NULL DEFAULT false,
+  active BOOLEAN NOT NULL DEFAULT false
 );
 
 --

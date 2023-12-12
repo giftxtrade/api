@@ -5,11 +5,19 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
 
-func DbConnectionString(options types.DbConnection) string {
+type DbConnection struct {
+	DbName string `json:"dbName"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Host string `json:"host"`
+	Port uint16 `json:"port"`
+	SslMode bool `json:"sslMode"`
+}
+
+func DbConnectionString(options DbConnection) string {
 	sslmode_val := "enable"
 	if !options.SslMode {
 		sslmode_val = "disable"
@@ -26,13 +34,13 @@ func DbConnectionString(options types.DbConnection) string {
 	return dns
 }
 
-func DbConfig() (types.DbConnection, error) {
-	var db_config types.DbConnection
+func DbConfig() (DbConnection, error) {
+	var db_config DbConnection
 	err := utils.FileMapper("db_config.json", &db_config)
 	return db_config, err
 }
 
-func CreateDbConnection(options types.DbConnection) (*sql.DB, error) {
+func CreateDbConnection(options DbConnection) (*sql.DB, error) {
 	return sql.Open("postgres", DbConnectionString(options))
 }
 

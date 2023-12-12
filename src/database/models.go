@@ -44,15 +44,15 @@ type Link struct {
 }
 
 type Participant struct {
-	ID           int64        `db:"id" json:"id"`
-	Name         string       `db:"name" json:"name"`
-	Email        string       `db:"email" json:"email"`
-	Address      string       `db:"address" json:"address"`
-	Organizer    sql.NullBool `db:"organizer" json:"organizer"`
-	Participates sql.NullBool `db:"participates" json:"participates"`
-	Accepted     sql.NullBool `db:"accepted" json:"accepted"`
-	EventID      int64        `db:"event_id" json:"eventId"`
-	UserID       int64        `db:"user_id" json:"userId"`
+	ID           int64  `db:"id" json:"id"`
+	Name         string `db:"name" json:"name"`
+	Email        string `db:"email" json:"email"`
+	Address      string `db:"address" json:"address"`
+	Organizer    bool   `db:"organizer" json:"organizer"`
+	Participates bool   `db:"participates" json:"participates"`
+	Accepted     bool   `db:"accepted" json:"accepted"`
+	EventID      int64  `db:"event_id" json:"eventId"`
+	UserID       int64  `db:"user_id" json:"userId"`
 }
 
 type Product struct {
@@ -77,8 +77,8 @@ type User struct {
 	Email    string         `db:"email" json:"email"`
 	ImageUrl string         `db:"image_url" json:"imageUrl"`
 	Phone    sql.NullString `db:"phone" json:"phone"`
-	Admin    sql.NullBool   `db:"admin" json:"admin"`
-	Active   sql.NullBool   `db:"active" json:"active"`
+	Admin    bool           `db:"admin" json:"admin"`
+	Active   bool           `db:"active" json:"active"`
 }
 
 type Wish struct {

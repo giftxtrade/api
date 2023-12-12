@@ -51,6 +51,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
 	}
+	if q.updateProductStmt, err = db.PrepareContext(ctx, updateProduct); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateProduct: %w", err)
+	}
 	return &q, nil
 }
 
@@ -101,6 +104,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
 		}
 	}
+	if q.updateProductStmt != nil {
+		if cerr := q.updateProductStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateProductStmt: %w", cerr)
+		}
+	}
 	return err
 }
 
@@ -149,6 +157,7 @@ type Queries struct {
 	findUserByIdStmt            *sql.Stmt
 	findUserByIdAndEmailStmt    *sql.Stmt
 	findUserByIdOrEmailStmt     *sql.Stmt
+	updateProductStmt           *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -164,5 +173,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdStmt:            q.findUserByIdStmt,
 		findUserByIdAndEmailStmt:    q.findUserByIdAndEmailStmt,
 		findUserByIdOrEmailStmt:     q.findUserByIdOrEmailStmt,
+		updateProductStmt:           q.updateProductStmt,
 	}
 }

@@ -6,7 +6,7 @@ sql:
     schema: src/database/migrations/*.sql
     database:
       # uri: postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-      uri: postgresql://postgres:postgres@localhost:5433/postgres
+      # uri: postgresql://postgres:postgres@localhost:5433/postgres
     gen:
       go:
         package: database

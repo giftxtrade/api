@@ -41,15 +41,11 @@ func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not parse body data")
 	}
 
-	var new_product types.Product
-	created, err := ctx.Service.ProductService.CreateOrUpdate(&create_product, &new_product)
+	product, err := ctx.Service.ProductService.UpdateOrCreate(c.Context(), create_product)
 	if err != nil {
-		return utils.FailResponse(c, strings.Split(err.Error(), "\n")...)
+		return utils.FailResponse(c, "could not create/update product")
 	}
-	if created {
-		return utils.DataResponseCreated(c, new_product)
-	}
-	return utils.DataResponse(c, new_product)
+	return utils.DataResponse(c, product)
 }
 
 // [GET] /products/:id

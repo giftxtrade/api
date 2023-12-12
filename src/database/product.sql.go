@@ -212,3 +212,58 @@ func (q *Queries) FindProductByProductKey(ctx context.Context, productKey string
 	)
 	return i, err
 }
+
+const updateProduct = `-- name: UpdateProduct :one
+UPDATE "product"
+SET 
+  "price" = $2,
+  "rating" = $3,
+  "total_reviews" = $4,
+  "title" = $5,
+  "image_url" = $6,
+  "description" = $7
+WHERE "product_key" = $1
+RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, url, category_id, created_at, updated_at, product_ts, origin
+`
+
+type UpdateProductParams struct {
+	ProductKey   string          `db:"product_key" json:"productKey"`
+	Price        sql.NullString  `db:"price" json:"price"`
+	Rating       sql.NullFloat64 `db:"rating" json:"rating"`
+	TotalReviews sql.NullInt32   `db:"total_reviews" json:"totalReviews"`
+	Title        sql.NullString  `db:"title" json:"title"`
+	ImageUrl     sql.NullString  `db:"image_url" json:"imageUrl"`
+	Description  sql.NullString  `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
+	row := q.queryRow(ctx, q.updateProductStmt, updateProduct,
+		arg.ProductKey,
+		arg.Price,
+		arg.Rating,
+		arg.TotalReviews,
+		arg.Title,
+		arg.ImageUrl,
+		arg.Description,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.ProductKey,
+		&i.ImageUrl,
+		&i.TotalReviews,
+		&i.Rating,
+		&i.Price,
+		&i.Currency,
+		&i.Modified,
+		&i.Url,
+		&i.CategoryID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ProductTs,
+		&i.Origin,
+	)
+	return i, err
+}

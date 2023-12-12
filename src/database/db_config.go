@@ -3,12 +3,13 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
 
-func DbConnectionString(options types.DbConnectionOptions) string {
+func DbConnectionString(options types.DbConnection) string {
 	sslmode_val := "enable"
 	if !options.SslMode {
 		sslmode_val = "disable"
@@ -16,10 +17,10 @@ func DbConnectionString(options types.DbConnectionOptions) string {
 	dns := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=America/Chicago", 
 		options.Host,
-		options.User,
+		options.Username,
 		options.Password,
 		options.DbName,
-		options.Port,
+		strconv.Itoa(int(options.Port)),
 		sslmode_val,
 	)
 	return dns
@@ -31,7 +32,7 @@ func DbConfig() (types.DbConnection, error) {
 	return db_config, err
 }
 
-func CreateDbConnection(options types.DbConnectionOptions) (*sql.DB, error) {
+func CreateDbConnection(options types.DbConnection) (*sql.DB, error) {
 	return sql.Open("postgres", DbConnectionString(options))
 }
 
@@ -40,12 +41,5 @@ func NewDbConnection() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return CreateDbConnection(types.DbConnectionOptions{
-		Host: config.Host, 
-		User: config.Username, 
-		Password: config.Password, 
-		DbName: config.DbName, 
-		Port: config.Port, 
-		SslMode: false, // TODO: mark sslmode as true in production
-	})
+	return CreateDbConnection(config)
 }

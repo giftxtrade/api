@@ -8,8 +8,8 @@ import (
 
 	"github.com/giftxtrade/api/src/app"
 	"github.com/giftxtrade/api/src/controllers"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
-	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,14 +20,13 @@ func NewMockDB(t *testing.T) (*sql.DB, error) {
 		test_db = "giftxtrade_test_db"
 		test_password = "postgres"
 	}
-	db, err := utils.CreateDbConnection(types.DbConnectionOptions{
+	db, err := database.CreateDbConnection(types.DbConnection{
 		Host: "localhost", 
-		User: "postgres", 
+		Username: "postgres", 
 		Password: test_password, 
 		DbName: test_db, 
-		Port: "5432", 
-		SslMode: false, 
-		DisableLogger: true,
+		Port: 5432, 
+		SslMode: false,
 	})
 	if err != nil {
 		fmt.Println(err)

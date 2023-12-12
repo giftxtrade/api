@@ -13,12 +13,3 @@ type AppContext struct {
 	Server *fiber.App
 	Validator *validator.Validate
 }
-
-type DbConnectionOptions struct {
-	Host string
-	User string
-	Password string
-	DbName string
-	Port uint16
-	SslMode bool
-}

@@ -1,5 +1,5 @@
 --
--- Table structure for table categorie
+-- Table structure for table category
 --
 CREATE TABLE "category" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,
@@ -114,7 +114,7 @@ CREATE TABLE "draw" (
 );
 
 --
--- Table structure for table wishes
+-- Table structure for table wish
 --
 CREATE TABLE "wish" (
   "id" BIGSERIAL UNIQUE PRIMARY KEY,

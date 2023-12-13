@@ -57,6 +57,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
 	}
+	if q.setUserAsAdminStmt, err = db.PrepareContext(ctx, setUserAsAdmin); err != nil {
+		return nil, fmt.Errorf("error preparing query SetUserAsAdmin: %w", err)
+	}
 	if q.updateProductStmt, err = db.PrepareContext(ctx, updateProduct); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateProduct: %w", err)
 	}
@@ -120,6 +123,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
 		}
 	}
+	if q.setUserAsAdminStmt != nil {
+		if cerr := q.setUserAsAdminStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing setUserAsAdminStmt: %w", cerr)
+		}
+	}
 	if q.updateProductStmt != nil {
 		if cerr := q.updateProductStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateProductStmt: %w", cerr)
@@ -175,6 +183,7 @@ type Queries struct {
 	findUserByIdStmt            *sql.Stmt
 	findUserByIdAndEmailStmt    *sql.Stmt
 	findUserByIdOrEmailStmt     *sql.Stmt
+	setUserAsAdminStmt          *sql.Stmt
 	updateProductStmt           *sql.Stmt
 }
 
@@ -193,6 +202,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdStmt:            q.findUserByIdStmt,
 		findUserByIdAndEmailStmt:    q.findUserByIdAndEmailStmt,
 		findUserByIdOrEmailStmt:     q.findUserByIdOrEmailStmt,
+		setUserAsAdminStmt:          q.setUserAsAdminStmt,
 		updateProductStmt:           q.updateProductStmt,
 	}
 }

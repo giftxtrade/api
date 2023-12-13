@@ -13,7 +13,7 @@ type UserService struct {
 
 // finds a user by email or creates one if not found. 
 // boolean value is true if a new user is created, otherwise false
-func (service *UserService) FindOrCreate(ctx context.Context, input *types.CreateUser) (database.User, bool, error) {
+func (service *UserService) FindOrCreate(ctx context.Context, input types.CreateUser) (database.User, bool, error) {
 	user, err := service.Querier.FindUserByEmail(ctx, input.Email)
 	if err != nil {
 		user, err = service.Querier.CreateUser(ctx, database.CreateUserParams{

@@ -14,6 +14,12 @@ WHERE id = $1 AND email = $2;
 SELECT * FROM "user"
 WHERE id = $1 OR email = $2;
 
+-- name: SetUserAsAdmin :one
+UPDATE "user"
+SET "admin" = true
+WHERE id = $1
+RETURNING *;
+
 -- name: CreateUser :one
 INSERT INTO "user" (
     name,
@@ -29,4 +35,5 @@ INSERT INTO "user" (
     $4,
     $5,
     $6
-) RETURNING *;
+)
+RETURNING *;

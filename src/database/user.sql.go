@@ -25,7 +25,8 @@ INSERT INTO "user" (
     $4,
     $5,
     $6
-) RETURNING id, name, email, image_url, phone, admin, active, created_at, updated_at
+)
+RETURNING id, name, email, image_url, phone, admin, active, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -144,6 +145,30 @@ type FindUserByIdOrEmailParams struct {
 
 func (q *Queries) FindUserByIdOrEmail(ctx context.Context, arg FindUserByIdOrEmailParams) (User, error) {
 	row := q.queryRow(ctx, q.findUserByIdOrEmailStmt, findUserByIdOrEmail, arg.ID, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ImageUrl,
+		&i.Phone,
+		&i.Admin,
+		&i.Active,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const setUserAsAdmin = `-- name: SetUserAsAdmin :one
+UPDATE "user"
+SET "admin" = true
+WHERE id = $1
+RETURNING id, name, email, image_url, phone, admin, active, created_at, updated_at
+`
+
+func (q *Queries) SetUserAsAdmin(ctx context.Context, id int64) (User, error) {
+	row := q.queryRow(ctx, q.setUserAsAdminStmt, setUserAsAdmin, id)
 	var i User
 	err := row.Scan(
 		&i.ID,

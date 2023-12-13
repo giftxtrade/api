@@ -24,6 +24,10 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 			return database.Product{}, err
 		}
 
+		category, category_err := service.FindOrCreateProduct(ctx, database.CreateCategoryParams{
+			Name: input.Category,
+		})
+
 		return service.Querier.CreateProduct(ctx, database.CreateProductParams{
 			ProductKey: input.ProductKey,
 			Title: input.Title,
@@ -41,7 +45,10 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 				CurrencyType: database.CurrencyTypeUSD,
 				Valid: true,
 			},
-			// TODO: add CategoryId
+			CategoryID: sql.NullInt64{
+				Int64: category.ID,
+				Valid: category_err != nil,
+			},
 		})
 	}
 	
@@ -60,6 +67,25 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 			String: input.Price,
 			Valid: input.Price != "" && found_product.Price != input.Price,
 		},
-		// TODO: add update title, image_url, and description
+		Title: sql.NullString{
+			String: input.Title,
+			Valid: input.Title != "" && found_product.Title != input.Title,
+		},
+		ImageUrl: sql.NullString{
+			String: input.ImageUrl,
+			Valid: input.ImageUrl != "" && found_product.ImageUrl != input.ImageUrl,
+		},
+		Description: sql.NullString{
+			String: input.Description,
+			Valid: input.Description != "" && found_product.Description.String != input.Description,
+		},
 	})
+}
+
+func (service *ProductService) FindOrCreateProduct(ctx context.Context, input database.CreateCategoryParams) (database.Category, error) {
+	found_category, err := service.Querier.FindCategoryByName(ctx, input.Name)
+	if err != nil {
+		return service.Querier.CreateCategory(ctx, input)
+	}
+	return found_category, nil
 }

@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createCategoryStmt, err = db.PrepareContext(ctx, createCategory); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateCategory: %w", err)
+	}
 	if q.createProductStmt, err = db.PrepareContext(ctx, createProduct); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateProduct: %w", err)
 	}
@@ -32,6 +35,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
+	}
+	if q.findCategoryByNameStmt, err = db.PrepareContext(ctx, findCategoryByName); err != nil {
+		return nil, fmt.Errorf("error preparing query FindCategoryByName: %w", err)
 	}
 	if q.findProductByIdStmt, err = db.PrepareContext(ctx, findProductById); err != nil {
 		return nil, fmt.Errorf("error preparing query FindProductById: %w", err)
@@ -59,6 +65,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createCategoryStmt != nil {
+		if cerr := q.createCategoryStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createCategoryStmt: %w", cerr)
+		}
+	}
 	if q.createProductStmt != nil {
 		if cerr := q.createProductStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createProductStmt: %w", cerr)
@@ -72,6 +83,11 @@ func (q *Queries) Close() error {
 	if q.filterProductsStmt != nil {
 		if cerr := q.filterProductsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing filterProductsStmt: %w", cerr)
+		}
+	}
+	if q.findCategoryByNameStmt != nil {
+		if cerr := q.findCategoryByNameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findCategoryByNameStmt: %w", cerr)
 		}
 	}
 	if q.findProductByIdStmt != nil {
@@ -148,9 +164,11 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                          DBTX
 	tx                          *sql.Tx
+	createCategoryStmt          *sql.Stmt
 	createProductStmt           *sql.Stmt
 	createUserStmt              *sql.Stmt
 	filterProductsStmt          *sql.Stmt
+	findCategoryByNameStmt      *sql.Stmt
 	findProductByIdStmt         *sql.Stmt
 	findProductByProductKeyStmt *sql.Stmt
 	findUserByEmailStmt         *sql.Stmt
@@ -164,9 +182,11 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                          tx,
 		tx:                          tx,
+		createCategoryStmt:          q.createCategoryStmt,
 		createProductStmt:           q.createProductStmt,
 		createUserStmt:              q.createUserStmt,
 		filterProductsStmt:          q.filterProductsStmt,
+		findCategoryByNameStmt:      q.findCategoryByNameStmt,
 		findProductByIdStmt:         q.findProductByIdStmt,
 		findProductByProductKeyStmt: q.findProductByProductKeyStmt,
 		findUserByEmailStmt:         q.findUserByEmailStmt,

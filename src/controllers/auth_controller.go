@@ -30,7 +30,7 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	user, created, err := ctx.Service.UserService.FindOrCreate(c.Context(), &check_user)
+	user, created, err := ctx.Service.UserService.FindOrCreate(c.Context(), check_user)
 	if err != nil {
 		return utils.FailResponse(c, "authentication could not succeed")
 	}

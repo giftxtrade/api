@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
@@ -55,10 +57,12 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 	}
 
 	// Get user from id, username, email
-	var user database.User
-	id, email := claims["id"].(int64), claims["email"].(string)
-
-	user, err = ctx.Querier.FindUserByIdAndEmail(c.Context(), database.FindUserByIdAndEmailParams{
+	id_raw, email := claims["id"].(string), claims["email"].(string)
+	id, err := strconv.ParseInt(id_raw, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid claim id")
+	}
+	user, err := ctx.Querier.FindUserByIdAndEmail(c.Context(), database.FindUserByIdAndEmailParams{
 		ID: id,
 		Email: email,
 	})
@@ -75,7 +79,7 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 // Generates a JWT with claims, signed with key
 func GenerateJWT(key string, user *database.User) (string, error) {
 	jwt := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": user.ID,
+		"id": fmt.Sprint(user.ID),
 		"name": user.Name,
 		"email": user.Email,
 		"imageUrl": user.ImageUrl,

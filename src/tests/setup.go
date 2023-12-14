@@ -32,6 +32,13 @@ func NewMockDB(t *testing.T) *sql.DB {
 
 func New(t *testing.T) *app.AppBase {
 	db := NewMockDB(t)
+	_, err := db.Exec(`
+		DROP SCHEMA public CASCADE;
+		CREATE SCHEMA public;
+	`)
+	if err != nil {
+		t.FailNow()
+	}
 	return app.NewMock(db, fiber.New())
 }
 

@@ -25,6 +25,10 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '54322:5432'
+    volumes: 
+      - giftxtrade-db-test:/var/lib/postgresql/data
 volumes:
   giftxtrade-db:
+    driver: local
+  giftxtrade-db-test:
     driver: local

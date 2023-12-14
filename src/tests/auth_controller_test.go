@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"encoding/json"
 	"net/http/httptest"
 	"testing"
 
@@ -13,8 +14,8 @@ import (
 
 func TestAuthController(t *testing.T) {
 	app := New(t)
-	controller := SetupMockController(app)
 	user_service := app.Service.UserService
+	controller := SetupMockController(app)
 	token := app.Tokens.JwtKey
 	server := fiber.New()
 
@@ -181,10 +182,10 @@ func TestAuthController(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			// mock_auth := types.Auth{
-			// 	Token: jwt,
-			// 	User: user,
-			// }
+			mock_auth := controllers.Auth{
+				Token: jwt,
+				User: user,
+			}
 
 			req := httptest.NewRequest("GET", "/auth/profile", nil)
 			req.Header.Set("Authorization", "Bearer " + jwt)
@@ -198,16 +199,15 @@ func TestAuthController(t *testing.T) {
 				t.Fatal("response must be ok (200).", res.StatusCode)
 			}
 
-			// TODO: Test below fails on GitHub Actions for some reason
-			// var body struct {
-			// 	Data types.Auth
-			// }
-			// if json.NewDecoder(res.Body).Decode(&body) != nil {
-			// 	t.Fatal("could not parse response")
-			// }
-			// if !reflect.DeepEqual(body.Data, mock_auth) {
-			// 	t.Fatal(body.Data, mock_auth)
-			// }
+			var body struct {
+				Data controllers.Auth
+			}
+			if json.NewDecoder(res.Body).Decode(&body) != nil {
+				t.Fatal("could not parse response")
+			}
+			if body.Data.Token != mock_auth.Token || body.Data.User.ID != mock_auth.User.ID {
+				t.Fatal(body.Data, mock_auth)
+			}
 		})
 	})
 }

@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/giftxtrade/api/src/controllers"
@@ -39,12 +40,13 @@ func TestGetJwtClaims(t *testing.T) {
     // Test with correct key and claims
     {
         key := "abcd123"
-        jwt := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2NDIzOTc5OTksImV4cCI6MTY3MzkzMzk5OSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsImVtYWlsIjoiZXhhbXBsZUBlbWFpbC5jb20iLCJ1c2VybmFtZSI6ImV4YW1wbGUifQ.fBJbtYyIJuHA6Ip8OlQuVmDrHlIhtSAlx7S3lUBK_qM"
+        jwt := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIiwidXNlcm5hbWUiOiJleGFtcGxlIn0.OTAHN2L8ag5n20Xbfa-T4PRpLvsnp4pNFb8D3zHluyg"
 
         claims_map, err := utils.GetJwtClaims(jwt, key)
-        username := claims_map["username"]
-        email := claims_map["email"]
+        username := claims_map["username"].(string)
+        email := claims_map["email"].(string)
         if err != nil || email != "example@email.com" || username != "example" {
+            fmt.Println(err)
             t.Fail()
         }
     }

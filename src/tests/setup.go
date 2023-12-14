@@ -39,5 +39,6 @@ func SetupMockController(app *app.AppBase) controllers.Controller {
 	return controllers.Controller{
 		AppContext: app.AppContext,
 		Service: app.Service,
+		Querier: app.Querier,
 	}
 }

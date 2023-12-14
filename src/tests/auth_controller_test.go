@@ -1,13 +1,14 @@
 package tests
 
 import (
+	"context"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/giftxtrade/api/src/controllers"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
-	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 func TestAuthController(t *testing.T) {
@@ -49,13 +50,10 @@ func TestAuthController(t *testing.T) {
 			})
 
 			t.Run("invalid jwt", func(t *testing.T) {
-				jwt, err := utils.GenerateJWT(token, &types.User{
-					Base: types.Base{
-						ID: uuid.New(),
-					},
+				jwt, err := controllers.GenerateJWT(token, &database.User{
 					Name: "New User 1",
 					Email: "new_user1@email.com",
-					IsActive: true,
+					Active: true,
 				})
 				if err != nil {
 					t.Fatal(err)
@@ -78,15 +76,14 @@ func TestAuthController(t *testing.T) {
 		})
 
 		t.Run("should authenticate with status 200", func(t *testing.T) {
-			var user types.User
-			_, err := user_service.FindOrCreate(&types.CreateUser{
+			user, _, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
 				Name: "Naruto Uzumaki",
 				Email: "naruto_uzumaki@gmail.com",
-			}, &user)
+			})
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := utils.GenerateJWT(token, &user)
+			jwt, err := controllers.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -108,15 +105,14 @@ func TestAuthController(t *testing.T) {
 
 		t.Run("admin only authentication", func(t *testing.T) {
 			t.Run("non admin user", func(t *testing.T) {
-				var user types.User
-				_, err := user_service.FindOrCreate(&types.CreateUser{
+				user, _, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
 					Name: "Non Admin User",
 					Email: "non_admin_user@gmail.com",
-				}, &user)
+				})
 				if err != nil {
 					t.Fatal(err)
 				}
-				jwt, err := utils.GenerateJWT(token, &user)
+				jwt, err := controllers.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -136,21 +132,20 @@ func TestAuthController(t *testing.T) {
 			})
 
 			t.Run("admin user", func(t *testing.T) {
-				var user types.User
-				_, err := user_service.FindOrCreate(&types.CreateUser{
+				user, _, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
 					Name: "Admin User",
 					Email: "admin_user@gmail.com",
-				}, &user)
+				})
 				if err != nil {
 					t.Fatal(err)
 				}
 				// set user to admin
-				user.IsAdmin = true
-				if user_service.DB.Save(&user).Error != nil {
-					t.Fatal("could not update user admin level")
+				_, err = user_service.Querier.SetUserAsAdmin(context.Background(), user.ID)
+				if err != nil {
+					t.Fatal(err)
 				}
 
-				jwt, err := utils.GenerateJWT(token, &user)
+				jwt, err := controllers.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -174,15 +169,14 @@ func TestAuthController(t *testing.T) {
 
 	t.Run("[GET] /auth/profile", func(t *testing.T) {
 		t.Run("should return auth struct", func(t *testing.T) {
-			var user types.User
-			_, err := user_service.FindOrCreate(&types.CreateUser{
+			user, _, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
 				Name: "Get Profile User",
 				Email: "get_profile_user@gmail.com",
-			}, &user)
+			})
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := utils.GenerateJWT(token, &user)
+			jwt, err := controllers.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}

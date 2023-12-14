@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/giftxtrade/api/src/types"
+	"github.com/giftxtrade/api/src/controllers"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/google/uuid"
 )
 
 func TestGetBearerToken(t *testing.T) {
@@ -72,14 +72,13 @@ func TestGetJwtClaims(t *testing.T) {
 
 func TestGenerateTokens(t *testing.T) {
     {
-        user := types.User{
-            Base: types.Base{
-                ID: uuid.New(),
-            },
+        user := database.User{
+            ID: 1,
             Email: "johndoe@example.com",
+            Name: "John Doe",
         }
-        jwt1, err1 := utils.GenerateJWT("123", &user)
-        jwt2, err2 := utils.GenerateJWT("1234", &user)
+        jwt1, err1 := controllers.GenerateJWT("123", &user)
+        jwt2, err2 := controllers.GenerateJWT("1234", &user)
 
         if err1 != nil || err2 != nil || jwt1 == jwt2 {
             t.Fail()
@@ -90,16 +89,14 @@ func TestGenerateTokens(t *testing.T) {
 func TestParseAuthContext(t *testing.T) {
     {
         ctx := context.Background()
-        user := types.User{
-            Base: types.Base{
-                ID: uuid.New(),
-            },
-            Email: "johndoe@example.com",
-            Name: "John Doe",
+        user := database.User{
+            ID: 2,
+            Email: "johndoe2@example.com",
+            Name: "John Doe 2",
         }
         token := "my random token"
-        ctx = context.WithValue(ctx, types.AuthKey, types.Auth{Token: token, User: user})
-        parsed_auth := utils.ParseAuthContext(ctx)
+        ctx = context.WithValue(ctx, controllers.AUTH_KEY, controllers.Auth{Token: token, User: user})
+        parsed_auth := controllers.ParseAuthContext(ctx)
         
         if parsed_auth.User != user {
             t.Fail()

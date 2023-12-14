@@ -73,6 +73,7 @@ func NewMock(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
+	app.Querier = database.New(conn)
 	app.Tokens = &types.Tokens{
 		JwtKey: "my-secret-jwt-token",
 	}

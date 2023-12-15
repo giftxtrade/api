@@ -216,12 +216,13 @@ func (q *Queries) FindProductByProductKey(ctx context.Context, productKey string
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE "product"
 SET 
-  "price" = $2,
-  "rating" = $3,
-  "total_reviews" = $4,
-  "title" = $5,
-  "image_url" = $6,
-  "description" = $7
+  "price" = coalesce($2, "price"),
+  "rating" = coalesce($3, "rating"),
+  "total_reviews" = coalesce($4, "total_reviews"),
+  "title" = coalesce($5, "title"),
+  "image_url" = coalesce($6, "image_url"),
+  "description" = coalesce($7, "description"),
+  "updated_at" = now()
 WHERE "product_key" = $1
 RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, modified, url, category_id, created_at, updated_at, product_ts, origin
 `

@@ -42,11 +42,12 @@ OFFSET $2;
 -- name: UpdateProduct :one
 UPDATE "product"
 SET 
-  "price" = sqlc.narg(price),
-  "rating" = sqlc.narg(rating),
-  "total_reviews" = sqlc.narg(total_reviews),
-  "title" = sqlc.narg(title),
-  "image_url" = sqlc.narg(image_url),
-  "description" = sqlc.narg(description)
+  "price" = coalesce(sqlc.narg('price'), "price"),
+  "rating" = coalesce(sqlc.narg('rating'), "rating"),
+  "total_reviews" = coalesce(sqlc.narg('total_reviews'), "total_reviews"),
+  "title" = coalesce(sqlc.narg('title'), "title"),
+  "image_url" = coalesce(sqlc.narg('image_url'), "image_url"),
+  "description" = coalesce(sqlc.narg('description'), "description"),
+  "updated_at" = now()
 WHERE "product_key" = $1
 RETURNING *;

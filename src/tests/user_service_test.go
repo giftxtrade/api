@@ -1,24 +1,25 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
-	"github.com/google/uuid"
 )
 
 func TestUserService(t *testing.T) {
 	app := New(t)
 	user_service := app.Service.UserService
 
-	test_user1 := types.CreateUser{
+	test_user1 := database.CreateUserParams{
 		Email: "john_doe@email.com",
 		Name: "John Doe",
 		ImageUrl: "https://images.com/john_doe",
 	}
 
-	test_user2 := types.CreateUser{
+	test_user2 := database.CreateUserParams{
 		Name: "Test User",
 		Email: "testuser@email.com",
 		ImageUrl: "https://images.com/test_user2",
@@ -26,21 +27,18 @@ func TestUserService(t *testing.T) {
 
 	t.Run("create user", func(t *testing.T) {
 		t.Run("should create user", func(t *testing.T) {
-			var new_user types.User
-			err := user_service.Create(&test_user1, &new_user)
-
+			new_user, err := user_service.Querier.CreateUser(context.Background(), test_user1)
 			if err != nil {
 				t.Fatal("should not return an error", new_user, test_user1)
 			}
 
-			if new_user.ID == uuid.Nil || new_user.Name != test_user1.Name || new_user.Email != test_user1.Email || new_user.ImageUrl != test_user1.ImageUrl || !new_user.IsActive || new_user.IsAdmin {
+			if new_user.ID == 0 || new_user.Name != test_user1.Name || new_user.Email != test_user1.Email || new_user.ImageUrl != test_user1.ImageUrl || new_user.Active || new_user.Admin {
 				t.Fatal("user service create did not work", new_user, test_user1)
 			}
 		})
 
 		t.Run("should not create existing user", func(t *testing.T) {
-			var user types.User
-			if err := user_service.Create(&test_user1, &user); err == nil {
+			if _, err := user_service.Querier.CreateUser(context.Background(), test_user1); err == nil {
 				t.Fatalf("should not create a new user")
 			}
 		})
@@ -48,128 +46,93 @@ func TestUserService(t *testing.T) {
 
 	t.Run("find user", func(t *testing.T) {
 		t.Run("should find by email", func(t *testing.T) {
-			var user_by_email types.User
-			err := user_service.FindByEmail(test_user1.Email, &user_by_email)
+			user_by_email, err := user_service.Querier.FindUserByEmail(context.Background(), test_user1.Email)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if user_by_email.Email != test_user1.Email || user_by_email.Name != test_user1.Name || user_by_email.ID == uuid.Nil {
+			if user_by_email.Email != test_user1.Email || user_by_email.Name != test_user1.Name || user_by_email.ID == 0 {
 				t.FailNow()
 			}
 
-			if err = user_service.FindByEmail(user_by_email.ID.String(), &user_by_email); err == nil {
+			if user_by_email, err = user_service.Querier.FindUserByEmail(context.Background(), fmt.Sprint(user_by_email.ID)); err == nil {
 				t.Fatal(err)
 			}
 		})
 
 		t.Run("should find by id", func(t *testing.T) {
-			var user_by_email types.User
-			if err := user_service.FindByEmail(test_user1.Email, &user_by_email); err != nil {
+			user_by_email, err := user_service.Querier.FindUserByEmail(context.Background(), test_user1.Email)
+			if err != nil {
 				t.Fatal(err)
-			}
-			var user_by_id types.User
-			if err := user_service.FindById(user_by_email.ID.String(), &user_by_id); err != nil {
-				t.Fatal(err)
-			}
-			if user_by_id.Email != test_user1.Email || user_by_id.Name != test_user1.Name || user_by_id.ID == uuid.Nil {
-				t.FailNow()
 			}
 
-			if err := user_service.FindById(user_by_id.Email, &user_by_id); err == nil {
+			user_by_id, err := user_service.Querier.FindUserById(context.Background(), user_by_email.ID)
+			if err != nil {
 				t.Fatal(err)
 			}
-			if err := user_service.FindById("some random text that is not a uuid", &user_by_id); err == nil {
-				t.Fatal(err)
+			if user_by_id.Email != test_user1.Email || user_by_id.Name != test_user1.Name || user_by_id.ID == 0 {
+				t.FailNow()
 			}
 		})
 
 		t.Run("should find or create", func(t *testing.T) {
-			var created_user types.User
-			created, err := user_service.FindOrCreate(&test_user2, &created_user)
+			created_user, created, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
+				Name: test_user2.Name,
+				Email: test_user2.Email,
+				ImageUrl: test_user2.ImageUrl,
+			})
 			if err != nil || !created {
 				t.Fatal(err)
 			}
-			if created_user.Email != test_user2.Email || created_user.Name != test_user2.Name || created_user.ID == uuid.Nil {
+			if created_user.Email != test_user2.Email || created_user.Name != test_user2.Name || created_user.ID == 0 {
 				t.FailNow()
 			}
 
-			var found_user types.User
-			created, err = user_service.FindOrCreate(&test_user2, &found_user)
+			found_user, created, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
+				Name: test_user2.Name,
+				Email: test_user2.Email,
+				ImageUrl: test_user2.ImageUrl,
+			})
 			if err != nil || created {
 				t.Fatal(err)
 			}
-			if found_user.Email != test_user2.Email || found_user.Name != test_user2.Name || found_user.ID == uuid.Nil {
+			if found_user.Email != test_user2.Email || found_user.Name != test_user2.Name || found_user.ID != created_user.ID {
 				t.FailNow()
 			}
 		})
 
 		t.Run("should find with id and email", func(t *testing.T) {	
-			var user types.User
-			if err := user_service.FindByIdAndEmail(uuid.NewString(), test_user1.Email, &user); err == nil {
+			user, err := user_service.Querier.FindUserByIdAndEmail(context.Background(), database.FindUserByIdAndEmailParams{
+				ID: 3434,
+				Email: test_user1.Email,
+			})
+			if err == nil {
 				t.Fatal("should not find a user with an non existing or matching uuid")
 			}
 
-			var user_by_email types.User
-			if err := user_service.FindByEmail(test_user1.Email, &user_by_email); err != nil {
+			user_by_email, err := user_service.Querier.FindUserByEmail(context.Background(), test_user1.Email)
+			if err != nil {
 				t.Fatal(err)
 			}
  
-			err := user_service.FindByIdAndEmail(user_by_email.ID.String(), test_user1.Email, &user)
+			user, err = user_service.Querier.FindUserByIdAndEmail(context.Background(), database.FindUserByIdAndEmailParams{
+				ID: user_by_email.ID,
+				Email: test_user1.Email,
+			})
 			if err != nil || user.ID != user_by_email.ID || user.Email != user_by_email.Email {
 				t.Fatal(err, user, user_by_email)
 			}
 			
-			if err := user_service.FindByIdAndEmail(user.ID.String(), test_user2.Email, &user); err == nil {
+			_, err = user_service.Querier.FindUserByIdAndEmail(context.Background(), database.FindUserByIdAndEmailParams{
+				ID: user.ID,
+				Email: test_user2.Email,
+			})
+			if err == nil {
 				t.Fatal("should not find a user with id and email from different users")
-			}
-
-			if err := user_service.FindByIdAndEmail("not a uuid", test_user2.Email, &user); err == nil {
-				t.Fatal(err)
-			}
-		})
-
-		t.Run("should find by id or email", func(t *testing.T) {
-			var user types.User
-			if err := user_service.FindByIdOrEmail("not a uuid", test_user1.Email, &user); err == nil {
-				t.Fatal(err)
-			}
-
-			var user1 types.User
-			if err := user_service.FindByIdOrEmail(uuid.NewString(), test_user1.Email, &user1); err != nil {
-				t.Fatal(err)
-			}
-			if user1.Email != test_user1.Email {
-				t.Fatal("email does not match", user1, test_user1)
-			}
-
-			var user2 types.User
-			if err := user_service.FindByIdOrEmail(user1.ID.String(), "not an email", &user2); err != nil {
-				t.Fatal(err)
-			}
-			if user2.Email != test_user1.Email {
-				t.Fatal("email does not match", user1, test_user1)
-			}
-		})
-	})
-
-	t.Run("delete user", func(t *testing.T) {
-		t.Run("delete by id", func(t *testing.T) {
-			var user types.User
-			err := user_service.Create(&types.CreateUser{
-				Name: "GORM",
-				Email: "gorm@email.com",
-			}, &user)
-			if err != nil {
-				t.Fatal("could not create user")
-			}
-
-			if err := user_service.DeleteById(user.ID.String()); err != nil {
-				t.Fatal("could not delete by id", err)
 			}
 		})
 	})
 
 	t.Cleanup(func() {
-		user_service.DB.Exec(fmt.Sprintf("DELETE FROM %s", user_service.TABLE))
+		app.DB.Exec("DELETE FROM \"user\"")
 	})
 }

@@ -4,16 +4,19 @@ import (
 	"log"
 
 	"github.com/giftxtrade/api/src/app"
-	"github.com/giftxtrade/api/src/utils"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/gofiber/fiber/v2"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	// Attempt connection with DB
-	conn, err := utils.NewDbConnection()
+	conn, err := database.NewDbConnection()
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 
 	server := fiber.New(fiber.Config{
 		ServerHeader: "giftxtrade api v2",

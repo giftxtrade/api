@@ -1,11 +1,13 @@
 package app
 
 import (
+	"database/sql"
 	"reflect"
 	"strings"
 
 	"github.com/ayaanqui/go-migration-tool/migration_tool"
 	"github.com/giftxtrade/api/src/controllers"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -18,6 +20,7 @@ type AppBase struct {
 	types.AppContext
 	Service services.Service
 	MigrationDirectory string
+	Querier *database.Queries
 }
 
 type IAppBase interface {
@@ -39,43 +42,41 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 		return name
 	})
 
-	db_conn, err := app.DB.DB()
-	if err != nil {
-		panic(err)
-	}
-	m := migration_tool.New(db_conn, &migration_tool.Config{
+	m := migration_tool.New(app.DB, &migration_tool.Config{
 		TableName: "migration",
 		Directory: app.MigrationDirectory,
 	})
 	m.RunMigration()
 
-	app.Service = services.New(app.DB, app.Validator) // create services
-	utils.SetupOauthProviders(*app.Tokens) // oauth providers
-	controllers.New(app.AppContext, app.Service)
+	app.Service = services.New(app.DB, app.Querier, app.Validator) // create services
+	controllers.SetupOauthProviders(*app.Tokens) // oauth providers
+	controllers.New(app.AppContext, app.Querier, app.Service)
 	return app
 }
 
-func New(conn *gorm.DB, server *fiber.App) *AppBase {
+func New(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
+	app.Querier = database.New(conn)
 	// initialize tokens
 	tokens, tokens_err := utils.ParseTokens()
 	if tokens_err != nil {
 		panic(tokens_err)
 	}
 	app.Tokens = &tokens
-	app.MigrationDirectory = "./migrations"
+	app.MigrationDirectory = "./src/database/migrations"
 	return app.NewBaseHandler()
 }
 
-func NewMock(conn *gorm.DB, server *fiber.App) *AppBase {
+func NewMock(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
+	app.Querier = database.New(conn)
 	app.Tokens = &types.Tokens{
 		JwtKey: "my-secret-jwt-token",
 	}
-	app.MigrationDirectory = "../../migrations"
+	app.MigrationDirectory = "../database/migrations"
 	return app.NewBaseHandler()
 }

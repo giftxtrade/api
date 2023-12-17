@@ -13,7 +13,7 @@ jobs:
         image: postgres
         
         env:
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -21,7 +21,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+          - 54322:5432
 
     steps:
       - uses: actions/checkout@v2
@@ -29,12 +29,13 @@ jobs:
       - name: set up go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.18
+          go-version: 1.21
+
+      - name: sqlc generate
+        run: make sqlc
 
       - name: build
         run: make build
 
       - name: run tests
         run: make test
-        env:
-          TEST_DB: postgres

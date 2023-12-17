@@ -9,7 +9,7 @@ import (
 
 // [GET] /auth/profile (authentication required)
 func (ctx Controller) GetProfile(c *fiber.Ctx) error {
-	auth := utils.ParseAuthContext(c.UserContext())
+	auth := ParseAuthContext(c.UserContext())
 	return utils.DataResponse(c, auth)
 }
 
@@ -30,16 +30,15 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 		Name: provider_user.Name,
 		ImageUrl: provider_user.AvatarURL,
 	}
-	var user types.User
-	created, err := ctx.Service.UserService.FindOrCreate(&check_user, &user)
+	user, created, err := ctx.Service.UserService.FindOrCreate(c.Context(), check_user)
 	if err != nil {
 		return utils.FailResponse(c, "authentication could not succeed")
 	}
-	token, err := utils.GenerateJWT(ctx.Tokens.JwtKey, &user)
+	token, err := GenerateJWT(ctx.Tokens.JwtKey, &user)
 	if err != nil {
 		return utils.FailResponse(c, "could not generate token")
 	}
-	auth := types.Auth{
+	auth := Auth{
 		Token: token,
 		User: user,
 	}

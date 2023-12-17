@@ -32,7 +32,7 @@ This project also uses a PostgreSQL database in order to run. To start, create a
     "dbName": "[database name]",
     "username": "[database username]",
     "password": "[database password]",
-    "port": "5432"
+    "port": 5432
 }
 ```
 

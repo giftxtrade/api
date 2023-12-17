@@ -2,11 +2,12 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
-	"github.com/giftxtrade/api/src/types"
+	"github.com/giftxtrade/api/src/controllers"
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/google/uuid"
 )
 
 func TestGetBearerToken(t *testing.T) {
@@ -39,12 +40,13 @@ func TestGetJwtClaims(t *testing.T) {
     // Test with correct key and claims
     {
         key := "abcd123"
-        jwt := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2NDIzOTc5OTksImV4cCI6MTY3MzkzMzk5OSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsImVtYWlsIjoiZXhhbXBsZUBlbWFpbC5jb20iLCJ1c2VybmFtZSI6ImV4YW1wbGUifQ.fBJbtYyIJuHA6Ip8OlQuVmDrHlIhtSAlx7S3lUBK_qM"
+        jwt := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIiwidXNlcm5hbWUiOiJleGFtcGxlIn0.OTAHN2L8ag5n20Xbfa-T4PRpLvsnp4pNFb8D3zHluyg"
 
         claims_map, err := utils.GetJwtClaims(jwt, key)
-        username := claims_map["username"]
-        email := claims_map["email"]
+        username := claims_map["username"].(string)
+        email := claims_map["email"].(string)
         if err != nil || email != "example@email.com" || username != "example" {
+            fmt.Println(err)
             t.Fail()
         }
     }
@@ -72,14 +74,13 @@ func TestGetJwtClaims(t *testing.T) {
 
 func TestGenerateTokens(t *testing.T) {
     {
-        user := types.User{
-            Base: types.Base{
-                ID: uuid.New(),
-            },
+        user := database.User{
+            ID: 1,
             Email: "johndoe@example.com",
+            Name: "John Doe",
         }
-        jwt1, err1 := utils.GenerateJWT("123", &user)
-        jwt2, err2 := utils.GenerateJWT("1234", &user)
+        jwt1, err1 := controllers.GenerateJWT("123", &user)
+        jwt2, err2 := controllers.GenerateJWT("1234", &user)
 
         if err1 != nil || err2 != nil || jwt1 == jwt2 {
             t.Fail()
@@ -90,16 +91,14 @@ func TestGenerateTokens(t *testing.T) {
 func TestParseAuthContext(t *testing.T) {
     {
         ctx := context.Background()
-        user := types.User{
-            Base: types.Base{
-                ID: uuid.New(),
-            },
-            Email: "johndoe@example.com",
-            Name: "John Doe",
+        user := database.User{
+            ID: 2,
+            Email: "johndoe2@example.com",
+            Name: "John Doe 2",
         }
         token := "my random token"
-        ctx = context.WithValue(ctx, types.AuthKey, types.Auth{Token: token, User: user})
-        parsed_auth := utils.ParseAuthContext(ctx)
+        ctx = context.WithValue(ctx, controllers.AUTH_KEY, controllers.Auth{Token: token, User: user})
+        parsed_auth := controllers.ParseAuthContext(ctx)
         
         if parsed_auth.User != user {
             t.Fail()

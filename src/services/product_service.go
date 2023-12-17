@@ -14,20 +14,27 @@ type ProductService struct {
 }
 
 func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.CreateProduct) (database.Product, error) {
+	validation_err := service.Validator.Struct(input)
+	if validation_err != nil {
+		return database.Product{}, validation_err
+	}
+
 	found_product, err := service.
 		Querier.
 		FindProductByProductKey(ctx, input.ProductKey)
 	// create new product
 	if err != nil {
-		parsed_url, err := url.ParseRequestURI(input.OriginalUrl)
-		if err != nil {
-			return database.Product{}, err
+		parsed_url, url_parse_err := url.ParseRequestURI(input.OriginalUrl)
+		if url_parse_err != nil {
+			return database.Product{}, url_parse_err
 		}
 
-		category, category_err := service.FindOrCreateProduct(ctx, database.CreateCategoryParams{
+		category, category_err := service.FindOrCreateCategory(ctx, database.CreateCategoryParams{
 			Name: input.Category,
 		})
-
+		if category_err != nil {
+			return database.Product{}, category_err
+		}
 		return service.Querier.CreateProduct(ctx, database.CreateProductParams{
 			ProductKey: input.ProductKey,
 			Title: input.Title,
@@ -82,7 +89,7 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 	})
 }
 
-func (service *ProductService) FindOrCreateProduct(ctx context.Context, input database.CreateCategoryParams) (database.Category, error) {
+func (service *ProductService) FindOrCreateCategory(ctx context.Context, input database.CreateCategoryParams) (database.Category, error) {
 	found_category, err := service.Querier.FindCategoryByName(ctx, input.Name)
 	if err != nil {
 		return service.Querier.CreateCategory(ctx, input)

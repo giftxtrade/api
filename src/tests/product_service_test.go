@@ -141,8 +141,8 @@ func TestProductService(t *testing.T) {
 			TotalReviews: 4,
 			Category: "New Category",
 		}
-		product, err := product_service.UpdateOrCreate(context.Background(), input)
-		if err != nil {
+		product, created, err := product_service.UpdateOrCreate(context.Background(), input)
+		if err != nil || !created {
 			t.Fatal(err)
 		}
 		if product.ProductKey != input.ProductKey || product.Title != input.Title {
@@ -155,8 +155,8 @@ func TestProductService(t *testing.T) {
 		input2 := input
 		input2.Title = input.Title + " (updated)"
 		input2.Price = "50"
-		product2, err := product_service.UpdateOrCreate(context.Background(), input2)
-		if err != nil {
+		product2, created, err := product_service.UpdateOrCreate(context.Background(), input2)
+		if err != nil || created {
 			t.Fatal(err)
 		}
 

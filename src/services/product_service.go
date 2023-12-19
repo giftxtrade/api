@@ -54,7 +54,7 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 			},
 			CategoryID: sql.NullInt64{
 				Int64: category.ID,
-				Valid: category_err != nil,
+				Valid: true,
 			},
 		})
 		return product, err == nil, err

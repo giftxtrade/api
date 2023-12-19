@@ -13,10 +13,10 @@ type ProductService struct {
 	ServiceBase
 }
 
-func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.CreateProduct) (database.Product, error) {
+func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.CreateProduct) (database.Product, bool, error) {
 	validation_err := service.Validator.Struct(input)
 	if validation_err != nil {
-		return database.Product{}, validation_err
+		return database.Product{}, false, validation_err
 	}
 
 	found_product, err := service.
@@ -26,16 +26,16 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 	if err != nil {
 		parsed_url, url_parse_err := url.ParseRequestURI(input.OriginalUrl)
 		if url_parse_err != nil {
-			return database.Product{}, url_parse_err
+			return database.Product{}, false, url_parse_err
 		}
 
 		category, category_err := service.FindOrCreateCategory(ctx, database.CreateCategoryParams{
 			Name: input.Category,
 		})
 		if category_err != nil {
-			return database.Product{}, category_err
+			return database.Product{}, false, category_err
 		}
-		return service.Querier.CreateProduct(ctx, database.CreateProductParams{
+		product, err := service.Querier.CreateProduct(ctx, database.CreateProductParams{
 			ProductKey: input.ProductKey,
 			Title: input.Title,
 			Description: sql.NullString{
@@ -57,10 +57,11 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 				Valid: category_err != nil,
 			},
 		})
+		return product, err == nil, err
 	}
 	
 	// update existing product
-	return service.Querier.UpdateProduct(ctx, database.UpdateProductParams{
+	product, err := service.Querier.UpdateProduct(ctx, database.UpdateProductParams{
 		ProductKey: input.ProductKey,
 		Rating: sql.NullFloat64{
 			Float64: float64(input.Rating),
@@ -87,6 +88,7 @@ func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.C
 			Valid: input.Description != "" && found_product.Description.String != input.Description,
 		},
 	})
+	return product, false, err
 }
 
 func (service *ProductService) FindOrCreateCategory(ctx context.Context, input database.CreateCategoryParams) (database.Category, error) {

@@ -165,7 +165,19 @@ func TestProductService(t *testing.T) {
 		}
 	})
 
-	t.Cleanup(func() {
-		product_service.DB.Exec("delete from product")
+	t.Run("filter products", func(t *testing.T) {
+		t.Run("limit", func(t *testing.T) {
+			products, err := product_service.Querier.FilterProducts(context.Background(), database.FilterProductsParams{
+				Limit: 10,
+				Search: "manga",
+				Page: 1,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(products) != 10 {
+				t.Fatal("products length is incorrect", len(products))
+			}
+		})
 	})
 }

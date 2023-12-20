@@ -132,7 +132,6 @@ type Product struct {
 	Rating       float32        `db:"rating" json:"rating"`
 	Price        string         `db:"price" json:"price"`
 	Currency     CurrencyType   `db:"currency" json:"currency"`
-	Modified     time.Time      `db:"modified" json:"modified"`
 	Url          string         `db:"url" json:"url"`
 	CategoryID   sql.NullInt64  `db:"category_id" json:"categoryId"`
 	CreatedAt    time.Time      `db:"created_at" json:"createdAt"`

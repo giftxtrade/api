@@ -85,32 +85,35 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 const filterProducts = `-- name: FilterProducts :many
 SELECT
   product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.modified, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin,
-  category.id, category.name, category.description, category.category_url, category.created_at, category.updated_at
+  category.id, category.name, category.description, category.category_url, category.created_at, category.updated_at,
+  CEIL("product"."total_reviews" * "product"."rating") AS "weight"
 FROM "product"
 INNER JOIN "category" 
   ON "category"."id" = "product"."category_id"
 WHERE
-  "product"."product_ts" @@ to_tsquery('english', $3)
+  "product"."product_ts" @@ to_tsquery('english', $2)
 ORDER BY
-  "product"."total_reviews" DESC,
-  "product"."rating" DESC
+  "weight" DESC,
+  "product"."rating" DESC,
+  "product"."total_reviews" DESC
 LIMIT $1
-OFFSET $2
+OFFSET $1 * ($3::INTEGER - 1)
 `
 
 type FilterProductsParams struct {
 	Limit  int32  `db:"limit" json:"limit"`
-	Offset int32  `db:"offset" json:"offset"`
 	Search string `db:"search" json:"search"`
+	Page   int32  `db:"page" json:"page"`
 }
 
 type FilterProductsRow struct {
 	Product  Product  `db:"product" json:"product"`
 	Category Category `db:"category" json:"category"`
+	Weight   float64  `db:"weight" json:"weight"`
 }
 
 func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) ([]FilterProductsRow, error) {
-	rows, err := q.query(ctx, q.filterProductsStmt, filterProducts, arg.Limit, arg.Offset, arg.Search)
+	rows, err := q.query(ctx, q.filterProductsStmt, filterProducts, arg.Limit, arg.Search, arg.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +144,7 @@ func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) 
 			&i.Category.CategoryUrl,
 			&i.Category.CreatedAt,
 			&i.Category.UpdatedAt,
+			&i.Weight,
 		); err != nil {
 			return nil, err
 		}

@@ -10,11 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func page_to_offset(limit int32, page int32) int32 {
-	prev_page := page - 1
-	return limit * prev_page
-}
-
 // [GET] /products
 func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
 	var filter types.ProductFilter
@@ -25,7 +20,7 @@ func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
 	products, err := ctx.Querier.FilterProducts(c.Context(), database.FilterProductsParams{
 		Search: filter.Search,
 		Limit: filter.Limit,
-		Offset: page_to_offset(filter.Limit, filter.Page),
+		Page: filter.Page,
 	})
 	if err != nil {
 		errors := strings.Split(err.Error(), "\n")

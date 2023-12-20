@@ -27,17 +27,19 @@ INSERT INTO "product" (
 -- name: FilterProducts :many
 SELECT
   sqlc.embed(product),
-  sqlc.embed(category)
+  sqlc.embed(category),
+  CEIL("product"."total_reviews" * "product"."rating") AS "weight"
 FROM "product"
 INNER JOIN "category" 
   ON "category"."id" = "product"."category_id"
 WHERE
   "product"."product_ts" @@ to_tsquery('english', sqlc.arg(search))
 ORDER BY
-  "product"."total_reviews" DESC,
-  "product"."rating" DESC
+  "weight" DESC,
+  "product"."rating" DESC,
+  "product"."total_reviews" DESC
 LIMIT $1
-OFFSET $2;
+OFFSET $1 * (sqlc.arg(page)::INTEGER - 1);
 
 -- name: UpdateProduct :one
 UPDATE "product"

@@ -18,17 +18,24 @@ require (
 require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	dario.cat/mergo v1.0.0 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230321174746-8dcc6526cfb1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/ayaanqui/go-migration-tool v1.0.5 // indirect
+	github.com/bep/godartsass v0.16.0 // indirect
+	github.com/bep/golibsass v1.1.0 // indirect
 	github.com/bytecodealliance/wasmtime-go/v14 v14.0.0 // indirect
+	github.com/cli/safeexec v1.0.0 // indirect
+	github.com/cosmtrek/air v1.49.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
+	github.com/creack/pty v1.1.18 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/ansi v2.1.0+incompatible // indirect
 	github.com/go-playground/errors v3.3.0+incompatible // indirect
@@ -37,6 +44,7 @@ require (
 	github.com/go-playground/log v6.3.0+incompatible // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
+	github.com/gohugoio/hugo v0.111.3 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/cel-go v0.18.2 // indirect
 	github.com/gorilla/context v1.1.2 // indirect
@@ -65,6 +73,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-sqlite3 v1.14.18 // indirect
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect
+	github.com/pelletier/go-toml v1.9.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pganalyze/pg_query_go/v4 v4.2.3 // indirect
 	github.com/pingcap/errors v0.11.5-0.20210425183316-da1aaba5fb63 // indirect
 	github.com/pingcap/failpoint v0.0.0-20220801062533-2eaa32854a6c // indirect
@@ -75,10 +85,12 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/riza-io/grpc-go v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/sqlc-dev/sqlc v1.24.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
+	github.com/tdewolff/parse/v2 v2.6.5 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/tkrajina/typescriptify-golang-structs v0.1.11 // indirect
 	github.com/urfave/cli v1.22.14 // indirect

@@ -131,8 +131,4 @@ func TestUserService(t *testing.T) {
 			}
 		})
 	})
-
-	t.Cleanup(func() {
-		app.DB.Exec("DELETE FROM \"user\"")
-	})
 }

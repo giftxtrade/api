@@ -33,7 +33,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		})
 	})
 	auth := server.Group("/auth")
-	{ // auth
+	{
 		auth.Get("/profile", controller.UseJwtAuth, controller.GetProfile)
 		auth.Get("/:provider", controller.SignIn)
 		auth.Get("/:provider/callback", controller.Callback)
@@ -43,6 +43,10 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		products.Post("", controller.UseAdminOnly, controller.CreateProduct)
 		products.Get("", controller.UseJwtAuth, controller.FindAllProducts)
 		products.Get("/:id", controller.UseJwtAuth, controller.FindProduct)
+	}
+	events := server.Group("/events")
+	{
+		events.Post("", controller.UseJwtAuth, controller.CreateEvent)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{

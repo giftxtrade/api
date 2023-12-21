@@ -11,13 +11,16 @@ import (
 )
 
 // [GET] /products
-func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
+func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 	var filter types.ProductFilter
 	if c.BodyParser(&filter) != nil {
 		return utils.FailResponse(c, "could not parse body data")
 	}
+	if err := ctr.Validator.Struct(filter); err != nil {
+		return utils.FailResponse(c, err.Error())
+	}
 	
-	products, err := ctx.Querier.FilterProducts(c.Context(), database.FilterProductsParams{
+	products, err := ctr.Querier.FilterProducts(c.Context(), database.FilterProductsParams{
 		Search: filter.Search,
 		Limit: filter.Limit,
 		Page: filter.Page,
@@ -26,17 +29,41 @@ func (ctx Controller) FindAllProducts(c *fiber.Ctx) error {
 		errors := strings.Split(err.Error(), "\n")
 		return utils.FailResponse(c, errors...)
 	}
-	return utils.DataResponse(c, products)
+	mapped_products := make([]types.Product, len(products))
+	for i, p := range products {
+		mapped_products[i] = types.Product{
+			ID: p.Product.ID,
+			Title: p.Product.Title,
+			Description: p.Product.Description.String,
+			ProductKey: p.Product.ProductKey,
+			ImageUrl: p.Product.ImageUrl,
+			TotalReviews: p.Product.TotalReviews,
+			Rating: p.Product.Rating,
+			Price: p.Product.Price,
+			Currency: string(p.Product.Currency),
+			Url: p.Product.Url,
+			CategoryID: p.Product.CategoryID.Int64,
+			Category: types.Category{
+				ID: p.Category.ID,
+				Name: p.Category.Name,
+				Description: p.Category.Description.String,
+			},
+			CreatedAt: p.Product.CreatedAt,
+			UpdatedAt: p.Product.UpdatedAt,
+			Origin: p.Product.Origin,
+		}
+	}
+	return utils.DataResponse(c, mapped_products)
 }
 
 // [POST] /products
-func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
+func (ctr Controller) CreateProduct(c *fiber.Ctx) error {
 	var create_product types.CreateProduct
 	if c.BodyParser(&create_product) != nil {
 		return utils.FailResponse(c, "could not parse body data")
 	}
 
-	product, created, err := ctx.Service.ProductService.UpdateOrCreate(c.Context(), create_product)
+	product, created, err := ctr.Service.ProductService.UpdateOrCreate(c.Context(), create_product)
 	if err != nil {
 		return utils.FailResponse(c, "could not create/update product")
 	}
@@ -47,13 +74,13 @@ func (ctx Controller) CreateProduct(c *fiber.Ctx) error {
 }
 
 // [GET] /products/:id
-func (ctx Controller) FindProduct(c *fiber.Ctx) error {
+func (ctr Controller) FindProduct(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return utils.FailResponse(c, "invalid product id")
 	}
 
-	product, err := ctx.Querier.FindProductById(c.Context(), int64(id))
+	product, err := ctr.Querier.FindProductById(c.Context(), int64(id))
 	if err != nil {
 		return utils.FailResponse(c, "product not found")
 	}

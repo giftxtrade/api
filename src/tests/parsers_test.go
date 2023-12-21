@@ -7,6 +7,7 @@ import (
 
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
 
@@ -91,15 +92,15 @@ func TestGenerateTokens(t *testing.T) {
 func TestParseAuthContext(t *testing.T) {
     {
         ctx := context.Background()
-        user := database.User{
+        user := types.User{
             ID: 2,
             Email: "johndoe2@example.com",
             Name: "John Doe 2",
         }
         token := "my random token"
-        ctx = context.WithValue(ctx, controllers.AUTH_KEY, controllers.Auth{Token: token, User: user})
+        ctx = context.WithValue(ctx, controllers.AUTH_KEY, types.Auth{Token: token, User: user})
         parsed_auth := controllers.ParseAuthContext(ctx)
-        
+
         if parsed_auth.User != user {
             t.Fail()
         }

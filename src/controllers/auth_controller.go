@@ -38,9 +38,17 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.FailResponse(c, "could not generate token")
 	}
-	auth := Auth{
+	auth := types.Auth{
 		Token: token,
-		User: user,
+		User: types.User{
+			ID: user.ID,
+			Name: user.Name,
+			Email: user.Email,
+			ImageUrl: user.ImageUrl,
+			Active: user.Active,
+			Phone: user.Phone.String,
+			Admin: user.Admin,
+		},
 	}
 
 	if created {

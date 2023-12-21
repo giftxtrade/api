@@ -16,11 +16,6 @@ const AUTH_REQ string = "authorization required"
 const AUTH_KEY types.AuthKeyType = "auth"
 const AUTH_HEADER string = "Authorization"
 
-type Auth struct {
-	User database.User `json:"user"`
-	Token string `json:"token"`
-}
-
 // Authentication middleware. Saves user data in request context within types.AuthKey key
 func (ctx *Controller) UseJwtAuth(c *fiber.Ctx) error {
 	if err := ctx.authenticate_user(c); err != nil {
@@ -69,9 +64,17 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	c.SetUserContext(context.WithValue(c.UserContext(), AUTH_KEY, Auth{
+	c.SetUserContext(context.WithValue(c.UserContext(), AUTH_KEY, types.Auth{
 		Token: raw_token,
-		User: user,
+		User: types.User{
+			ID: user.ID,
+			Name: user.Name,
+			Email: user.Email,
+			ImageUrl: user.ImageUrl,
+			Active: user.Active,
+			Phone: user.Phone.String,
+			Admin: user.Admin,
+		},
 	}))
 	return nil
 }
@@ -92,7 +95,7 @@ func GenerateJWT(key string, user *database.User) (string, error) {
 }
 
 // Given a context, find and return the auth struct using the types.AuthKey key
-func ParseAuthContext(context context.Context) Auth {
-	auth := context.Value(AUTH_KEY).(Auth)
+func ParseAuthContext(context context.Context) types.Auth {
+	auth := context.Value(AUTH_KEY).(types.Auth)
 	return auth
 }

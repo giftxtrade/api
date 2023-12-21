@@ -2,16 +2,56 @@ package types
 
 import "time"
 
+type User struct {
+	ID int64 `json:"id"`
+	Name string `json:"name"`
+	Email string `json:"email" `
+	ImageUrl string `json:"imageUrl,omitempty"`
+	Active bool `json:"active"`
+	Phone string `json:"phone,omitempty"`
+	Admin bool `json:"admin,omitempty"`
+}
+
 type CreateUser struct {
 	Name string `json:"name" validate:"required"`
 	Email string `json:"email" validate:"required,email"`
 	ImageUrl string `json:"imageUrl,omitempty" validate:"omitempty,url"`
+	Phone string `json:"phone,omitempty" validate:"omitempty,"`
+}
+
+type Auth struct {
+	User User `json:"user"`
+	Token string `json:"token"`
+}
+
+type Category struct {
+	ID int64 `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description,omitempty"`
 }
 
 type CreateCategory struct {
 	Name string `json:"name" validate:"required"`
 	Description string `json:"description,omitempty"`
 	Url string `json:"url,omitempty" validate:"omitempty,url"`
+}
+
+type Product struct {
+	ID int64 `json:"id"`
+	Title string `json:"title"`
+	Description string `json:"description,omitempty"`
+	ProductKey string `json:"productKey"`
+	ImageUrl string `json:"imageUrl"`
+	TotalReviews int32 `json:"totalReviews"`
+	Rating float32 `json:"rating"`
+	Price string `json:"price"`
+	Currency string `json:"currency"`
+	Url string `json:"url"`
+	CategoryID int64  `json:"categoryId,omitempty"`
+	Category Category `json:"category,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Origin string `json:"origin"`
 }
 
 type CreateProduct struct {

@@ -16,8 +16,9 @@ type ServiceBase struct {
 
 type Service struct {
 	DB *sql.DB
-	ProductService ProductService
 	UserService UserService
+	ProductService ProductService
+	EventService EventService
 }
 
 type IService interface {
@@ -35,10 +36,13 @@ func New(db *sql.DB, querier *database.Queries, validator *validator.Validate) S
 	service := Service{
 		DB: db,
 	}
+	service.UserService = UserService{
+		ServiceBase: service_base,
+	}
 	service.ProductService = ProductService{
 		ServiceBase: service_base,
 	}
-	service.UserService = UserService{
+	service.EventService = EventService{
 		ServiceBase: service_base,
 	}
 	return service

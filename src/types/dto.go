@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID int64 `json:"id"`
@@ -75,6 +77,40 @@ type ProductFilter struct {
 	Sort string `json:"sort,omitempty" validate:"omitempty"`
 }
 
+type Participant struct {
+	ID int64 `json:"id"`
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Address string `json:"address,omitempty"`
+	Organizer bool `json:"organizer"`
+	Participates bool `json:"participates"`
+	Accepted bool `json:"accepted"`
+	EventID int64 `json:"eventId"`
+	Event Event `json:"event,omitempty"`
+	UserID int64 `json:"userId,omitempty"`
+}
+
+type CreateParticipant struct {
+	Email string `json:"email" validate:"required,email"`
+	Name string `json:"name,omitempty" validate:"omitempty"`
+	Address string `json:"address,omitempty" validate:"omitempty"`
+	Organizer bool `json:"organizer,omitempty" validate:"omitempty"`
+	Participates bool `json:"participates,omitempty" validate:"omitempty"`
+}
+
+type Event struct {
+	ID int64 `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Budget string `json:"budget"`
+	InvitationMessage string `json:"invitationMessage,omitempty"`
+	DrawAt time.Time `json:"drawAt"`
+	CloseAt time.Time `json:"closeAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Participants []Participant `json:"participants,omitempty"`
+}
+
 type CreateEvent struct {
 	Name string `json:"name" validate:"required"`
 	Description string `json:"description,omitempty"`
@@ -85,10 +121,3 @@ type CreateEvent struct {
 	Participants []CreateParticipant `json:"participants,omitempty" validate:"omitempty"`
 }
 
-type CreateParticipant struct {
-	Email string `json:"email" validate:"required,email"`
-	Nickname string `json:"nickname,omitempty" validate:"omitempty"`
-	Address string `json:"address,omitempty" validate:"omitempty"`
-	Organizer bool `json:"organizer,omitempty" validate:"omitempty"`
-	Participates bool `json:"participates,omitempty" validate:"omitempty"`
-}

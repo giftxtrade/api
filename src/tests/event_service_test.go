@@ -41,7 +41,7 @@ func TestEventService(t *testing.T) {
 
 	t.Run("create event", func(t *testing.T) {
 		t.Run("correct params", func(t *testing.T) {
-			event := types.CreateEvent{
+			input := types.CreateEvent{
 				Name: "Event 1",
 				Budget: 100.00,
 				DrawAt: time.Now(),
@@ -53,13 +53,27 @@ func TestEventService(t *testing.T) {
 					Participates: false,
 				}),
 			}
-			new_event, err := event_service.CreateEvent(context.Background(), &user_dto, event)
+			new_event, err := event_service.CreateEvent(context.Background(), &user_dto, input)
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			if len(new_event.Participants) != 6 {
 				t.Fatal("not all participants were inserted")
+			}
+			if new_event.Budget != fmt.Sprintf("$%.2f", input.Budget) {
+				t.Fatalf("values don't match %s %.2f", new_event.Budget, input.Budget)
+			}
+
+			var mp types.Participant
+			for _, p := range new_event.Participants {
+				if p.Email != user.Email {
+					continue
+				}
+				mp = p
+			}
+			if mp.Accepted != true && mp.UserID != user.ID {
+				t.Fatalf("main participant accepted or user_id fields are incorrect %#v", mp)
 			}
 		})
 

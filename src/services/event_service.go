@@ -110,7 +110,7 @@ func (s *EventService) BulkCreateParticipant(
 			ID: new_participant.ID,
 			Name: new_participant.Name,
 			Email: new_participant.Email,
-			Address: new_participant.Address,
+			Address: new_participant.Address.String,
 			Organizer: new_participant.Organizer,
 			Participates: new_participant.Participates,
 			Accepted: new_participant.Accepted,

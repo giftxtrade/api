@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"database/sql"
+
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
@@ -21,4 +24,18 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not create event", err.Error())
 	}
 	return utils.DataResponseCreated(c, event)
+}
+
+func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
+	auth_user := ParseAuthContext(c.Context())
+	events, err := ctr.Querier.FindAllEventsWithUser(c.Context(), sql.NullInt64{
+		Valid: true,
+		Int64: auth_user.User.ID,
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not return events", err.Error())
+	}
+
+	mapped_events := services.DbFindAllEventsWithUserRowToEvent(events)
+	return utils.DataResponse(c, mapped_events)
 }

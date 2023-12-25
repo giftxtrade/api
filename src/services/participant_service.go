@@ -41,7 +41,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 			tx.Rollback()
 			return nil, fmt.Errorf("could not create participant %s (%s)", p.Name, p.Email)
 		}
-		participants[i] = DbParticipantToParticipant(new_participant, event)
+		participants[i] = DbParticipantToParticipant(new_participant, event, nil)
 	}
 
 	if !found_creator_participant {
@@ -70,8 +70,8 @@ func CreateParticipantToDbCreateParticipantParams(input types.CreateParticipant,
 	}
 }
 
-func DbParticipantToParticipant(participant database.Participant, event *database.Event) types.Participant {
-	return types.Participant{
+func DbParticipantToParticipant(participant database.Participant, event *database.Event, user *database.User) types.Participant {
+	result := types.Participant{
 		ID: participant.ID,
 		Name: participant.Name,
 		Email: participant.Email,
@@ -79,7 +79,14 @@ func DbParticipantToParticipant(participant database.Participant, event *databas
 		Organizer: participant.Organizer,
 		Participates: participant.Participates,
 		Accepted: participant.Accepted,
-		EventID: event.ID,
-		UserID: participant.UserID.Int64,
 	}
+	if event != nil {
+		result.Event = DbEventToEvent(*event, nil)
+		result.EventID = event.ID
+	}
+	if user != nil {
+		result.User = DbUserToUser(*user)
+		result.UserID = user.ID
+	}
+	return result
 }

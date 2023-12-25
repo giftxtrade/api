@@ -88,6 +88,7 @@ type Participant struct {
 	EventID int64 `json:"eventId"`
 	Event Event `json:"event,omitempty"`
 	UserID int64 `json:"userId,omitempty"`
+	User User `json:"user,omitempty"`
 }
 
 type CreateParticipant struct {

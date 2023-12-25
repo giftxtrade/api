@@ -47,6 +47,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	events := server.Group("/events")
 	{
 		events.Post("", controller.UseJwtAuth, controller.CreateEvent)
+		events.Get("", controller.UseJwtAuth, controller.GetEvents)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{

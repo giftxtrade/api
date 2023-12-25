@@ -42,6 +42,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
 	}
+	if q.findAllEventsWithUserStmt, err = db.PrepareContext(ctx, findAllEventsWithUser); err != nil {
+		return nil, fmt.Errorf("error preparing query FindAllEventsWithUser: %w", err)
+	}
 	if q.findCategoryByNameStmt, err = db.PrepareContext(ctx, findCategoryByName); err != nil {
 		return nil, fmt.Errorf("error preparing query FindCategoryByName: %w", err)
 	}
@@ -102,6 +105,11 @@ func (q *Queries) Close() error {
 	if q.filterProductsStmt != nil {
 		if cerr := q.filterProductsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing filterProductsStmt: %w", cerr)
+		}
+	}
+	if q.findAllEventsWithUserStmt != nil {
+		if cerr := q.findAllEventsWithUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findAllEventsWithUserStmt: %w", cerr)
 		}
 	}
 	if q.findCategoryByNameStmt != nil {
@@ -194,6 +202,7 @@ type Queries struct {
 	createProductStmt           *sql.Stmt
 	createUserStmt              *sql.Stmt
 	filterProductsStmt          *sql.Stmt
+	findAllEventsWithUserStmt   *sql.Stmt
 	findCategoryByNameStmt      *sql.Stmt
 	findProductByIdStmt         *sql.Stmt
 	findProductByProductKeyStmt *sql.Stmt
@@ -215,6 +224,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createProductStmt:           q.createProductStmt,
 		createUserStmt:              q.createUserStmt,
 		filterProductsStmt:          q.filterProductsStmt,
+		findAllEventsWithUserStmt:   q.findAllEventsWithUserStmt,
 		findCategoryByNameStmt:      q.findCategoryByNameStmt,
 		findProductByIdStmt:         q.findProductByIdStmt,
 		findProductByProductKeyStmt: q.findProductByProductKeyStmt,

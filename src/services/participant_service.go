@@ -81,11 +81,13 @@ func DbParticipantToParticipant(participant database.Participant, event *databas
 		Accepted: participant.Accepted,
 	}
 	if event != nil {
-		result.Event = DbEventToEvent(*event, nil)
+		event := DbEventToEvent(*event, nil)
+		result.Event = &event
 		result.EventID = event.ID
 	}
 	if user != nil {
-		result.User = DbUserToUser(*user)
+		user := DbUserToUser(*user)
+		result.User = &user
 		result.UserID = user.ID
 	}
 	return result

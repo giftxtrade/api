@@ -67,7 +67,7 @@ func DbEventToEvent(event database.Event, participants []types.Participant) type
 		Name: event.Name,
 		Description: event.Description.String,
 		Budget: event.Budget,
-		InvitationMessage: event.Budget,
+		InvitationMessage: event.InvitationMessage,
 		DrawAt: event.DrawAt,
 		CloseAt: event.CloseAt,
 		CreatedAt: event.CreatedAt,

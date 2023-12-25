@@ -10,7 +10,7 @@ import (
 )
 
 func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
-	auth_user := ParseAuthContext(c.Context())
+	auth_user := ParseAuthContext(c.UserContext())
 	var input types.CreateEvent
 	if c.BodyParser(&input) != nil {
 		return utils.FailResponse(c, "could not parse body data")
@@ -27,7 +27,7 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
-	auth_user := ParseAuthContext(c.Context())
+	auth_user := ParseAuthContext(c.UserContext())
 	events, err := ctr.Querier.FindAllEventsWithUser(c.Context(), sql.NullInt64{
 		Valid: true,
 		Int64: auth_user.User.ID,

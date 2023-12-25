@@ -85,10 +85,10 @@ type Participant struct {
 	Organizer bool `json:"organizer"`
 	Participates bool `json:"participates"`
 	Accepted bool `json:"accepted"`
-	EventID int64 `json:"eventId"`
-	Event Event `json:"event,omitempty"`
+	EventID int64 `json:"eventId,omitempty"`
+	Event *Event `json:"event,omitempty"`
 	UserID int64 `json:"userId,omitempty"`
-	User User `json:"user,omitempty"`
+	User *User `json:"user,omitempty"`
 }
 
 type CreateParticipant struct {

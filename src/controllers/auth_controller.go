@@ -40,15 +40,7 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 	}
 	auth := types.Auth{
 		Token: token,
-		User: types.User{
-			ID: user.ID,
-			Name: user.Name,
-			Email: user.Email,
-			ImageUrl: user.ImageUrl,
-			Active: user.Active,
-			Phone: user.Phone.String,
-			Admin: user.Admin,
-		},
+		User: ctx.Service.UserService.DbUserToUser(user),
 	}
 
 	if created {

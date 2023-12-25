@@ -18,6 +18,7 @@ type Service struct {
 	DB *sql.DB
 	UserService UserService
 	ProductService ProductService
+	ParticipantService ParticipantService
 	EventService EventService
 }
 
@@ -42,8 +43,12 @@ func New(db *sql.DB, querier *database.Queries, validator *validator.Validate) S
 	service.ProductService = ProductService{
 		ServiceBase: service_base,
 	}
+	service.ParticipantService = ParticipantService{
+		ServiceBase: service_base,
+	}
 	service.EventService = EventService{
 		ServiceBase: service_base,
+		ParticipantService: service.ParticipantService,
 	}
 	return service
 }

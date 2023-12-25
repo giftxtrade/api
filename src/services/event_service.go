@@ -24,7 +24,7 @@ func (s *EventService) CreateEvent(ctx context.Context, user *types.User, input 
 	defer q.Close()
 
 	// create new event in transaction scope
-	new_event, err := q.CreateEvent(ctx, s.CreateEventToDbCreateEventParams(input))
+	new_event, err := q.CreateEvent(ctx, CreateEventToDbCreateEventParams(input))
 	if err != nil {
 		tx.Rollback()
 		return types.Event{}, fmt.Errorf("could not create event")
@@ -43,11 +43,11 @@ func (s *EventService) CreateEvent(ctx context.Context, user *types.User, input 
 		return types.Event{}, fmt.Errorf("could not commit transaction")
 	}
 	// build new event dto
-	mapped_event := s.DbEventToEvent(new_event, participants)
+	mapped_event := DbEventToEvent(new_event, participants)
 	return mapped_event, nil
 }
 
-func (s *EventService) CreateEventToDbCreateEventParams(input types.CreateEvent) database.CreateEventParams {
+func CreateEventToDbCreateEventParams(input types.CreateEvent) database.CreateEventParams {
 	return database.CreateEventParams{
 		Name: input.Name,
 		Description: sql.NullString{
@@ -61,7 +61,7 @@ func (s *EventService) CreateEventToDbCreateEventParams(input types.CreateEvent)
 	}
 }
 
-func (s *EventService) DbEventToEvent(event database.Event, participants []types.Participant) types.Event {
+func DbEventToEvent(event database.Event, participants []types.Participant) types.Event {
 	return types.Event{
 		ID: event.ID,
 		Name: event.Name,

@@ -25,7 +25,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 	var creator_participant types.CreateParticipant
 	participants := make([]types.Participant, len(input))
 	for i, p := range input {
-		data := s.CreateParticipantToDbCreateParticipantParams(p, event)
+		data := CreateParticipantToDbCreateParticipantParams(p, event)
 		if p.Organizer && p.Email == user.Email {
 			found_creator_participant = true
 			creator_participant = p
@@ -41,7 +41,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 			tx.Rollback()
 			return nil, fmt.Errorf("could not create participant %s (%s)", p.Name, p.Email)
 		}
-		participants[i] = s.DbParticipantToParticipant(new_participant, event)
+		participants[i] = DbParticipantToParticipant(new_participant, event)
 	}
 
 	if !found_creator_participant {
@@ -55,7 +55,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 	return participants, nil
 }
 
-func (s *ParticipantService) CreateParticipantToDbCreateParticipantParams(input types.CreateParticipant, event *database.Event) database.CreateParticipantParams {
+func CreateParticipantToDbCreateParticipantParams(input types.CreateParticipant, event *database.Event) database.CreateParticipantParams {
 	return database.CreateParticipantParams{
 		Name: input.Name,
 		Email: input.Email,
@@ -70,7 +70,7 @@ func (s *ParticipantService) CreateParticipantToDbCreateParticipantParams(input 
 	}
 }
 
-func (s *ParticipantService) DbParticipantToParticipant(participant database.Participant, event *database.Event) types.Participant {
+func DbParticipantToParticipant(participant database.Participant, event *database.Event) types.Participant {
 	return types.Participant{
 		ID: participant.ID,
 		Name: participant.Name,

@@ -16,7 +16,7 @@ type UserService struct {
 func (s *UserService) FindOrCreate(ctx context.Context, input types.CreateUser) (database.User, bool, error) {
 	user, err := s.Querier.FindUserByEmail(ctx, input.Email)
 	if err != nil {
-		user, err = s.Querier.CreateUser(ctx, s.CreateUserToCreateUserParams(input))
+		user, err = s.Querier.CreateUser(ctx, CreateUserToCreateUserParams(input))
 		
 		if user.ID != 0 && err == nil {
 			return user, true, nil
@@ -26,7 +26,7 @@ func (s *UserService) FindOrCreate(ctx context.Context, input types.CreateUser) 
 	return user, false, nil
 }
 
-func (s *UserService) CreateUserToCreateUserParams(input types.CreateUser) database.CreateUserParams {
+func CreateUserToCreateUserParams(input types.CreateUser) database.CreateUserParams {
 	return database.CreateUserParams{
 		Name: input.Name,
 		Email: input.Email,
@@ -36,7 +36,7 @@ func (s *UserService) CreateUserToCreateUserParams(input types.CreateUser) datab
 	}
 }
 
-func (s *UserService) DbUserToUser(user database.User) types.User {
+func DbUserToUser(user database.User) types.User {
 	return types.User{
 		ID: user.ID,
 		Name: user.Name,

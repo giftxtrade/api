@@ -15,6 +15,7 @@ import (
 const AUTH_REQ string = "authorization required"
 const AUTH_KEY types.AuthKeyType = "auth"
 const AUTH_HEADER string = "Authorization"
+const EVENT_ID_PARAM_KEY types.EventIdParamKeyType = "EVENT_ID_PARAM"
 
 // Authentication middleware. Saves user data in request context within types.AuthKey key
 func (ctx *Controller) UseJwtAuth(c *fiber.Ctx) error {
@@ -64,7 +65,7 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	c.SetUserContext(context.WithValue(c.UserContext(), AUTH_KEY, types.Auth{
+	utils.SetUserContext(c, AUTH_KEY, types.Auth{
 		Token: raw_token,
 		User: types.User{
 			ID: user.ID,
@@ -75,7 +76,7 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 			Phone: user.Phone.String,
 			Admin: user.Admin,
 		},
-	}))
+	})
 	return nil
 }
 
@@ -98,4 +99,23 @@ func GenerateJWT(key string, user *database.User) (string, error) {
 func ParseAuthContext(context context.Context) types.Auth {
 	auth := context.Value(AUTH_KEY).(types.Auth)
 	return auth
+}
+
+func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
+	auth_user := ParseAuthContext(c.UserContext())
+	id_raw := c.Params("event_id")
+	id, err := strconv.ParseInt(id_raw, 10, 64)
+	if err != nil {
+		return utils.FailResponseNotFound(c, "event not found")
+	}
+
+	event_id, err := ctr.Querier.FindEventForUser(c.Context(), database.FindEventForUserParams{
+		EventID: id,
+		UserID: auth_user.User.ID,
+	})
+	if err != nil || event_id != id {
+		return utils.FailResponseNotFound(c, "event not found")
+	}
+	utils.SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
+	return c.Next()
 }

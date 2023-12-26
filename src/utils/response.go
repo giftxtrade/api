@@ -28,6 +28,13 @@ func FailResponseUnauthorized(c *fiber.Ctx, errors ...string) error {
 	})
 }
 
+// types.Error json response with status code 404
+func FailResponseNotFound(c *fiber.Ctx, errors ...string) error {
+	return ResponseWithStatusCode(c, fiber.StatusNotFound, types.Errors{
+		Errors: errors,
+	})
+}
+
 // types.Data json response with status code 200
 func DataResponse(c *fiber.Ctx, data interface{}) error {
 	return ResponseWithStatusCode(c, fiber.StatusOK, types.Result{

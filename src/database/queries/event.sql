@@ -19,7 +19,7 @@ SELECT
 FROM "event"
 JOIN "participant" "p1" ON "p1"."event_id" = "event"."id"
 JOIN "participant" "p2" ON "p2"."event_id" = "event"."id"
-JOIN "user" "u" ON "u"."id" = "p2"."user_id"
+LEFT JOIN "user" "u" ON "u"."id" = "p2"."user_id"
 WHERE 
     "p1"."user_id" = $1
 ORDER BY

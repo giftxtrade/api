@@ -132,3 +132,76 @@ func (q *Queries) FindAllEventsWithUser(ctx context.Context, userID sql.NullInt6
 	}
 	return items, nil
 }
+
+const findEventForUser = `-- name: FindEventForUser :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+JOIN "user" ON "user"."id" = "participant"."user_id"
+WHERE
+    "event"."id" = $1
+        AND
+    "user"."id" = $2
+`
+
+type FindEventForUserParams struct {
+	EventID int64 `db:"event_id" json:"eventId"`
+	UserID  int64 `db:"user_id" json:"userId"`
+}
+
+func (q *Queries) FindEventForUser(ctx context.Context, arg FindEventForUserParams) (int64, error) {
+	row := q.queryRow(ctx, q.findEventForUserStmt, findEventForUser, arg.EventID, arg.UserID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const findEventForUserAsOrganizer = `-- name: FindEventForUserAsOrganizer :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+JOIN "user" ON "user"."id" = "participant"."user_id"
+WHERE
+    "event"."id" = $1
+        AND
+    "participant"."organizer" = TRUE
+        AND
+    "user"."id" = $2
+`
+
+type FindEventForUserAsOrganizerParams struct {
+	ID   int64 `db:"id" json:"id"`
+	ID_2 int64 `db:"id_2" json:"id2"`
+}
+
+func (q *Queries) FindEventForUserAsOrganizer(ctx context.Context, arg FindEventForUserAsOrganizerParams) (int64, error) {
+	row := q.queryRow(ctx, q.findEventForUserAsOrganizerStmt, findEventForUserAsOrganizer, arg.ID, arg.ID_2)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const findEventForUserAsParticipant = `-- name: FindEventForUserAsParticipant :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+JOIN "user" ON "user"."id" = "participant"."user_id"
+WHERE
+    "event"."id" = $1
+        AND
+    "participant"."participates" = TRUE
+        AND
+    "user"."id" = $2
+`
+
+type FindEventForUserAsParticipantParams struct {
+	ID   int64 `db:"id" json:"id"`
+	ID_2 int64 `db:"id_2" json:"id2"`
+}
+
+func (q *Queries) FindEventForUserAsParticipant(ctx context.Context, arg FindEventForUserAsParticipantParams) (int64, error) {
+	row := q.queryRow(ctx, q.findEventForUserAsParticipantStmt, findEventForUserAsParticipant, arg.ID, arg.ID_2)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}

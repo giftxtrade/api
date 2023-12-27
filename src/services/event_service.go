@@ -81,7 +81,7 @@ func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow)
 	var prev_event_id int64 = 0
 	for _, row := range rows {
 		if row.Event.ID != prev_event_id {
-			participant := DbParticipantToParticipant(row.Participant, nil, &row.User)
+			participant := DbParticipantUserToParticipant(row.ParticipantUser, nil)
 			mapped_event := DbEventToEvent(row.Event, append([]types.Participant{}, participant)) 
 			events = append(events, mapped_event)
 			
@@ -91,7 +91,7 @@ func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow)
 		last_index := len(events) - 1
 		events[last_index].Participants = append(
 			events[last_index].Participants,
-			DbParticipantToParticipant(row.Participant, nil, &row.User),
+			DbParticipantUserToParticipant(row.ParticipantUser, nil),
 		)
 	}
 	return events

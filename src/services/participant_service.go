@@ -92,3 +92,28 @@ func DbParticipantToParticipant(participant database.Participant, event *databas
 	}
 	return result
 }
+
+func DbParticipantUserToParticipant(participant_user database.ParticipantUser, event *database.Event) types.Participant {
+	var user *database.User = nil
+	if participant_user.UserID.Valid {
+		user = &database.User{
+			ID: participant_user.UserID.Int64,
+			Name: participant_user.UserName.String,
+			Email: participant_user.UserEmail.String,
+			ImageUrl: participant_user.UserImageUrl.String,
+		}
+	}
+	return DbParticipantToParticipant(
+		database.Participant{
+			ID: participant_user.ID,
+			Name: participant_user.Name,
+			Email: participant_user.Email,
+			Address: participant_user.Address,
+			Organizer: participant_user.Organizer,
+			Participates: participant_user.Participates,
+			Accepted: participant_user.Accepted,
+		},
+		event,
+		user,
+	)
+}

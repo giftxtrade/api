@@ -61,12 +61,10 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 const findAllEventsWithUser = `-- name: FindAllEventsWithUser :many
 SELECT
     event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
-    p2.id, p2.name, p2.email, p2.address, p2.organizer, p2.participates, p2.accepted, p2.event_id, p2.user_id, p2.created_at, p2.updated_at,
-    u.id, u.name, u.email, u.image_url, u.phone, u.admin, u.active, u.created_at, u.updated_at
+    p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant AS "participant"
 FROM "event"
 JOIN "participant" "p1" ON "p1"."event_id" = "event"."id"
-JOIN "participant" "p2" ON "p2"."event_id" = "event"."id"
-LEFT JOIN "user" "u" ON "u"."id" = "p2"."user_id"
+JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
 WHERE 
     "p1"."user_id" = $1
 ORDER BY
@@ -75,9 +73,8 @@ ORDER BY
 `
 
 type FindAllEventsWithUserRow struct {
-	Event       Event       `db:"event" json:"event"`
-	Participant Participant `db:"participant" json:"participant"`
-	User        User        `db:"user" json:"user"`
+	Event           Event           `db:"event" json:"event"`
+	ParticipantUser ParticipantUser `db:"participant_user" json:"participantUser"`
 }
 
 func (q *Queries) FindAllEventsWithUser(ctx context.Context, userID sql.NullInt64) ([]FindAllEventsWithUserRow, error) {
@@ -99,26 +96,20 @@ func (q *Queries) FindAllEventsWithUser(ctx context.Context, userID sql.NullInt6
 			&i.Event.CloseAt,
 			&i.Event.CreatedAt,
 			&i.Event.UpdatedAt,
-			&i.Participant.ID,
-			&i.Participant.Name,
-			&i.Participant.Email,
-			&i.Participant.Address,
-			&i.Participant.Organizer,
-			&i.Participant.Participates,
-			&i.Participant.Accepted,
-			&i.Participant.EventID,
-			&i.Participant.UserID,
-			&i.Participant.CreatedAt,
-			&i.Participant.UpdatedAt,
-			&i.User.ID,
-			&i.User.Name,
-			&i.User.Email,
-			&i.User.ImageUrl,
-			&i.User.Phone,
-			&i.User.Admin,
-			&i.User.Active,
-			&i.User.CreatedAt,
-			&i.User.UpdatedAt,
+			&i.ParticipantUser.ID,
+			&i.ParticipantUser.Name,
+			&i.ParticipantUser.Email,
+			&i.ParticipantUser.Address,
+			&i.ParticipantUser.Organizer,
+			&i.ParticipantUser.Participates,
+			&i.ParticipantUser.Accepted,
+			&i.ParticipantUser.EventID,
+			&i.ParticipantUser.UserID,
+			&i.ParticipantUser.CreatedAt,
+			&i.ParticipantUser.UpdatedAt,
+			&i.ParticipantUser.UserName,
+			&i.ParticipantUser.UserEmail,
+			&i.ParticipantUser.UserImageUrl,
 		); err != nil {
 			return nil, err
 		}

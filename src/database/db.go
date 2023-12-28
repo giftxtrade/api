@@ -60,6 +60,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findEventForUserAsParticipantStmt, err = db.PrepareContext(ctx, findEventForUserAsParticipant); err != nil {
 		return nil, fmt.Errorf("error preparing query FindEventForUserAsParticipant: %w", err)
 	}
+	if q.findEventInvitesStmt, err = db.PrepareContext(ctx, findEventInvites); err != nil {
+		return nil, fmt.Errorf("error preparing query FindEventInvites: %w", err)
+	}
 	if q.findProductByIdStmt, err = db.PrepareContext(ctx, findProductById); err != nil {
 		return nil, fmt.Errorf("error preparing query FindProductById: %w", err)
 	}
@@ -147,6 +150,11 @@ func (q *Queries) Close() error {
 	if q.findEventForUserAsParticipantStmt != nil {
 		if cerr := q.findEventForUserAsParticipantStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findEventForUserAsParticipantStmt: %w", cerr)
+		}
+	}
+	if q.findEventInvitesStmt != nil {
+		if cerr := q.findEventInvitesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findEventInvitesStmt: %w", cerr)
 		}
 	}
 	if q.findProductByIdStmt != nil {
@@ -240,6 +248,7 @@ type Queries struct {
 	findEventForUserStmt              *sql.Stmt
 	findEventForUserAsOrganizerStmt   *sql.Stmt
 	findEventForUserAsParticipantStmt *sql.Stmt
+	findEventInvitesStmt              *sql.Stmt
 	findProductByIdStmt               *sql.Stmt
 	findProductByProductKeyStmt       *sql.Stmt
 	findUserByEmailStmt               *sql.Stmt
@@ -266,6 +275,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findEventForUserStmt:              q.findEventForUserStmt,
 		findEventForUserAsOrganizerStmt:   q.findEventForUserAsOrganizerStmt,
 		findEventForUserAsParticipantStmt: q.findEventForUserAsParticipantStmt,
+		findEventInvitesStmt:              q.findEventInvitesStmt,
 		findProductByIdStmt:               q.findProductByIdStmt,
 		findProductByProductKeyStmt:       q.findProductByProductKeyStmt,
 		findUserByEmailStmt:               q.findUserByEmailStmt,

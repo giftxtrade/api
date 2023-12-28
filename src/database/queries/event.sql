@@ -32,6 +32,15 @@ FROM "event"
 JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
 WHERE "event"."id" = $1;
 
+-- name: FindEventInvites :many
+SELECT "event".*
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE 
+    "participant"."accepted" = FALSE
+        AND
+    "participant"."email" = $1;
+
 
 --
 -- event verification queries

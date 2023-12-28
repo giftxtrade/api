@@ -39,6 +39,14 @@ func DbEventToEvent(event database.Event, participants []types.Participant) type
 	}
 }
 
+func DbEventsToEventsSimple(event []database.Event) []types.Event {
+	events := make([]types.Event, len(event))
+	for i, row := range event {
+		events[i] = DbEventToEvent(row, nil)
+	}
+	return events
+}
+
 func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow) []types.Event {
 	events := []types.Event{}
 	var prev_event_id int64 = 0

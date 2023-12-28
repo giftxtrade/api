@@ -50,3 +50,12 @@ func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
 	event := mappers.DbFindEventByIdToEvent(event_rows)
 	return utils.DataResponse(c, event)
 }
+
+func (ctr *Controller) GetInvites(c *fiber.Ctx) error {
+	auth := ParseAuthContext(c.UserContext())
+	rows, err := ctr.Querier.FindEventInvites(c.Context(), auth.User.Email)
+	if err != nil {
+		return utils.FailResponse(c, "could not fetch invites")
+	}
+	return utils.DataResponse(c, mappers.DbEventsToEventsSimple(rows))
+}

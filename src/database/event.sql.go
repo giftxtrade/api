@@ -259,3 +259,46 @@ func (q *Queries) FindEventForUserAsParticipant(ctx context.Context, arg FindEve
 	err := row.Scan(&id)
 	return id, err
 }
+
+const findEventInvites = `-- name: FindEventInvites :many
+SELECT event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE 
+    "participant"."accepted" = FALSE
+        AND
+    "participant"."email" = $1
+`
+
+func (q *Queries) FindEventInvites(ctx context.Context, email string) ([]Event, error) {
+	rows, err := q.query(ctx, q.findEventInvitesStmt, findEventInvites, email)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Event
+	for rows.Next() {
+		var i Event
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Budget,
+			&i.InvitationMessage,
+			&i.DrawAt,
+			&i.CloseAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

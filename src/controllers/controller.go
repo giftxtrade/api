@@ -49,6 +49,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	{
 		events.Post("", c.UseJwtAuth, c.CreateEvent)
 		events.Get("", c.UseJwtAuth, c.GetEvents)
+		events.Get("/invites", c.UseJwtAuth, c.GetInvites)
 		events.Get("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.GetEventById)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {

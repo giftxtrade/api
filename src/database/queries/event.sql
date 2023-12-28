@@ -14,7 +14,7 @@ RETURNING *;
 -- name: FindAllEventsWithUser :many
 SELECT
     sqlc.embed(event),
-    sqlc.embed(p) AS "participant"
+    sqlc.embed(p)
 FROM "event"
 JOIN "participant" "p1" ON "p1"."event_id" = "event"."id"
 JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
@@ -23,6 +23,19 @@ WHERE
 ORDER BY
     "event"."draw_at" DESC,
     "event"."close_at" DESC;
+
+-- name: FindEventById :many
+SELECT
+    sqlc.embed(event),
+    sqlc.embed(p)
+FROM "event"
+JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
+WHERE "event"."id" = $1;
+
+
+--
+-- event verification queries
+--
 
 -- name: FindEventForUser :one
 SELECT "event"."id"

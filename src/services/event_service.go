@@ -96,3 +96,11 @@ func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow)
 	}
 	return events
 }
+
+func DbFindEventByIdToEvent(rows []database.FindEventByIdRow) types.Event {
+	mapped_rows := make([]database.FindAllEventsWithUserRow, len(rows))
+	for i, row := range rows {
+		mapped_rows[i] = database.FindAllEventsWithUserRow(row)
+	}
+	return DbFindAllEventsWithUserRowToEvent(mapped_rows)[0]
+}

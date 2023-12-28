@@ -61,7 +61,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 const findAllEventsWithUser = `-- name: FindAllEventsWithUser :many
 SELECT
     event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
-    p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant, p.participant AS "participant"
+    p.id, p.name, p.email, p.address, p.organizer, p.participates, p.accepted, p.event_id, p.user_id, p.created_at, p.updated_at, p.user_name, p.user_email, p.user_image_url
 FROM "event"
 JOIN "participant" "p1" ON "p1"."event_id" = "event"."id"
 JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
@@ -124,7 +124,69 @@ func (q *Queries) FindAllEventsWithUser(ctx context.Context, userID sql.NullInt6
 	return items, nil
 }
 
+const findEventById = `-- name: FindEventById :many
+SELECT
+    event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
+    p.id, p.name, p.email, p.address, p.organizer, p.participates, p.accepted, p.event_id, p.user_id, p.created_at, p.updated_at, p.user_name, p.user_email, p.user_image_url
+FROM "event"
+JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
+WHERE "event"."id" = $1
+`
+
+type FindEventByIdRow struct {
+	Event           Event           `db:"event" json:"event"`
+	ParticipantUser ParticipantUser `db:"participant_user" json:"participantUser"`
+}
+
+func (q *Queries) FindEventById(ctx context.Context, id int64) ([]FindEventByIdRow, error) {
+	rows, err := q.query(ctx, q.findEventByIdStmt, findEventById, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindEventByIdRow
+	for rows.Next() {
+		var i FindEventByIdRow
+		if err := rows.Scan(
+			&i.Event.ID,
+			&i.Event.Name,
+			&i.Event.Description,
+			&i.Event.Budget,
+			&i.Event.InvitationMessage,
+			&i.Event.DrawAt,
+			&i.Event.CloseAt,
+			&i.Event.CreatedAt,
+			&i.Event.UpdatedAt,
+			&i.ParticipantUser.ID,
+			&i.ParticipantUser.Name,
+			&i.ParticipantUser.Email,
+			&i.ParticipantUser.Address,
+			&i.ParticipantUser.Organizer,
+			&i.ParticipantUser.Participates,
+			&i.ParticipantUser.Accepted,
+			&i.ParticipantUser.EventID,
+			&i.ParticipantUser.UserID,
+			&i.ParticipantUser.CreatedAt,
+			&i.ParticipantUser.UpdatedAt,
+			&i.ParticipantUser.UserName,
+			&i.ParticipantUser.UserEmail,
+			&i.ParticipantUser.UserImageUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findEventForUser = `-- name: FindEventForUser :one
+
 SELECT "event"."id"
 FROM "event"
 JOIN "participant" ON "participant"."event_id" = "event"."id"
@@ -140,6 +202,7 @@ type FindEventForUserParams struct {
 	UserID  int64 `db:"user_id" json:"userId"`
 }
 
+// event verification queries
 func (q *Queries) FindEventForUser(ctx context.Context, arg FindEventForUserParams) (int64, error) {
 	row := q.queryRow(ctx, q.findEventForUserStmt, findEventForUser, arg.EventID, arg.UserID)
 	var id int64

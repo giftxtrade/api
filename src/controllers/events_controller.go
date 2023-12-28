@@ -39,3 +39,14 @@ func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 	mapped_events := services.DbFindAllEventsWithUserRowToEvent(events)
 	return utils.DataResponse(c, mapped_events)
 }
+
+func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
+	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_rows, err := ctr.Querier.FindEventById(c.Context(), event_id)
+	if err != nil {
+		return utils.FailResponse(c, "could not load event")
+	}
+
+	event := services.DbFindEventByIdToEvent(event_rows)
+	return utils.DataResponse(c, event)
+}

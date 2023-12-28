@@ -114,6 +114,7 @@ type CreateParticipant struct {
 type Event struct {
 	ID int64 `json:"id"`
 	Name string `json:"name"`
+	Slug string `json:"slug,omitempty"`
 	Description string `json:"description,omitempty"`
 	Budget string `json:"budget"`
 	InvitationMessage string `json:"invitationMessage,omitempty"`

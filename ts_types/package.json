@@ -1,6 +1,6 @@
 {
   "name": "@giftxtrade/api-types",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "types.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

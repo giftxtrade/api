@@ -6,6 +6,7 @@ import (
 
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
+	"github.com/gosimple/slug"
 )
 
 func CreateEventToDbCreateEventParams(input types.CreateEvent) database.CreateEventParams {
@@ -26,6 +27,7 @@ func DbEventToEvent(event database.Event, participants []types.Participant) type
 	return types.Event{
 		ID: event.ID,
 		Name: event.Name,
+		Slug: slug.Make(event.Name),
 		Description: event.Description.String,
 		Budget: event.Budget,
 		InvitationMessage: event.InvitationMessage,

@@ -100,6 +100,7 @@ export interface CreateParticipant {
 export interface Event {
   id: number /* int64 */;
   name: string;
+  slug?: string;
   description?: string;
   budget: string;
   invitationMessage?: string;

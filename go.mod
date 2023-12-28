@@ -13,6 +13,8 @@ require (
 	gorm.io/gorm v1.25.5
 )
 
+require github.com/gosimple/unidecode v1.0.1 // indirect
+
 require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
@@ -52,6 +54,7 @@ require (
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.2.2 // indirect
+	github.com/gosimple/slug v1.13.1
 	github.com/gzuidhof/tygo v0.2.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

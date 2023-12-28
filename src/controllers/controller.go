@@ -19,7 +19,7 @@ type IController interface {
 }
 
 func New(app_ctx types.AppContext, querier *database.Queries, service services.Service) Controller {
-	controller := Controller{
+	c := Controller{
 		AppContext: app_ctx,
 		Service: service,
 		Querier: querier,
@@ -34,26 +34,26 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	})
 	auth := server.Group("/auth")
 	{
-		auth.Get("/profile", controller.UseJwtAuth, controller.GetProfile)
-		auth.Get("/:provider", controller.SignIn)
-		auth.Get("/:provider/callback", controller.Callback)
+		auth.Get("/profile", c.UseJwtAuth, c.GetProfile)
+		auth.Get("/:provider", c.SignIn)
+		auth.Get("/:provider/callback", c.Callback)
 	}
 	products := server.Group("/products")
 	{
-		products.Post("", controller.UseAdminOnly, controller.CreateProduct)
-		products.Get("", controller.UseJwtAuth, controller.FindAllProducts)
-		products.Get("/:id", controller.UseJwtAuth, controller.FindProduct)
+		products.Post("", c.UseAdminOnly, c.CreateProduct)
+		products.Get("", c.UseJwtAuth, c.FindAllProducts)
+		products.Get("/:id", c.UseJwtAuth, c.FindProduct)
 	}
 	events := server.Group("/events")
 	{
-		events.Post("", controller.UseJwtAuth, controller.CreateEvent)
-		events.Get("", controller.UseJwtAuth, controller.GetEvents)
-		events.Get("/:event_id", controller.UseJwtAuth, controller.UseEventAuthWithParam, controller.GetEventById)
+		events.Post("", c.UseJwtAuth, c.CreateEvent)
+		events.Get("", c.UseJwtAuth, c.GetEvents)
+		events.Get("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.GetEventById)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{
 			Errors: []string{"resource not found"},
 		})
 	})
-	return controller
+	return c
 }

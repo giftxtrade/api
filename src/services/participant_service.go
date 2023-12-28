@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 )
 
@@ -25,7 +26,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 	var creator_participant types.CreateParticipant
 	participants := make([]types.Participant, len(input))
 	for i, p := range input {
-		data := CreateParticipantToDbCreateParticipantParams(p, event)
+		data := mappers.CreateParticipantToDbCreateParticipantParams(p, event)
 		if p.Organizer && p.Email == user.Email {
 			found_creator_participant = true
 			creator_participant = p
@@ -41,7 +42,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 			tx.Rollback()
 			return nil, fmt.Errorf("could not create participant %s (%s)", p.Name, p.Email)
 		}
-		participants[i] = DbParticipantToParticipant(new_participant, event, nil)
+		participants[i] = mappers.DbParticipantToParticipant(new_participant, event, nil)
 	}
 
 	if !found_creator_participant {
@@ -53,67 +54,4 @@ func (s *ParticipantService) BulkCreateParticipant(
 		)
 	}
 	return participants, nil
-}
-
-func CreateParticipantToDbCreateParticipantParams(input types.CreateParticipant, event *database.Event) database.CreateParticipantParams {
-	return database.CreateParticipantParams{
-		Name: input.Name,
-		Email: input.Email,
-		Organizer: input.Organizer,
-		Participates: input.Participates,
-		Accepted: false,
-		EventID: event.ID,
-		Address: sql.NullString{
-			Valid: input.Address != "",
-			String: input.Address,
-		},
-	}
-}
-
-func DbParticipantToParticipant(participant database.Participant, event *database.Event, user *database.User) types.Participant {
-	result := types.Participant{
-		ID: participant.ID,
-		Name: participant.Name,
-		Email: participant.Email,
-		Address: participant.Address.String,
-		Organizer: participant.Organizer,
-		Participates: participant.Participates,
-		Accepted: participant.Accepted,
-	}
-	if event != nil {
-		event := DbEventToEvent(*event, nil)
-		result.Event = &event
-		result.EventID = event.ID
-	}
-	if user != nil {
-		user := DbUserToUser(*user)
-		result.User = &user
-		result.UserID = user.ID
-	}
-	return result
-}
-
-func DbParticipantUserToParticipant(participant_user database.ParticipantUser, event *database.Event) types.Participant {
-	var user *database.User = nil
-	if participant_user.UserID.Valid {
-		user = &database.User{
-			ID: participant_user.UserID.Int64,
-			Name: participant_user.UserName.String,
-			Email: participant_user.UserEmail.String,
-			ImageUrl: participant_user.UserImageUrl.String,
-		}
-	}
-	return DbParticipantToParticipant(
-		database.Participant{
-			ID: participant_user.ID,
-			Name: participant_user.Name,
-			Email: participant_user.Email,
-			Address: participant_user.Address,
-			Organizer: participant_user.Organizer,
-			Participates: participant_user.Participates,
-			Accepted: participant_user.Accepted,
-		},
-		event,
-		user,
-	)
 }

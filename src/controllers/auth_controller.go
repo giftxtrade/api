@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/giftxtrade/api/src/services"
+	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
@@ -41,7 +41,7 @@ func (ctx Controller) Callback(c *fiber.Ctx) error {
 	}
 	auth := types.Auth{
 		Token: token,
-		User: services.DbUserToUser(user),
+		User: mappers.DbUserToUser(user),
 	}
 
 	if created {

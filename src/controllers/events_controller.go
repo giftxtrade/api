@@ -3,7 +3,7 @@ package controllers
 import (
 	"database/sql"
 
-	"github.com/giftxtrade/api/src/services"
+	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
@@ -36,7 +36,7 @@ func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not return events", err.Error())
 	}
 
-	mapped_events := services.DbFindAllEventsWithUserRowToEvent(events)
+	mapped_events := mappers.DbFindAllEventsWithUserRowToEvent(events)
 	return utils.DataResponse(c, mapped_events)
 }
 
@@ -47,6 +47,6 @@ func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not load event")
 	}
 
-	event := services.DbFindEventByIdToEvent(event_rows)
+	event := mappers.DbFindEventByIdToEvent(event_rows)
 	return utils.DataResponse(c, event)
 }

@@ -61,8 +61,8 @@ func New(conn *sql.DB, server *fiber.App) *AppBase {
 	app.Server = server
 	server.Use(cors.New(cors.Config{
 		AllowOrigins: strings.Join([]string{
-			"giftxtrade.com",
-			"localhost:8080", // TODO: allow only in development
+			"https://giftxtrade.com",
+			"http://localhost:3000", // TODO: allow only in development
 		}, ","),
 	}))
 

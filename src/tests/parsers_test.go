@@ -7,6 +7,7 @@ import (
 
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
@@ -80,8 +81,9 @@ func TestGenerateTokens(t *testing.T) {
             Email: "johndoe@example.com",
             Name: "John Doe",
         }
-        jwt1, err1 := controllers.GenerateJWT("123", &user)
-        jwt2, err2 := controllers.GenerateJWT("1234", &user)
+        user_service := services.UserService{}
+        jwt1, err1 := user_service.GenerateJWT("123", &user)
+        jwt2, err2 := user_service.GenerateJWT("1234", &user)
 
         if err1 != nil || err2 != nil || jwt1 == jwt2 {
             t.Fail()

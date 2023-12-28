@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/gofiber/fiber/v2"
@@ -51,7 +50,7 @@ func TestAuthController(t *testing.T) {
 			})
 
 			t.Run("invalid jwt", func(t *testing.T) {
-				jwt, err := controllers.GenerateJWT(token, &database.User{
+				jwt, err := user_service.GenerateJWT(token, &database.User{
 					Name: "New User 1",
 					Email: "new_user1@email.com",
 					Active: true,
@@ -84,7 +83,7 @@ func TestAuthController(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := controllers.GenerateJWT(token, &user)
+			jwt, err := user_service.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -113,7 +112,7 @@ func TestAuthController(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				jwt, err := controllers.GenerateJWT(token, &user)
+				jwt, err := user_service.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -146,7 +145,7 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				jwt, err := controllers.GenerateJWT(token, &user)
+				jwt, err := user_service.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -177,7 +176,7 @@ func TestAuthController(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := controllers.GenerateJWT(token, &user)
+			jwt, err := user_service.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}

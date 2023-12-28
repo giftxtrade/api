@@ -9,7 +9,6 @@ import (
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
 )
 
 const AUTH_REQ string = "authorization required"
@@ -78,21 +77,6 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 		},
 	})
 	return nil
-}
-
-// Generates a JWT with claims, signed with key
-func GenerateJWT(key string, user *database.User) (string, error) {
-	jwt := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": fmt.Sprint(user.ID),
-		"name": user.Name,
-		"email": user.Email,
-		"imageUrl": user.ImageUrl,
-	})
-	token, err := jwt.SignedString([]byte(key))
-	if err != nil {
-		return "", err
-	}
-	return token, nil
 }
 
 // Given a context, find and return the auth struct using the types.AuthKey key

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/types"
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
@@ -12,6 +13,7 @@ type ServiceBase struct {
 	DB *sql.DB
 	Querier *database.Queries
 	Validator *validator.Validate
+	Tokens *types.Tokens
 }
 
 type Service struct {
@@ -27,11 +29,12 @@ type IService interface {
 	New(db *gorm.DB) Service
 }
 
-func New(db *sql.DB, querier *database.Queries, validator *validator.Validate) Service {
+func New(db *sql.DB, querier *database.Queries, validator *validator.Validate, tokens *types.Tokens) Service {
 	service_base := ServiceBase {
 		DB: db,
 		Querier: querier,
 		Validator: validator,
+		Tokens: tokens,
 	}
 	
 	service := Service{

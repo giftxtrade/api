@@ -206,14 +206,12 @@ func TestAuthController(t *testing.T) {
 				t.Fatal("response must be ok (200).", res.StatusCode)
 			}
 
-			var body struct {
-				Data types.Auth
-			}
+			var body types.Auth
 			if json.NewDecoder(res.Body).Decode(&body) != nil {
 				t.Fatal("could not parse response")
 			}
-			if body.Data.Token != mock_auth.Token || body.Data.User.ID != mock_auth.User.ID {
-				t.Fatal(body.Data, mock_auth)
+			if body.Token != mock_auth.Token || body.User.ID != mock_auth.User.ID {
+				t.Fatal(body, mock_auth)
 			}
 		})
 	})

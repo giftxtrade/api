@@ -21,8 +21,9 @@ JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
 WHERE 
     "p1"."user_id" = $1
 ORDER BY
-    "event"."draw_at" DESC,
-    "event"."close_at" DESC;
+    "event"."draw_at" ASC,
+    "event"."close_at" ASC
+    "participant"."id" ASC;
 
 -- name: FindEventById :many
 SELECT

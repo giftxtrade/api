@@ -54,8 +54,8 @@ export interface Product {
   url: string;
   categoryId?: number /* int64 */;
   category?: Category;
-  createdAt: any /* time.Time */;
-  updatedAt: any /* time.Time */;
+  createdAt: string /* RFC3339 */;
+  updatedAt: string /* RFC3339 */;
   origin: string;
 }
 export interface CreateProduct {
@@ -104,10 +104,10 @@ export interface Event {
   description?: string;
   budget: string;
   invitationMessage?: string;
-  drawAt: any /* time.Time */;
-  closeAt: any /* time.Time */;
-  createdAt: any /* time.Time */;
-  updatedAt: any /* time.Time */;
+  drawAt: string /* RFC3339 */;
+  closeAt: string /* RFC3339 */;
+  createdAt: string /* RFC3339 */;
+  updatedAt: string /* RFC3339 */;
   participants?: Participant[];
 }
 export interface CreateEvent {
@@ -115,7 +115,7 @@ export interface CreateEvent {
   description?: string;
   budget: number /* float32 */;
   inviteMessage?: string;
-  drawAt: any /* time.Time */;
-  closeAt: any /* time.Time */;
+  drawAt: string /* RFC3339 */;
+  closeAt: string /* RFC3339 */;
   participants?: CreateParticipant[];
 }

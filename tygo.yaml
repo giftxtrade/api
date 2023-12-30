@@ -5,4 +5,5 @@ packages:
       - app.go
       - keys.go
       - json.go
-  
+    type_mappings:
+      time.Time: "string /* RFC3339 */"

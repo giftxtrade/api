@@ -11,6 +11,23 @@ INSERT INTO "event" (
 )
 RETURNING *;
 
+-- name: UpdateEvent :one
+UPDATE "event"
+SET
+    "name" = COALESCE(sqlc.narg(name), "name"),
+    "description" = COALESCE(sqlc.narg(description), "description"),
+    "budget" = COALESCE(sqlc.narg(budget), "budget"),
+    "draw_at" = COALESCE(sqlc.narg(draw_at), "draw_at"),
+    "close_at" = COALESCE(sqlc.narg(close_at), "close_at"),
+    "updated_at" = now()
+WHERE "event"."id" = $1
+RETURNING *;
+
+-- name: DeleteEvent :one
+DELETE FROM "event"
+WHERE "event"."id" = $1
+RETURNING *;
+
 -- name: FindAllEventsWithUser :many
 SELECT
     sqlc.embed(event),
@@ -47,7 +64,7 @@ WHERE
 -- event verification queries
 --
 
--- name: FindEventForUser :one
+-- name: VerifyEventWithEmailOrUser :one
 SELECT "event"."id"
 FROM "event"
 JOIN "participant" ON "participant"."event_id" = "event"."id"
@@ -58,26 +75,26 @@ WHERE
         "participant"."user_id" = sqlc.narg(user_id) OR "participant"."email" = sqlc.narg(email)
     );
 
--- name: FindEventForUserAsParticipant :one
+-- name: VerifyEventForUserAsParticipant :one
 SELECT "event"."id"
 FROM "event"
 JOIN "participant" ON "participant"."event_id" = "event"."id"
 JOIN "user" ON "user"."id" = "participant"."user_id"
 WHERE
-    "event"."id" = $1
+    "event"."id" = sqlc.arg(event_id)
         AND
     "participant"."participates" = TRUE
         AND
-    "user"."id" = $2;
+    "user"."id" = sqlc.arg(user_id);
 
--- name: FindEventForUserAsOrganizer :one
+-- name: VerifyEventForUserAsOrganizer :one
 SELECT "event"."id"
 FROM "event"
 JOIN "participant" ON "participant"."event_id" = "event"."id"
 JOIN "user" ON "user"."id" = "participant"."user_id"
 WHERE
-    "event"."id" = $1
+    "event"."id" = sqlc.arg(event_id)
         AND
     "participant"."organizer" = TRUE
         AND
-    "user"."id" = $2;
+    "user"."id" = sqlc.arg(user_id);

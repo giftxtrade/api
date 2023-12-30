@@ -98,7 +98,7 @@ func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 		return utils.FailResponseNotFound(c, "event not found")
 	}
 
-	event_id, err := ctr.Querier.FindEventForUser(c.Context(), database.FindEventForUserParams{
+	event_id, err := ctr.Querier.VerifyEventWithEmailOrUser(c.Context(), database.VerifyEventWithEmailOrUserParams{
 		EventID: id,
 		UserID: sql.NullInt64{
 			Valid: true,

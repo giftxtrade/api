@@ -58,6 +58,29 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 	return i, err
 }
 
+const deleteEvent = `-- name: DeleteEvent :one
+DELETE FROM "event"
+WHERE "event"."id" = $1
+RETURNING id, name, description, budget, invitation_message, draw_at, close_at, created_at, updated_at
+`
+
+func (q *Queries) DeleteEvent(ctx context.Context, id int64) (Event, error) {
+	row := q.queryRow(ctx, q.deleteEventStmt, deleteEvent, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Budget,
+		&i.InvitationMessage,
+		&i.DrawAt,
+		&i.CloseAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findAllEventsWithUser = `-- name: FindAllEventsWithUser :many
 SELECT
     event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
@@ -186,83 +209,6 @@ func (q *Queries) FindEventById(ctx context.Context, id int64) ([]FindEventByIdR
 	return items, nil
 }
 
-const findEventForUser = `-- name: FindEventForUser :one
-
-SELECT "event"."id"
-FROM "event"
-JOIN "participant" ON "participant"."event_id" = "event"."id"
-WHERE
-    "event"."id" = $1
-        AND
-    (
-        "participant"."user_id" = $2 OR "participant"."email" = $3
-    )
-`
-
-type FindEventForUserParams struct {
-	EventID int64          `db:"event_id" json:"eventId"`
-	UserID  sql.NullInt64  `db:"user_id" json:"userId"`
-	Email   sql.NullString `db:"email" json:"email"`
-}
-
-// event verification queries
-func (q *Queries) FindEventForUser(ctx context.Context, arg FindEventForUserParams) (int64, error) {
-	row := q.queryRow(ctx, q.findEventForUserStmt, findEventForUser, arg.EventID, arg.UserID, arg.Email)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
-}
-
-const findEventForUserAsOrganizer = `-- name: FindEventForUserAsOrganizer :one
-SELECT "event"."id"
-FROM "event"
-JOIN "participant" ON "participant"."event_id" = "event"."id"
-JOIN "user" ON "user"."id" = "participant"."user_id"
-WHERE
-    "event"."id" = $1
-        AND
-    "participant"."organizer" = TRUE
-        AND
-    "user"."id" = $2
-`
-
-type FindEventForUserAsOrganizerParams struct {
-	ID   int64 `db:"id" json:"id"`
-	ID_2 int64 `db:"id_2" json:"id2"`
-}
-
-func (q *Queries) FindEventForUserAsOrganizer(ctx context.Context, arg FindEventForUserAsOrganizerParams) (int64, error) {
-	row := q.queryRow(ctx, q.findEventForUserAsOrganizerStmt, findEventForUserAsOrganizer, arg.ID, arg.ID_2)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
-}
-
-const findEventForUserAsParticipant = `-- name: FindEventForUserAsParticipant :one
-SELECT "event"."id"
-FROM "event"
-JOIN "participant" ON "participant"."event_id" = "event"."id"
-JOIN "user" ON "user"."id" = "participant"."user_id"
-WHERE
-    "event"."id" = $1
-        AND
-    "participant"."participates" = TRUE
-        AND
-    "user"."id" = $2
-`
-
-type FindEventForUserAsParticipantParams struct {
-	ID   int64 `db:"id" json:"id"`
-	ID_2 int64 `db:"id_2" json:"id2"`
-}
-
-func (q *Queries) FindEventForUserAsParticipant(ctx context.Context, arg FindEventForUserAsParticipantParams) (int64, error) {
-	row := q.queryRow(ctx, q.findEventForUserAsParticipantStmt, findEventForUserAsParticipant, arg.ID, arg.ID_2)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
-}
-
 const findEventInvites = `-- name: FindEventInvites :many
 SELECT event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at
 FROM "event"
@@ -304,4 +250,127 @@ func (q *Queries) FindEventInvites(ctx context.Context, email string) ([]Event, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateEvent = `-- name: UpdateEvent :one
+UPDATE "event"
+SET
+    "name" = COALESCE($2, "name"),
+    "description" = COALESCE($3, "description"),
+    "budget" = COALESCE($4, "budget"),
+    "draw_at" = COALESCE($5, "draw_at"),
+    "close_at" = COALESCE($6, "close_at"),
+    "updated_at" = now()
+WHERE "event"."id" = $1
+RETURNING id, name, description, budget, invitation_message, draw_at, close_at, created_at, updated_at
+`
+
+type UpdateEventParams struct {
+	ID          int64          `db:"id" json:"id"`
+	Name        sql.NullString `db:"name" json:"name"`
+	Description sql.NullString `db:"description" json:"description"`
+	Budget      sql.NullString `db:"budget" json:"budget"`
+	DrawAt      sql.NullTime   `db:"draw_at" json:"drawAt"`
+	CloseAt     sql.NullTime   `db:"close_at" json:"closeAt"`
+}
+
+func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error) {
+	row := q.queryRow(ctx, q.updateEventStmt, updateEvent,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.Budget,
+		arg.DrawAt,
+		arg.CloseAt,
+	)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Budget,
+		&i.InvitationMessage,
+		&i.DrawAt,
+		&i.CloseAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const verifyEventForUserAsOrganizer = `-- name: VerifyEventForUserAsOrganizer :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+JOIN "user" ON "user"."id" = "participant"."user_id"
+WHERE
+    "event"."id" = $1
+        AND
+    "participant"."organizer" = TRUE
+        AND
+    "user"."id" = $2
+`
+
+type VerifyEventForUserAsOrganizerParams struct {
+	EventID int64 `db:"event_id" json:"eventId"`
+	UserID  int64 `db:"user_id" json:"userId"`
+}
+
+func (q *Queries) VerifyEventForUserAsOrganizer(ctx context.Context, arg VerifyEventForUserAsOrganizerParams) (int64, error) {
+	row := q.queryRow(ctx, q.verifyEventForUserAsOrganizerStmt, verifyEventForUserAsOrganizer, arg.EventID, arg.UserID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const verifyEventForUserAsParticipant = `-- name: VerifyEventForUserAsParticipant :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+JOIN "user" ON "user"."id" = "participant"."user_id"
+WHERE
+    "event"."id" = $1
+        AND
+    "participant"."participates" = TRUE
+        AND
+    "user"."id" = $2
+`
+
+type VerifyEventForUserAsParticipantParams struct {
+	EventID int64 `db:"event_id" json:"eventId"`
+	UserID  int64 `db:"user_id" json:"userId"`
+}
+
+func (q *Queries) VerifyEventForUserAsParticipant(ctx context.Context, arg VerifyEventForUserAsParticipantParams) (int64, error) {
+	row := q.queryRow(ctx, q.verifyEventForUserAsParticipantStmt, verifyEventForUserAsParticipant, arg.EventID, arg.UserID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const verifyEventWithEmailOrUser = `-- name: VerifyEventWithEmailOrUser :one
+
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE
+    "event"."id" = $1
+        AND
+    (
+        "participant"."user_id" = $2 OR "participant"."email" = $3
+    )
+`
+
+type VerifyEventWithEmailOrUserParams struct {
+	EventID int64          `db:"event_id" json:"eventId"`
+	UserID  sql.NullInt64  `db:"user_id" json:"userId"`
+	Email   sql.NullString `db:"email" json:"email"`
+}
+
+// event verification queries
+func (q *Queries) VerifyEventWithEmailOrUser(ctx context.Context, arg VerifyEventWithEmailOrUserParams) (int64, error) {
+	row := q.queryRow(ctx, q.verifyEventWithEmailOrUserStmt, verifyEventWithEmailOrUser, arg.EventID, arg.UserID, arg.Email)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }

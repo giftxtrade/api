@@ -45,6 +45,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.declineEventInviteStmt, err = db.PrepareContext(ctx, declineEventInvite); err != nil {
 		return nil, fmt.Errorf("error preparing query DeclineEventInvite: %w", err)
 	}
+	if q.deleteEventStmt, err = db.PrepareContext(ctx, deleteEvent); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteEvent: %w", err)
+	}
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
 	}
@@ -56,15 +59,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.findEventByIdStmt, err = db.PrepareContext(ctx, findEventById); err != nil {
 		return nil, fmt.Errorf("error preparing query FindEventById: %w", err)
-	}
-	if q.findEventForUserStmt, err = db.PrepareContext(ctx, findEventForUser); err != nil {
-		return nil, fmt.Errorf("error preparing query FindEventForUser: %w", err)
-	}
-	if q.findEventForUserAsOrganizerStmt, err = db.PrepareContext(ctx, findEventForUserAsOrganizer); err != nil {
-		return nil, fmt.Errorf("error preparing query FindEventForUserAsOrganizer: %w", err)
-	}
-	if q.findEventForUserAsParticipantStmt, err = db.PrepareContext(ctx, findEventForUserAsParticipant); err != nil {
-		return nil, fmt.Errorf("error preparing query FindEventForUserAsParticipant: %w", err)
 	}
 	if q.findEventInvitesStmt, err = db.PrepareContext(ctx, findEventInvites); err != nil {
 		return nil, fmt.Errorf("error preparing query FindEventInvites: %w", err)
@@ -90,8 +84,20 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.setUserAsAdminStmt, err = db.PrepareContext(ctx, setUserAsAdmin); err != nil {
 		return nil, fmt.Errorf("error preparing query SetUserAsAdmin: %w", err)
 	}
+	if q.updateEventStmt, err = db.PrepareContext(ctx, updateEvent); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateEvent: %w", err)
+	}
 	if q.updateProductStmt, err = db.PrepareContext(ctx, updateProduct); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateProduct: %w", err)
+	}
+	if q.verifyEventForUserAsOrganizerStmt, err = db.PrepareContext(ctx, verifyEventForUserAsOrganizer); err != nil {
+		return nil, fmt.Errorf("error preparing query VerifyEventForUserAsOrganizer: %w", err)
+	}
+	if q.verifyEventForUserAsParticipantStmt, err = db.PrepareContext(ctx, verifyEventForUserAsParticipant); err != nil {
+		return nil, fmt.Errorf("error preparing query VerifyEventForUserAsParticipant: %w", err)
+	}
+	if q.verifyEventWithEmailOrUserStmt, err = db.PrepareContext(ctx, verifyEventWithEmailOrUser); err != nil {
+		return nil, fmt.Errorf("error preparing query VerifyEventWithEmailOrUser: %w", err)
 	}
 	return &q, nil
 }
@@ -133,6 +139,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing declineEventInviteStmt: %w", cerr)
 		}
 	}
+	if q.deleteEventStmt != nil {
+		if cerr := q.deleteEventStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteEventStmt: %w", cerr)
+		}
+	}
 	if q.filterProductsStmt != nil {
 		if cerr := q.filterProductsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing filterProductsStmt: %w", cerr)
@@ -151,21 +162,6 @@ func (q *Queries) Close() error {
 	if q.findEventByIdStmt != nil {
 		if cerr := q.findEventByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findEventByIdStmt: %w", cerr)
-		}
-	}
-	if q.findEventForUserStmt != nil {
-		if cerr := q.findEventForUserStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing findEventForUserStmt: %w", cerr)
-		}
-	}
-	if q.findEventForUserAsOrganizerStmt != nil {
-		if cerr := q.findEventForUserAsOrganizerStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing findEventForUserAsOrganizerStmt: %w", cerr)
-		}
-	}
-	if q.findEventForUserAsParticipantStmt != nil {
-		if cerr := q.findEventForUserAsParticipantStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing findEventForUserAsParticipantStmt: %w", cerr)
 		}
 	}
 	if q.findEventInvitesStmt != nil {
@@ -208,9 +204,29 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing setUserAsAdminStmt: %w", cerr)
 		}
 	}
+	if q.updateEventStmt != nil {
+		if cerr := q.updateEventStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateEventStmt: %w", cerr)
+		}
+	}
 	if q.updateProductStmt != nil {
 		if cerr := q.updateProductStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateProductStmt: %w", cerr)
+		}
+	}
+	if q.verifyEventForUserAsOrganizerStmt != nil {
+		if cerr := q.verifyEventForUserAsOrganizerStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing verifyEventForUserAsOrganizerStmt: %w", cerr)
+		}
+	}
+	if q.verifyEventForUserAsParticipantStmt != nil {
+		if cerr := q.verifyEventForUserAsParticipantStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing verifyEventForUserAsParticipantStmt: %w", cerr)
+		}
+	}
+	if q.verifyEventWithEmailOrUserStmt != nil {
+		if cerr := q.verifyEventWithEmailOrUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing verifyEventWithEmailOrUserStmt: %w", cerr)
 		}
 	}
 	return err
@@ -250,59 +266,63 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                                DBTX
-	tx                                *sql.Tx
-	acceptEventInviteStmt             *sql.Stmt
-	createCategoryStmt                *sql.Stmt
-	createEventStmt                   *sql.Stmt
-	createParticipantStmt             *sql.Stmt
-	createProductStmt                 *sql.Stmt
-	createUserStmt                    *sql.Stmt
-	declineEventInviteStmt            *sql.Stmt
-	filterProductsStmt                *sql.Stmt
-	findAllEventsWithUserStmt         *sql.Stmt
-	findCategoryByNameStmt            *sql.Stmt
-	findEventByIdStmt                 *sql.Stmt
-	findEventForUserStmt              *sql.Stmt
-	findEventForUserAsOrganizerStmt   *sql.Stmt
-	findEventForUserAsParticipantStmt *sql.Stmt
-	findEventInvitesStmt              *sql.Stmt
-	findProductByIdStmt               *sql.Stmt
-	findProductByProductKeyStmt       *sql.Stmt
-	findUserByEmailStmt               *sql.Stmt
-	findUserByIdStmt                  *sql.Stmt
-	findUserByIdAndEmailStmt          *sql.Stmt
-	findUserByIdOrEmailStmt           *sql.Stmt
-	setUserAsAdminStmt                *sql.Stmt
-	updateProductStmt                 *sql.Stmt
+	db                                  DBTX
+	tx                                  *sql.Tx
+	acceptEventInviteStmt               *sql.Stmt
+	createCategoryStmt                  *sql.Stmt
+	createEventStmt                     *sql.Stmt
+	createParticipantStmt               *sql.Stmt
+	createProductStmt                   *sql.Stmt
+	createUserStmt                      *sql.Stmt
+	declineEventInviteStmt              *sql.Stmt
+	deleteEventStmt                     *sql.Stmt
+	filterProductsStmt                  *sql.Stmt
+	findAllEventsWithUserStmt           *sql.Stmt
+	findCategoryByNameStmt              *sql.Stmt
+	findEventByIdStmt                   *sql.Stmt
+	findEventInvitesStmt                *sql.Stmt
+	findProductByIdStmt                 *sql.Stmt
+	findProductByProductKeyStmt         *sql.Stmt
+	findUserByEmailStmt                 *sql.Stmt
+	findUserByIdStmt                    *sql.Stmt
+	findUserByIdAndEmailStmt            *sql.Stmt
+	findUserByIdOrEmailStmt             *sql.Stmt
+	setUserAsAdminStmt                  *sql.Stmt
+	updateEventStmt                     *sql.Stmt
+	updateProductStmt                   *sql.Stmt
+	verifyEventForUserAsOrganizerStmt   *sql.Stmt
+	verifyEventForUserAsParticipantStmt *sql.Stmt
+	verifyEventWithEmailOrUserStmt      *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                                tx,
-		tx:                                tx,
-		acceptEventInviteStmt:             q.acceptEventInviteStmt,
-		createCategoryStmt:                q.createCategoryStmt,
-		createEventStmt:                   q.createEventStmt,
-		createParticipantStmt:             q.createParticipantStmt,
-		createProductStmt:                 q.createProductStmt,
-		createUserStmt:                    q.createUserStmt,
-		declineEventInviteStmt:            q.declineEventInviteStmt,
-		filterProductsStmt:                q.filterProductsStmt,
-		findAllEventsWithUserStmt:         q.findAllEventsWithUserStmt,
-		findCategoryByNameStmt:            q.findCategoryByNameStmt,
-		findEventByIdStmt:                 q.findEventByIdStmt,
-		findEventForUserStmt:              q.findEventForUserStmt,
-		findEventForUserAsOrganizerStmt:   q.findEventForUserAsOrganizerStmt,
-		findEventForUserAsParticipantStmt: q.findEventForUserAsParticipantStmt,
-		findEventInvitesStmt:              q.findEventInvitesStmt,
-		findProductByIdStmt:               q.findProductByIdStmt,
-		findProductByProductKeyStmt:       q.findProductByProductKeyStmt,
-		findUserByEmailStmt:               q.findUserByEmailStmt,
-		findUserByIdStmt:                  q.findUserByIdStmt,
-		findUserByIdAndEmailStmt:          q.findUserByIdAndEmailStmt,
-		findUserByIdOrEmailStmt:           q.findUserByIdOrEmailStmt,
-		setUserAsAdminStmt:                q.setUserAsAdminStmt,
-		updateProductStmt:                 q.updateProductStmt,
+		db:                                  tx,
+		tx:                                  tx,
+		acceptEventInviteStmt:               q.acceptEventInviteStmt,
+		createCategoryStmt:                  q.createCategoryStmt,
+		createEventStmt:                     q.createEventStmt,
+		createParticipantStmt:               q.createParticipantStmt,
+		createProductStmt:                   q.createProductStmt,
+		createUserStmt:                      q.createUserStmt,
+		declineEventInviteStmt:              q.declineEventInviteStmt,
+		deleteEventStmt:                     q.deleteEventStmt,
+		filterProductsStmt:                  q.filterProductsStmt,
+		findAllEventsWithUserStmt:           q.findAllEventsWithUserStmt,
+		findCategoryByNameStmt:              q.findCategoryByNameStmt,
+		findEventByIdStmt:                   q.findEventByIdStmt,
+		findEventInvitesStmt:                q.findEventInvitesStmt,
+		findProductByIdStmt:                 q.findProductByIdStmt,
+		findProductByProductKeyStmt:         q.findProductByProductKeyStmt,
+		findUserByEmailStmt:                 q.findUserByEmailStmt,
+		findUserByIdStmt:                    q.findUserByIdStmt,
+		findUserByIdAndEmailStmt:            q.findUserByIdAndEmailStmt,
+		findUserByIdOrEmailStmt:             q.findUserByIdOrEmailStmt,
+		setUserAsAdminStmt:                  q.setUserAsAdminStmt,
+		updateEventStmt:                     q.updateEventStmt,
+		updateProductStmt:                   q.updateProductStmt,
+		verifyEventForUserAsOrganizerStmt:   q.verifyEventForUserAsOrganizerStmt,
+		verifyEventForUserAsParticipantStmt: q.verifyEventForUserAsParticipantStmt,
+		verifyEventWithEmailOrUserStmt:      q.verifyEventWithEmailOrUserStmt,
 	}
 }

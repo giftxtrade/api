@@ -10,6 +10,44 @@ import (
 	"database/sql"
 )
 
+const acceptEventInvite = `-- name: AcceptEventInvite :one
+UPDATE "participant"
+SET
+    "accepted" = TRUE,
+    "user_id" = $1,
+    "updated_at" = now()
+WHERE 
+    "email" = $2
+        AND
+    "event_id" = $3
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type AcceptEventInviteParams struct {
+	UserID  sql.NullInt64 `db:"user_id" json:"userId"`
+	Email   string        `db:"email" json:"email"`
+	EventID int64         `db:"event_id" json:"eventId"`
+}
+
+func (q *Queries) AcceptEventInvite(ctx context.Context, arg AcceptEventInviteParams) (Participant, error) {
+	row := q.queryRow(ctx, q.acceptEventInviteStmt, acceptEventInvite, arg.UserID, arg.Email, arg.EventID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createParticipant = `-- name: CreateParticipant :one
 INSERT INTO "participant" (
     "name",
@@ -48,6 +86,36 @@ func (q *Queries) CreateParticipant(ctx context.Context, arg CreateParticipantPa
 		arg.Address,
 		arg.UserID,
 	)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const declineEventInvite = `-- name: DeclineEventInvite :one
+DELETE FROM "participant"
+WHERE "user_id" = $1 AND "event_id" = $2
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type DeclineEventInviteParams struct {
+	UserID  sql.NullInt64 `db:"user_id" json:"userId"`
+	EventID int64         `db:"event_id" json:"eventId"`
+}
+
+func (q *Queries) DeclineEventInvite(ctx context.Context, arg DeclineEventInviteParams) (Participant, error) {
+	row := q.queryRow(ctx, q.declineEventInviteStmt, declineEventInvite, arg.UserID, arg.EventID)
 	var i Participant
 	err := row.Scan(
 		&i.ID,

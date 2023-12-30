@@ -50,11 +50,12 @@ WHERE
 SELECT "event"."id"
 FROM "event"
 JOIN "participant" ON "participant"."event_id" = "event"."id"
-JOIN "user" ON "user"."id" = "participant"."user_id"
 WHERE
     "event"."id" = sqlc.arg(event_id)
         AND
-    "user"."id" = sqlc.arg(user_id);
+    (
+        "participant"."user_id" = sqlc.narg(user_id) OR "participant"."email" = sqlc.narg(email)
+    );
 
 -- name: FindEventForUserAsParticipant :one
 SELECT "event"."id"

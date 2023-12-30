@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.acceptEventInviteStmt, err = db.PrepareContext(ctx, acceptEventInvite); err != nil {
+		return nil, fmt.Errorf("error preparing query AcceptEventInvite: %w", err)
+	}
 	if q.createCategoryStmt, err = db.PrepareContext(ctx, createCategory); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateCategory: %w", err)
 	}
@@ -38,6 +41,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
+	}
+	if q.declineEventInviteStmt, err = db.PrepareContext(ctx, declineEventInvite); err != nil {
+		return nil, fmt.Errorf("error preparing query DeclineEventInvite: %w", err)
 	}
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
@@ -92,6 +98,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.acceptEventInviteStmt != nil {
+		if cerr := q.acceptEventInviteStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing acceptEventInviteStmt: %w", cerr)
+		}
+	}
 	if q.createCategoryStmt != nil {
 		if cerr := q.createCategoryStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createCategoryStmt: %w", cerr)
@@ -115,6 +126,11 @@ func (q *Queries) Close() error {
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.declineEventInviteStmt != nil {
+		if cerr := q.declineEventInviteStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing declineEventInviteStmt: %w", cerr)
 		}
 	}
 	if q.filterProductsStmt != nil {
@@ -236,11 +252,13 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                                DBTX
 	tx                                *sql.Tx
+	acceptEventInviteStmt             *sql.Stmt
 	createCategoryStmt                *sql.Stmt
 	createEventStmt                   *sql.Stmt
 	createParticipantStmt             *sql.Stmt
 	createProductStmt                 *sql.Stmt
 	createUserStmt                    *sql.Stmt
+	declineEventInviteStmt            *sql.Stmt
 	filterProductsStmt                *sql.Stmt
 	findAllEventsWithUserStmt         *sql.Stmt
 	findCategoryByNameStmt            *sql.Stmt
@@ -263,11 +281,13 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                                tx,
 		tx:                                tx,
+		acceptEventInviteStmt:             q.acceptEventInviteStmt,
 		createCategoryStmt:                q.createCategoryStmt,
 		createEventStmt:                   q.createEventStmt,
 		createParticipantStmt:             q.createParticipantStmt,
 		createProductStmt:                 q.createProductStmt,
 		createUserStmt:                    q.createUserStmt,
+		declineEventInviteStmt:            q.declineEventInviteStmt,
 		filterProductsStmt:                q.filterProductsStmt,
 		findAllEventsWithUserStmt:         q.findAllEventsWithUserStmt,
 		findCategoryByNameStmt:            q.findCategoryByNameStmt,

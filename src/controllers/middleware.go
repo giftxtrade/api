@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -16,7 +17,7 @@ const AUTH_KEY types.AuthKeyType = "auth"
 const AUTH_HEADER string = "Authorization"
 const EVENT_ID_PARAM_KEY types.EventIdParamKeyType = "EVENT_ID_PARAM"
 
-// Authentication middleware. Saves user data in request context within types.AuthKey key
+// Authentication middleware. Saves user data in request user context with the `AUTH_KEY` key
 func (ctx *Controller) UseJwtAuth(c *fiber.Ctx) error {
 	if err := ctx.authenticate_user(c); err != nil {
 		return utils.FailResponseUnauthorized(c, AUTH_REQ)
@@ -85,6 +86,10 @@ func ParseAuthContext(context context.Context) types.Auth {
 	return auth
 }
 
+// Verifies if auth user is a valid participant of an event
+// based on the URL param `:event_id`.
+// 
+// Saves the event_id (int64) in the request user context with the `EVENT_ID_PARAM_KEY` key
 func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 	auth_user := ParseAuthContext(c.UserContext())
 	id_raw := c.Params("event_id")
@@ -95,7 +100,14 @@ func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 
 	event_id, err := ctr.Querier.FindEventForUser(c.Context(), database.FindEventForUserParams{
 		EventID: id,
-		UserID: auth_user.User.ID,
+		UserID: sql.NullInt64{
+			Valid: true,
+			Int64: auth_user.User.ID,
+		},
+		Email: sql.NullString{
+			Valid: true,
+			String: auth_user.User.Email,
+		},
 	})
 	if err != nil || event_id != id {
 		return utils.FailResponseNotFound(c, "event not found")

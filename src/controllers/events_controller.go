@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 
+	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -58,4 +59,60 @@ func (ctr *Controller) GetInvites(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not fetch invites")
 	}
 	return utils.DataResponse(c, mappers.DbEventsToEventsSimple(rows))
+}
+
+func (ctr *Controller) AcceptEventInvite(c *fiber.Ctx) error {
+	auth := ParseAuthContext(c.UserContext())
+	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+
+	tx, err := ctr.DB.BeginTx(c.Context(), nil)
+	if err != nil {
+		tx.Rollback()
+		return utils.FailResponse(c, "transaction error. please try again")
+	}
+	q := ctr.Querier.WithTx(tx)
+	defer q.Close()
+
+	participant, err := q.AcceptEventInvite(c.Context(), database.AcceptEventInviteParams{
+		EventID: event_id,
+		UserID: sql.NullInt64{
+			Valid: true,
+			Int64: auth.User.ID,
+		},
+		Email: auth.User.Email,
+	})
+	if err != nil {
+		tx.Rollback()
+		return utils.FailResponse(c, "could not accept invite for event")
+	}
+
+	event_rows, err := q.FindEventById(c.Context(), participant.EventID)
+	if err != nil {
+		tx.Rollback()
+		return utils.FailResponse(c, "could not fetch event")
+	}
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return utils.FailResponse(c, "could not save changes")
+	}
+	event := mappers.DbFindEventByIdToEvent(event_rows)
+	return utils.DataResponse(c, event)
+}
+
+func (ctr *Controller) DeclineEventInvite(c *fiber.Ctx) error {
+	auth := ParseAuthContext(c.UserContext())
+	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	_, err := ctr.Querier.DeclineEventInvite(c.Context(), database.DeclineEventInviteParams{
+		EventID: event_id,
+		UserID: sql.NullInt64{
+			Valid: true,
+			Int64: auth.User.ID,
+		},
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not decline event invitation. please try again.")
+	}
+	return utils.DataResponse(c, struct{Success bool}{
+		Success: true,
+	})
 }

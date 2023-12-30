@@ -190,21 +190,23 @@ const findEventForUser = `-- name: FindEventForUser :one
 SELECT "event"."id"
 FROM "event"
 JOIN "participant" ON "participant"."event_id" = "event"."id"
-JOIN "user" ON "user"."id" = "participant"."user_id"
 WHERE
     "event"."id" = $1
         AND
-    "user"."id" = $2
+    (
+        "participant"."user_id" = $2 OR "participant"."email" = $3
+    )
 `
 
 type FindEventForUserParams struct {
-	EventID int64 `db:"event_id" json:"eventId"`
-	UserID  int64 `db:"user_id" json:"userId"`
+	EventID int64          `db:"event_id" json:"eventId"`
+	UserID  sql.NullInt64  `db:"user_id" json:"userId"`
+	Email   sql.NullString `db:"email" json:"email"`
 }
 
 // event verification queries
 func (q *Queries) FindEventForUser(ctx context.Context, arg FindEventForUserParams) (int64, error) {
-	row := q.queryRow(ctx, q.findEventForUserStmt, findEventForUser, arg.EventID, arg.UserID)
+	row := q.queryRow(ctx, q.findEventForUserStmt, findEventForUser, arg.EventID, arg.UserID, arg.Email)
 	var id int64
 	err := row.Scan(&id)
 	return id, err

@@ -16,6 +16,10 @@ type Errors struct {
 	Errors []string `json:"errors"`
 }
 
+type DeleteStatus struct {
+	Deleted bool `json:"deleted"`
+}
+
 type User struct {
 	ID int64 `json:"id"`
 	Name string `json:"name"`
@@ -133,5 +137,13 @@ type CreateEvent struct {
 	DrawAt time.Time `json:"drawAt" validate:"required"`
 	CloseAt time.Time `json:"closeAt" validate:"required"`
 	Participants []CreateParticipant `json:"participants,omitempty" validate:"omitempty"`
+}
+
+type UpdateEvent struct {
+	Name string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Budget float32 `json:"budget,omitempty" validate:"gte=1"`
+	DrawAt time.Time `json:"drawAt,omitempty"`
+	CloseAt time.Time `json:"closeAt,omitempty"`
 }
 

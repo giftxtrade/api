@@ -21,3 +21,6 @@ test:
 
 ts:
 	go run github.com/gzuidhof/tygo generate
+
+ts_publish:
+	npm publish --access public

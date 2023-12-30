@@ -12,6 +12,9 @@ export interface Result {
 export interface Errors {
   errors: string[];
 }
+export interface DeleteStatus {
+  deleted: boolean;
+}
 export interface User {
   id: number /* int64 */;
   name: string;
@@ -118,4 +121,11 @@ export interface CreateEvent {
   drawAt: string /* RFC3339 */;
   closeAt: string /* RFC3339 */;
   participants?: CreateParticipant[];
+}
+export interface UpdateEvent {
+  name?: string;
+  description?: string;
+  budget?: number /* float32 */;
+  drawAt?: string /* RFC3339 */;
+  closeAt?: string /* RFC3339 */;
 }

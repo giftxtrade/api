@@ -115,3 +115,22 @@ func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 	utils.SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
 	return c.Next()
 }
+
+func (ctr *Controller) UseEventOrganizerAuthWithParam(c *fiber.Ctx) error {
+	auth_user := ParseAuthContext(c.UserContext())
+	id_raw := c.Params("event_id")
+	id, err := strconv.ParseInt(id_raw, 10, 64)
+	if err != nil {
+		return utils.FailResponseNotFound(c, "event not found")
+	}
+
+	event_id, err := ctr.Querier.VerifyEventForUserAsOrganizer(c.Context(), database.VerifyEventForUserAsOrganizerParams{
+		EventID: id,
+		UserID: auth_user.User.ID,
+	})
+	if err != nil || event_id != id {
+		return utils.FailResponseNotFound(c, "event not found")
+	}
+	utils.SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
+	return c.Next()
+}

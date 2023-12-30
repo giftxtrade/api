@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/mappers"
@@ -109,7 +110,65 @@ func (ctr *Controller) DeclineEventInvite(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.FailResponse(c, "could not decline event invitation. please try again.")
 	}
-	return utils.DataResponse(c, struct{Success bool}{
-		Success: true,
+	return utils.DataResponse(c, types.DeleteStatus{
+		Deleted: true,
+	})
+}
+
+// [PATCH] events/:event_id - Organizer Auth
+func (ctr *Controller) UpdateProduct(c *fiber.Ctx) error {
+	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	var input types.UpdateEvent
+	if c.BodyParser(&input) != nil {
+		return utils.FailResponse(c, "could not parse body data")
+	}
+	if err := ctr.Validator.Struct(input); err != nil {
+		return utils.FailResponse(c, "validation errors with input", err.Error())
+	}
+
+	_, err := ctr.Querier.UpdateEvent(c.Context(), database.UpdateEventParams{
+		ID: event_id,
+		Name: sql.NullString{
+			Valid: input.Name != "",
+			String: input.Name,
+		},
+		Description: sql.NullString{
+			Valid: input.Description != "",
+			String: input.Description,
+		},
+		Budget: sql.NullString{
+			Valid: input.Budget != 0,
+			String: fmt.Sprintf("%f", input.Budget),
+		},
+		DrawAt: sql.NullTime{
+			Valid: !input.DrawAt.IsZero(),
+			Time: input.DrawAt,
+		},
+		CloseAt: sql.NullTime{
+			Valid: !input.CloseAt.IsZero(),
+			Time: input.CloseAt,
+		},
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not update event")
+	}
+
+	event_row, err := ctr.Querier.FindEventById(c.Context(), event_id)
+	if err != nil {
+		return utils.FailResponse(c, "could not return event")
+	}
+	event := mappers.DbFindEventByIdToEvent(event_row)
+	return utils.DataResponse(c, event)
+}
+
+// [DELETE] /events/:event_id - Uses organizer auth
+func (ctr *Controller) DeleteEvent(c *fiber.Ctx) error {
+	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	_, err := ctr.Querier.DeleteEvent(c.Context(), event_id)
+	if err != nil {
+		return utils.FailResponse(c, "event could not be deleted. please try again.")
+	}
+	return utils.DataResponse(c, types.DeleteStatus{
+		Deleted: true,
 	})
 }

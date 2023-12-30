@@ -104,10 +104,7 @@ func (ctr *Controller) DeclineEventInvite(c *fiber.Ctx) error {
 	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
 	_, err := ctr.Querier.DeclineEventInvite(c.Context(), database.DeclineEventInviteParams{
 		EventID: event_id,
-		UserID: sql.NullInt64{
-			Valid: true,
-			Int64: auth.User.ID,
-		},
+		Email: auth.User.Email,
 	})
 	if err != nil {
 		return utils.FailResponse(c, "could not decline event invitation. please try again.")

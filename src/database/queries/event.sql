@@ -22,8 +22,8 @@ WHERE
     "p1"."user_id" = $1
 ORDER BY
     "event"."draw_at" ASC,
-    "event"."close_at" ASC
-    "participant"."id" ASC;
+    "event"."close_at" ASC,
+    "p"."id" ASC;
 
 -- name: FindEventById :many
 SELECT

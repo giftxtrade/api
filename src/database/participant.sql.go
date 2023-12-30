@@ -105,17 +105,17 @@ func (q *Queries) CreateParticipant(ctx context.Context, arg CreateParticipantPa
 
 const declineEventInvite = `-- name: DeclineEventInvite :one
 DELETE FROM "participant"
-WHERE "user_id" = $1 AND "event_id" = $2
+WHERE "email" = $1 AND "event_id" = $2
 RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
 `
 
 type DeclineEventInviteParams struct {
-	UserID  sql.NullInt64 `db:"user_id" json:"userId"`
-	EventID int64         `db:"event_id" json:"eventId"`
+	Email   string `db:"email" json:"email"`
+	EventID int64  `db:"event_id" json:"eventId"`
 }
 
 func (q *Queries) DeclineEventInvite(ctx context.Context, arg DeclineEventInviteParams) (Participant, error) {
-	row := q.queryRow(ctx, q.declineEventInviteStmt, declineEventInvite, arg.UserID, arg.EventID)
+	row := q.queryRow(ctx, q.declineEventInviteStmt, declineEventInvite, arg.Email, arg.EventID)
 	var i Participant
 	err := row.Scan(
 		&i.ID,

@@ -69,7 +69,8 @@ WHERE
     "p1"."user_id" = $1
 ORDER BY
     "event"."draw_at" ASC,
-    "event"."close_at" ASC
+    "event"."close_at" ASC,
+    "p"."id" ASC
 `
 
 type FindAllEventsWithUserRow struct {

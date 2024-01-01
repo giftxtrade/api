@@ -21,6 +21,7 @@ func (s *ParticipantService) BulkCreateParticipant(
 	input []types.CreateParticipant,
 ) ([]types.Participant, error) {
 	q := s.Querier.WithTx(tx)
+	defer q.Close()
 
 	found_creator_participant := false
 	participants := make([]types.Participant, len(input))

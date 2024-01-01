@@ -135,6 +135,13 @@ func TestEventService(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		participant := user2_event.Participants[1]
+		user_3, _, _ := user_service.FindOrCreate(context.Background(), types.CreateUser{
+			Name: participant.Name,
+			Email: participant.Email,
+		})
+		user_3_jwt, _ := user_service.GenerateJWT(token, &user_3)
+
 		t.Run("UseEventAuthWithParam", func(t *testing.T) {
 			t.Run("non numeric event_id", func(t *testing.T) {
 				req := httptest.NewRequest("GET", "/event/abc123", nil)
@@ -173,7 +180,7 @@ func TestEventService(t *testing.T) {
 				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user_1_jwt))
 				server.Get("/event/:event_id", controller.UseJwtAuth, controller.UseEventAuthWithParam, func(c *fiber.Ctx) error {
 					return nil
-				})				
+				})
 				res, err_res := server.Test(req)
 				if err_res != nil {
 					t.Fatal(err_res)
@@ -194,7 +201,7 @@ func TestEventService(t *testing.T) {
 					t.Fatal(err_res)
 				}
 				if res.StatusCode != 200 {
-					t.Fatal("status code must be a 400", res.StatusCode)
+					t.Fatal("status code must be a 200", res.StatusCode)
 				}
 				var body map[string]int64
 				if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
@@ -205,19 +212,13 @@ func TestEventService(t *testing.T) {
 				}
 
 				// test with unaccepted invite participant user
-				participant := user2_event.Participants[1]
-				user_3, _, _ := user_service.FindOrCreate(context.Background(), types.CreateUser{
-					Name: participant.Name,
-					Email: participant.Email,
-				})
-				user_3_jwt, _ := user_service.GenerateJWT(token, &user_3)
 				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user_3_jwt))
 				res, err_res = server.Test(req)
 				if err_res != nil {
 					t.Fatal(err_res)
 				}
 				if res.StatusCode != 200 {
-					t.Fatal("status code must be a 400", res.StatusCode)
+					t.Fatal("status code must be a 200", res.StatusCode)
 				}
 				if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
 					t.Fatal("could not parse body", err.Error())
@@ -226,6 +227,41 @@ func TestEventService(t *testing.T) {
 					t.Fatal("event id is incorrect", body["event_id"], user2_event.ID)
 				}
 			})
+		})
+	
+		t.Run("UseEventOrganizerAuthWithParam", func(t *testing.T) {
+			// test with user_3's auth with no organizer permissions
+			req := httptest.NewRequest("GET", "/event/" + fmt.Sprint(user2_event.ID) + "/another-route", nil)
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user_3_jwt))
+			server.Get("/event/:event_id/another-route", controller.UseJwtAuth, controller.UseEventOrganizerAuthWithParam, func(c *fiber.Ctx) error {
+				event_id := c.UserContext().Value(controllers.EVENT_ID_PARAM_KEY).(int64)
+				return utils.DataResponse(c, map[string]int64{"event_id": event_id})
+			})
+			res, err_res := server.Test(req)
+			if err_res != nil {
+				t.Fatal(err_res)
+			}
+			if res.StatusCode != 404 {
+				t.Fatal("status code must be a 404", res.StatusCode)
+			}
+
+			// test with user_2's auth with organizer permissions
+			req = httptest.NewRequest("GET", "/event/" + fmt.Sprint(user2_event.ID) + "/another-route", nil)
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user_2_jwt))
+			res, err_res = server.Test(req)
+			if err_res != nil {
+				t.Fatal(err_res)
+			}
+			if res.StatusCode != 200 {
+				t.Fatal("status code must be a 200", res.StatusCode)
+			}
+			var body map[string]int64
+			if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
+				t.Fatal("could not parse body", err.Error())
+			}
+			if body["event_id"] != user2_event.ID {
+				t.Fatal("event id is incorrect", body["event_id"], user2_event.ID)
+			}
 		})
 	})
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/gorm"
 )
 
@@ -48,7 +49,7 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	})
 	m.RunMigration()
 
-	app.Service = services.New(app.DB, app.Querier, app.Validator) // create services
+	app.Service = services.New(app.DB, app.Querier, app.Validator, app.Tokens) // create services
 	controllers.SetupOauthProviders(*app.Tokens) // oauth providers
 	controllers.New(app.AppContext, app.Querier, app.Service)
 	return app
@@ -58,6 +59,13 @@ func New(conn *sql.DB, server *fiber.App) *AppBase {
 	app := AppBase{}
 	app.DB = conn
 	app.Server = server
+	server.Use(cors.New(cors.Config{
+		AllowOrigins: strings.Join([]string{
+			"https://giftxtrade.com",
+			"http://localhost:3000", // TODO: allow only in development
+		}, ","),
+	}))
+
 	app.Querier = database.New(conn)
 	// initialize tokens
 	tokens, tokens_err := utils.ParseTokens()

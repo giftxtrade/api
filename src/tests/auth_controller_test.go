@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/gofiber/fiber/v2"
@@ -51,7 +50,7 @@ func TestAuthController(t *testing.T) {
 			})
 
 			t.Run("invalid jwt", func(t *testing.T) {
-				jwt, err := controllers.GenerateJWT(token, &database.User{
+				jwt, err := user_service.GenerateJWT(token, &database.User{
 					Name: "New User 1",
 					Email: "new_user1@email.com",
 					Active: true,
@@ -84,7 +83,7 @@ func TestAuthController(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := controllers.GenerateJWT(token, &user)
+			jwt, err := user_service.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -113,7 +112,7 @@ func TestAuthController(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				jwt, err := controllers.GenerateJWT(token, &user)
+				jwt, err := user_service.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -146,7 +145,7 @@ func TestAuthController(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				jwt, err := controllers.GenerateJWT(token, &user)
+				jwt, err := user_service.GenerateJWT(token, &user)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -177,14 +176,22 @@ func TestAuthController(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			jwt, err := controllers.GenerateJWT(token, &user)
+			jwt, err := user_service.GenerateJWT(token, &user)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			mock_auth := controllers.Auth{
+			mock_auth := types.Auth{
 				Token: jwt,
-				User: user,
+				User: types.User{
+					ID: user.ID,
+					Name: user.Name,
+					Email: user.Email,
+					ImageUrl: user.ImageUrl,
+					Active: user.Active,
+					Phone: user.Phone.String,
+					Admin: user.Admin,
+				},
 			}
 
 			req := httptest.NewRequest("GET", "/auth/profile", nil)
@@ -199,14 +206,12 @@ func TestAuthController(t *testing.T) {
 				t.Fatal("response must be ok (200).", res.StatusCode)
 			}
 
-			var body struct {
-				Data controllers.Auth
-			}
+			var body types.Auth
 			if json.NewDecoder(res.Body).Decode(&body) != nil {
 				t.Fatal("could not parse response")
 			}
-			if body.Data.Token != mock_auth.Token || body.Data.User.ID != mock_auth.User.ID {
-				t.Fatal(body.Data, mock_auth)
+			if body.Token != mock_auth.Token || body.User.ID != mock_auth.User.ID {
+				t.Fatal(body, mock_auth)
 			}
 		})
 	})

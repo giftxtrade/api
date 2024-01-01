@@ -19,7 +19,7 @@ type IController interface {
 }
 
 func New(app_ctx types.AppContext, querier *database.Queries, service services.Service) Controller {
-	controller := Controller{
+	c := Controller{
 		AppContext: app_ctx,
 		Service: service,
 		Querier: querier,
@@ -33,21 +33,33 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		})
 	})
 	auth := server.Group("/auth")
-	{ // auth
-		auth.Get("/profile", controller.UseJwtAuth, controller.GetProfile)
-		auth.Get("/:provider", controller.SignIn)
-		auth.Get("/:provider/callback", controller.Callback)
+	{
+		auth.Get("/profile", c.UseJwtAuth, c.GetProfile)
+		auth.Get("/google/verify", c.GoogleVerify)
+		auth.Get("/:provider", c.SignIn)
+		auth.Get("/:provider/callback", c.Callback)
 	}
 	products := server.Group("/products")
 	{
-		products.Post("", controller.UseAdminOnly, controller.CreateProduct)
-		products.Get("", controller.UseJwtAuth, controller.FindAllProducts)
-		products.Get("/:id", controller.UseJwtAuth, controller.FindProduct)
+		products.Post("", c.UseAdminOnly, c.CreateProduct)
+		products.Get("", c.UseJwtAuth, c.FindAllProducts)
+		products.Get("/:id", c.UseJwtAuth, c.FindProduct)
+	}
+	events := server.Group("/events")
+	{
+		events.Post("", c.UseJwtAuth, c.CreateEvent)
+		events.Get("", c.UseJwtAuth, c.GetEvents)
+		events.Get("/invites", c.UseJwtAuth, c.GetInvites)
+		events.Get("/invites/accept/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.AcceptEventInvite)
+		events.Get("/invites/decline/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.DeclineEventInvite)
+		events.Get("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.GetEventById)
+		events.Patch("/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UpdateProduct)
+		events.Delete("/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.DeleteEvent)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{
 			Errors: []string{"resource not found"},
 		})
 	})
-	return controller
+	return c
 }

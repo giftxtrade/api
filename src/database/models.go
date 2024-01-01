@@ -109,17 +109,34 @@ type Link struct {
 }
 
 type Participant struct {
-	ID           int64         `db:"id" json:"id"`
-	Name         string        `db:"name" json:"name"`
-	Email        string        `db:"email" json:"email"`
-	Address      string        `db:"address" json:"address"`
-	Organizer    bool          `db:"organizer" json:"organizer"`
-	Participates bool          `db:"participates" json:"participates"`
-	Accepted     bool          `db:"accepted" json:"accepted"`
-	EventID      int64         `db:"event_id" json:"eventId"`
-	UserID       sql.NullInt64 `db:"user_id" json:"userId"`
-	CreatedAt    time.Time     `db:"created_at" json:"createdAt"`
-	UpdatedAt    time.Time     `db:"updated_at" json:"updatedAt"`
+	ID           int64          `db:"id" json:"id"`
+	Name         string         `db:"name" json:"name"`
+	Email        string         `db:"email" json:"email"`
+	Address      sql.NullString `db:"address" json:"address"`
+	Organizer    bool           `db:"organizer" json:"organizer"`
+	Participates bool           `db:"participates" json:"participates"`
+	Accepted     bool           `db:"accepted" json:"accepted"`
+	EventID      int64          `db:"event_id" json:"eventId"`
+	UserID       sql.NullInt64  `db:"user_id" json:"userId"`
+	CreatedAt    time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time      `db:"updated_at" json:"updatedAt"`
+}
+
+type ParticipantUser struct {
+	ID           int64          `db:"id" json:"id"`
+	Name         string         `db:"name" json:"name"`
+	Email        string         `db:"email" json:"email"`
+	Address      sql.NullString `db:"address" json:"address"`
+	Organizer    bool           `db:"organizer" json:"organizer"`
+	Participates bool           `db:"participates" json:"participates"`
+	Accepted     bool           `db:"accepted" json:"accepted"`
+	EventID      int64          `db:"event_id" json:"eventId"`
+	UserID       sql.NullInt64  `db:"user_id" json:"userId"`
+	CreatedAt    time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time      `db:"updated_at" json:"updatedAt"`
+	UserName     sql.NullString `db:"user_name" json:"userName"`
+	UserEmail    sql.NullString `db:"user_email" json:"userEmail"`
+	UserImageUrl sql.NullString `db:"user_image_url" json:"userImageUrl"`
 }
 
 type Product struct {

@@ -7,6 +7,8 @@ import (
 
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/services"
+	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 )
 
@@ -79,8 +81,9 @@ func TestGenerateTokens(t *testing.T) {
             Email: "johndoe@example.com",
             Name: "John Doe",
         }
-        jwt1, err1 := controllers.GenerateJWT("123", &user)
-        jwt2, err2 := controllers.GenerateJWT("1234", &user)
+        user_service := services.UserService{}
+        jwt1, err1 := user_service.GenerateJWT("123", &user)
+        jwt2, err2 := user_service.GenerateJWT("1234", &user)
 
         if err1 != nil || err2 != nil || jwt1 == jwt2 {
             t.Fail()
@@ -91,15 +94,15 @@ func TestGenerateTokens(t *testing.T) {
 func TestParseAuthContext(t *testing.T) {
     {
         ctx := context.Background()
-        user := database.User{
+        user := types.User{
             ID: 2,
             Email: "johndoe2@example.com",
             Name: "John Doe 2",
         }
         token := "my random token"
-        ctx = context.WithValue(ctx, controllers.AUTH_KEY, controllers.Auth{Token: token, User: user})
+        ctx = context.WithValue(ctx, controllers.AUTH_KEY, types.Auth{Token: token, User: user})
         parsed_auth := controllers.ParseAuthContext(ctx)
-        
+
         if parsed_auth.User != user {
             t.Fail()
         }

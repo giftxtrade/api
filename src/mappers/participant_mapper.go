@@ -33,7 +33,7 @@ func DbParticipantToParticipant(participant database.Participant, event *databas
 		Accepted: participant.Accepted,
 	}
 	if event != nil {
-		event := DbEventToEvent(*event, nil)
+		event := DbEventToEvent(*event, nil, nil)
 		result.Event = &event
 		result.EventID = event.ID
 	}

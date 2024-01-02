@@ -151,15 +151,18 @@ func (q *Queries) FindAllEventsWithUser(ctx context.Context, userID sql.NullInt6
 const findEventById = `-- name: FindEventById :many
 SELECT
     event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
-    p.id, p.name, p.email, p.address, p.organizer, p.participates, p.accepted, p.event_id, p.user_id, p.created_at, p.updated_at, p.user_name, p.user_email, p.user_image_url
+    p.id, p.name, p.email, p.address, p.organizer, p.participates, p.accepted, p.event_id, p.user_id, p.created_at, p.updated_at, p.user_name, p.user_email, p.user_image_url,
+    link.id, link.code, link.expiration_date, link.event_id, link.created_at, link.updated_at
 FROM "event"
 JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
+JOIN "link" ON "link"."event_id" = "event"."id"
 WHERE "event"."id" = $1
 `
 
 type FindEventByIdRow struct {
 	Event           Event           `db:"event" json:"event"`
 	ParticipantUser ParticipantUser `db:"participant_user" json:"participantUser"`
+	Link            Link            `db:"link" json:"link"`
 }
 
 func (q *Queries) FindEventById(ctx context.Context, id int64) ([]FindEventByIdRow, error) {
@@ -195,6 +198,12 @@ func (q *Queries) FindEventById(ctx context.Context, id int64) ([]FindEventByIdR
 			&i.ParticipantUser.UserName,
 			&i.ParticipantUser.UserEmail,
 			&i.ParticipantUser.UserImageUrl,
+			&i.Link.ID,
+			&i.Link.Code,
+			&i.Link.ExpirationDate,
+			&i.Link.EventID,
+			&i.Link.CreatedAt,
+			&i.Link.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

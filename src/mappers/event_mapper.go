@@ -23,7 +23,7 @@ func CreateEventToDbCreateEventParams(input types.CreateEvent) database.CreateEv
 	}
 }
 
-func DbEventToEvent(event database.Event, participants []types.Participant) types.Event {
+func DbEventToEvent(event database.Event, participants []types.Participant, links []types.Link) types.Event {
 	return types.Event{
 		ID: event.ID,
 		Name: event.Name,
@@ -36,13 +36,14 @@ func DbEventToEvent(event database.Event, participants []types.Participant) type
 		CreatedAt: event.CreatedAt,
 		UpdatedAt: event.UpdatedAt,
 		Participants: participants,
+		Links: links,
 	}
 }
 
 func DbEventsToEventsSimple(event []database.Event) []types.Event {
 	events := make([]types.Event, len(event))
 	for i, row := range event {
-		events[i] = DbEventToEvent(row, nil)
+		events[i] = DbEventToEvent(row, nil, nil)
 	}
 	return events
 }
@@ -53,7 +54,7 @@ func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow)
 	for _, row := range rows {
 		if row.Event.ID != prev_event_id {
 			participant := DbParticipantUserToParticipant(row.ParticipantUser, nil)
-			mapped_event := DbEventToEvent(row.Event, append([]types.Participant{}, participant)) 
+			mapped_event := DbEventToEvent(row.Event, []types.Participant{participant}, nil) 
 			events = append(events, mapped_event)
 			
 			prev_event_id = row.Event.ID

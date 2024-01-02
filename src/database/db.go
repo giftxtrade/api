@@ -33,6 +33,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createEventStmt, err = db.PrepareContext(ctx, createEvent); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateEvent: %w", err)
 	}
+	if q.createLinkStmt, err = db.PrepareContext(ctx, createLink); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateLink: %w", err)
+	}
 	if q.createParticipantStmt, err = db.PrepareContext(ctx, createParticipant); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateParticipant: %w", err)
 	}
@@ -117,6 +120,11 @@ func (q *Queries) Close() error {
 	if q.createEventStmt != nil {
 		if cerr := q.createEventStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createEventStmt: %w", cerr)
+		}
+	}
+	if q.createLinkStmt != nil {
+		if cerr := q.createLinkStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createLinkStmt: %w", cerr)
 		}
 	}
 	if q.createParticipantStmt != nil {
@@ -271,6 +279,7 @@ type Queries struct {
 	acceptEventInviteStmt               *sql.Stmt
 	createCategoryStmt                  *sql.Stmt
 	createEventStmt                     *sql.Stmt
+	createLinkStmt                      *sql.Stmt
 	createParticipantStmt               *sql.Stmt
 	createProductStmt                   *sql.Stmt
 	createUserStmt                      *sql.Stmt
@@ -302,6 +311,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		acceptEventInviteStmt:               q.acceptEventInviteStmt,
 		createCategoryStmt:                  q.createCategoryStmt,
 		createEventStmt:                     q.createEventStmt,
+		createLinkStmt:                      q.createLinkStmt,
 		createParticipantStmt:               q.createParticipantStmt,
 		createProductStmt:                   q.createProductStmt,
 		createUserStmt:                      q.createUserStmt,

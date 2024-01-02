@@ -100,6 +100,13 @@ export interface CreateParticipant {
   organizer?: boolean;
   participates?: boolean;
 }
+export interface Link {
+  id: number /* int64 */;
+  code: string;
+  event_id: number /* int64 */;
+  event?: Event;
+  expiration_date: string /* RFC3339 */;
+}
 export interface Event {
   id: number /* int64 */;
   name: string;
@@ -112,6 +119,7 @@ export interface Event {
   createdAt: string /* RFC3339 */;
   updatedAt: string /* RFC3339 */;
   participants?: Participant[];
+  links?: Link[];
 }
 export interface CreateEvent {
   name: string;

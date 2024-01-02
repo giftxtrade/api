@@ -20,7 +20,7 @@ test:
 	make sqlc && go run github.com/rakyll/gotest -v ./src/tests
 
 ts:
-	go run github.com/gzuidhof/tygo generate
+	go run github.com/gzuidhof/tygo generate && go run ts_types/version.go
 
 ts_publish:
 	npm publish --access public

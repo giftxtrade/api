@@ -115,6 +115,14 @@ type CreateParticipant struct {
 	Participates bool `json:"participates,omitempty" validate:"omitempty"`
 }
 
+type Link struct {
+	ID int64 `json:"id"`
+	Code string `json:"code"`
+	EventID int64 `json:"event_id"`
+	Event Event `json:"event,omitempty"`
+	ExpirationDate time.Time `json:"expiration_date"`
+}
+
 type Event struct {
 	ID int64 `json:"id"`
 	Name string `json:"name"`
@@ -127,6 +135,7 @@ type Event struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Participants []Participant `json:"participants,omitempty"`
+	Links []Link `json:"links,omitempty"`
 }
 
 type CreateEvent struct {
@@ -146,4 +155,3 @@ type UpdateEvent struct {
 	DrawAt time.Time `json:"drawAt,omitempty"`
 	CloseAt time.Time `json:"closeAt,omitempty"`
 }
-

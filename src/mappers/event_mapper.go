@@ -7,6 +7,7 @@ import (
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/gosimple/slug"
+	"golang.org/x/exp/maps"
 )
 
 func CreateEventToDbCreateEventParams(input types.CreateEvent) database.CreateEventParams {
@@ -48,6 +49,21 @@ func DbEventsToEventsSimple(event []database.Event) []types.Event {
 	return events
 }
 
+func DbEventLinkToEvent(event_link database.EventLink) types.Event {
+	db_event := database.Event{
+		ID: event_link.ID,
+		Name: event_link.Name,
+		Description: event_link.Description,
+		Budget: event_link.Budget,
+		InvitationMessage: event_link.InvitationMessage,
+		DrawAt: event_link.DrawAt,
+		CloseAt: event_link.CloseAt,
+		CreatedAt: event_link.CreatedAt,
+		UpdatedAt: event_link.UpdatedAt,
+	}
+	return DbEventToEvent(db_event, nil, nil)
+}
+
 func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow) []types.Event {
 	events := []types.Event{}
 	var prev_event_id int64 = 0
@@ -70,9 +86,26 @@ func DbFindAllEventsWithUserRowToEvent(rows []database.FindAllEventsWithUserRow)
 }
 
 func DbFindEventByIdToEvent(rows []database.FindEventByIdRow) types.Event {
-	mapped_rows := make([]database.FindAllEventsWithUserRow, len(rows))
-	for i, row := range rows {
-		mapped_rows[i] = database.FindAllEventsWithUserRow(row)
+	event := DbEventLinkToEvent(rows[0].EventLink)
+	link_map := map[int64]types.Link{}
+	participant_map := map[int64]types.Participant{}
+	for _, row := range rows {
+		el := row.EventLink
+		if el.LinkID.Valid && link_map[el.LinkID.Int64] == (types.Link{}) {
+			link_map[el.LinkID.Int64] = types.Link{
+				ID: el.LinkID.Int64,
+				Code: el.LinkCode.String,
+				ExpirationDate: el.LinkExpirationDate.Time,
+				EventID: el.ID,
+			}
+		}
+
+		pu := row.ParticipantUser
+		if pu != (database.ParticipantUser{}) && participant_map[pu.ID] == (types.Participant{}) {
+			participant_map[pu.ID] = DbParticipantUserToParticipant(pu, nil)
+		}
 	}
-	return DbFindAllEventsWithUserRowToEvent(mapped_rows)[0]
+	event.Links = maps.Values(link_map)
+	event.Participants = maps.Values(participant_map)
+	return event
 }

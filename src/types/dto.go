@@ -118,8 +118,8 @@ type CreateParticipant struct {
 type Link struct {
 	ID int64 `json:"id"`
 	Code string `json:"code"`
-	EventID int64 `json:"event_id"`
-	Event Event `json:"event,omitempty"`
+	EventID int64 `json:"eventId,omitempty"`
+	Event *Event `json:"event,omitempty"`
 	ExpirationDate time.Time `json:"expiration_date"`
 }
 

@@ -103,7 +103,7 @@ export interface CreateParticipant {
 export interface Link {
   id: number /* int64 */;
   code: string;
-  event_id: number /* int64 */;
+  eventId?: number /* int64 */;
   event?: Event;
   expiration_date: string /* RFC3339 */;
 }

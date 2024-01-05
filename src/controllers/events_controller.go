@@ -172,3 +172,19 @@ func (ctr *Controller) DeleteEvent(c *fiber.Ctx) error {
 		Deleted: true,
 	})
 }
+
+// [GET] /events/:event_id/get-link - Uses event participant auth
+func (ctr *Controller) GetEventLink(c *fiber.Ctx) error {
+	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event, _ := ctr.Querier.FindEventSimple(c.Context(), event_id)
+	code, _ := utils.GenerateRandomUrlEncodedString(15)
+	link, err := ctr.Querier.CreateLink(c.Context(), database.CreateLinkParams{
+		EventID: event_id,
+		Code: code,
+		ExpirationDate: event.DrawAt,
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not create link for event")
+	}
+	return utils.DataResponseCreated(c, mappers.DbLinkToLink(link, &event))
+}

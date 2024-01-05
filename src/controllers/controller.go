@@ -52,6 +52,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		events.Get("/invites", c.UseJwtAuth, c.GetInvites)
 		events.Get("/invites/accept/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.AcceptEventInvite)
 		events.Get("/invites/decline/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.DeclineEventInvite)
+		events.Get("/get-link/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.GetEventLink)
 		events.Get("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.GetEventById)
 		events.Patch("/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UpdateProduct)
 		events.Delete("/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.DeleteEvent)

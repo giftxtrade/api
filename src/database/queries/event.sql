@@ -42,6 +42,9 @@ ORDER BY
     "event"."close_at" ASC,
     "p"."id" ASC;
 
+-- name: FindEventSimple :one
+SELECT * FROM "event" WHERE "event"."id" = $1;
+
 -- name: FindEventById :many
 SELECT
     sqlc.embed(event_link),

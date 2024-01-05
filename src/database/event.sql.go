@@ -255,6 +255,27 @@ func (q *Queries) FindEventInvites(ctx context.Context, email string) ([]Event, 
 	return items, nil
 }
 
+const findEventSimple = `-- name: FindEventSimple :one
+SELECT id, name, description, budget, invitation_message, draw_at, close_at, created_at, updated_at FROM "event" WHERE "event"."id" = $1
+`
+
+func (q *Queries) FindEventSimple(ctx context.Context, id int64) (Event, error) {
+	row := q.queryRow(ctx, q.findEventSimpleStmt, findEventSimple, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Budget,
+		&i.InvitationMessage,
+		&i.DrawAt,
+		&i.CloseAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateEvent = `-- name: UpdateEvent :one
 UPDATE "event"
 SET

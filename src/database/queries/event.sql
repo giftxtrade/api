@@ -44,13 +44,11 @@ ORDER BY
 
 -- name: FindEventById :many
 SELECT
-    sqlc.embed(event),
-    sqlc.embed(p),
-    sqlc.embed(link)
-FROM "event"
-JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
-JOIN "link" ON "link"."event_id" = "event"."id"
-WHERE "event"."id" = $1;
+    sqlc.embed(event_link),
+    sqlc.embed(p)
+FROM "event_link"
+JOIN "participant_user" "p" ON "p"."event_id" = "event_link"."id"
+WHERE "event_link"."id" = $1;
 
 -- name: FindEventInvites :many
 SELECT "event".*

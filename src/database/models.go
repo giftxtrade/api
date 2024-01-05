@@ -99,6 +99,21 @@ type Event struct {
 	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
 }
 
+type EventLink struct {
+	ID                 int64          `db:"id" json:"id"`
+	Name               string         `db:"name" json:"name"`
+	Description        sql.NullString `db:"description" json:"description"`
+	Budget             string         `db:"budget" json:"budget"`
+	InvitationMessage  string         `db:"invitation_message" json:"invitationMessage"`
+	DrawAt             time.Time      `db:"draw_at" json:"drawAt"`
+	CloseAt            time.Time      `db:"close_at" json:"closeAt"`
+	CreatedAt          time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	LinkID             sql.NullInt64  `db:"link_id" json:"linkId"`
+	LinkCode           sql.NullString `db:"link_code" json:"linkCode"`
+	LinkExpirationDate sql.NullTime   `db:"link_expiration_date" json:"linkExpirationDate"`
+}
+
 type Link struct {
 	ID             int64     `db:"id" json:"id"`
 	Code           string    `db:"code" json:"code"`

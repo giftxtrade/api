@@ -69,6 +69,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findEventSimpleStmt, err = db.PrepareContext(ctx, findEventSimple); err != nil {
 		return nil, fmt.Errorf("error preparing query FindEventSimple: %w", err)
 	}
+	if q.findLinkByCodeStmt, err = db.PrepareContext(ctx, findLinkByCode); err != nil {
+		return nil, fmt.Errorf("error preparing query FindLinkByCode: %w", err)
+	}
+	if q.findLinkWithEventByCodeStmt, err = db.PrepareContext(ctx, findLinkWithEventByCode); err != nil {
+		return nil, fmt.Errorf("error preparing query FindLinkWithEventByCode: %w", err)
+	}
 	if q.findProductByIdStmt, err = db.PrepareContext(ctx, findProductById); err != nil {
 		return nil, fmt.Errorf("error preparing query FindProductById: %w", err)
 	}
@@ -185,6 +191,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findEventSimpleStmt: %w", cerr)
 		}
 	}
+	if q.findLinkByCodeStmt != nil {
+		if cerr := q.findLinkByCodeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findLinkByCodeStmt: %w", cerr)
+		}
+	}
+	if q.findLinkWithEventByCodeStmt != nil {
+		if cerr := q.findLinkWithEventByCodeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findLinkWithEventByCodeStmt: %w", cerr)
+		}
+	}
 	if q.findProductByIdStmt != nil {
 		if cerr := q.findProductByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findProductByIdStmt: %w", cerr)
@@ -299,6 +315,8 @@ type Queries struct {
 	findEventByIdStmt                   *sql.Stmt
 	findEventInvitesStmt                *sql.Stmt
 	findEventSimpleStmt                 *sql.Stmt
+	findLinkByCodeStmt                  *sql.Stmt
+	findLinkWithEventByCodeStmt         *sql.Stmt
 	findProductByIdStmt                 *sql.Stmt
 	findProductByProductKeyStmt         *sql.Stmt
 	findUserByEmailStmt                 *sql.Stmt
@@ -332,6 +350,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findEventByIdStmt:                   q.findEventByIdStmt,
 		findEventInvitesStmt:                q.findEventInvitesStmt,
 		findEventSimpleStmt:                 q.findEventSimpleStmt,
+		findLinkByCodeStmt:                  q.findLinkByCodeStmt,
+		findLinkWithEventByCodeStmt:         q.findLinkWithEventByCodeStmt,
 		findProductByIdStmt:                 q.findProductByIdStmt,
 		findProductByProductKeyStmt:         q.findProductByProductKeyStmt,
 		findUserByEmailStmt:                 q.findUserByEmailStmt,

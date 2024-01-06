@@ -11,6 +11,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const EVENT_LINK_CODE_LEN = 15
+
 func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 	auth_user := ParseAuthContext(c.UserContext())
 	var input types.CreateEvent
@@ -177,7 +179,7 @@ func (ctr *Controller) DeleteEvent(c *fiber.Ctx) error {
 func (ctr *Controller) GetEventLink(c *fiber.Ctx) error {
 	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
 	event, _ := ctr.Querier.FindEventSimple(c.Context(), event_id)
-	code, _ := utils.GenerateRandomUrlEncodedString(15)
+	code, _ := utils.GenerateRandomUrlEncodedString(EVENT_LINK_CODE_LEN)
 	link, err := ctr.Querier.CreateLink(c.Context(), database.CreateLinkParams{
 		EventID: event_id,
 		Code: code,
@@ -186,5 +188,17 @@ func (ctr *Controller) GetEventLink(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.FailResponse(c, "could not create link for event")
 	}
-	return utils.DataResponseCreated(c, mappers.DbLinkToLink(link, &event))
+	return utils.DataResponseCreated(c, mappers.DbLinkToLink(link, nil))
+}
+
+func (ctr *Controller) VerifyEventLinkCode(c *fiber.Ctx) error {
+	invite_code := c.Params("invite_code")
+	if len(invite_code) != EVENT_LINK_CODE_LEN {
+		return utils.FailResponse(c, "invalid invite code")
+	}
+	res, err := ctr.Querier.FindLinkWithEventByCode(c.Context(), invite_code)
+	if err != nil {
+		return utils.FailResponse(c, "invite code expired or invalid")
+	}
+	return utils.DataResponse(c, mappers.DbLinkToLink(res.Link, &res.Event))
 }

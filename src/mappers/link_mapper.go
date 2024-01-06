@@ -10,9 +10,11 @@ func DbLinkToLink(link database.Link, event *database.Event) types.Link {
 		ID: link.ID,
 		Code: link.Code,
 		ExpirationDate: link.ExpirationDate,
+		EventID: link.EventID,
 	}
 	if event != nil {
-		mapped_link.EventID = event.ID
+		event := DbEventToEvent(*event, nil, nil)
+		mapped_link.Event = &event
 	}
 	return mapped_link
 } 

@@ -115,6 +115,13 @@ type CreateParticipant struct {
 	Participates bool `json:"participates,omitempty" validate:"omitempty"`
 }
 
+type PatchParticipant struct {
+	Name string `json:"name,omitempty" validate:"omitempty"`
+	Address string `json:"address,omitempty" validate:"omitempty"`
+	Organizer bool `json:"organizer,omitempty" validate:"omitempty"`
+	Participates bool `json:"participates,omitempty" validate:"omitempty"`
+}
+
 type Link struct {
 	ID int64 `json:"id"`
 	Code string `json:"code"`

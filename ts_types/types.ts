@@ -100,6 +100,12 @@ export interface CreateParticipant {
   organizer?: boolean;
   participates?: boolean;
 }
+export interface PatchParticipant {
+  name?: string;
+  address?: string;
+  organizer?: boolean;
+  participates?: boolean;
+}
 export interface Link {
   id: number /* int64 */;
   code: string;

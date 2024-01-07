@@ -30,7 +30,7 @@ func (ctx *Controller) UseAdminOnly(c *fiber.Ctx) error {
 		return utils.FailResponseUnauthorized(c, AUTH_REQ)
 	}
 	
-	auth := ParseAuthContext(c.UserContext())
+	auth := GetAuthContext(c.UserContext())
 	if !auth.User.Admin {
 		return utils.FailResponseUnauthorized(c, "access for admin users only")
 	}
@@ -84,8 +84,8 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 // 
 // Saves the event_id (int64) in the request user context with the `EVENT_ID_PARAM_KEY` key
 func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
-	auth_user := ParseAuthContext(c.UserContext())
-	id, err := ParseEventIdFromContext(c)
+	auth_user := GetAuthContext(c.UserContext())
+	id, err := GetEventIdFromContext(c)
 	if err != nil {
 		return utils.FailResponse(c, err.Error())
 	}
@@ -109,8 +109,8 @@ func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) UseEventOrganizerAuthWithParam(c *fiber.Ctx) error {
-	auth_user := ParseAuthContext(c.UserContext())
-	id, err := ParseEventIdFromContext(c)
+	auth_user := GetAuthContext(c.UserContext())
+	id, err := GetEventIdFromContext(c)
 	if err != nil {
 		return utils.FailResponseNotFound(c, err.Error())
 	}

@@ -101,7 +101,7 @@ func TestParseAuthContext(t *testing.T) {
         }
         token := "my random token"
         ctx = context.WithValue(ctx, controllers.AUTH_KEY, types.Auth{Token: token, User: user})
-        parsed_auth := controllers.ParseAuthContext(ctx)
+        parsed_auth := controllers.GetAuthContext(ctx)
 
         if parsed_auth.User != user {
             t.Fail()

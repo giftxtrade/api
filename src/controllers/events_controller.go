@@ -15,7 +15,7 @@ import (
 const EVENT_LINK_CODE_LEN = 15
 
 func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
-	auth_user := ParseAuthContext(c.UserContext())
+	auth_user := GetAuthContext(c.UserContext())
 	var input types.CreateEvent
 	if c.BodyParser(&input) != nil {
 		return utils.FailResponse(c, "could not parse body data")
@@ -32,7 +32,7 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
-	auth_user := ParseAuthContext(c.UserContext())
+	auth_user := GetAuthContext(c.UserContext())
 	events, err := ctr.Querier.FindAllEventsWithUser(c.Context(), sql.NullInt64{
 		Valid: true,
 		Int64: auth_user.User.ID,
@@ -57,7 +57,7 @@ func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) GetInvites(c *fiber.Ctx) error {
-	auth := ParseAuthContext(c.UserContext())
+	auth := GetAuthContext(c.UserContext())
 	rows, err := ctr.Querier.FindEventInvites(c.Context(), auth.User.Email)
 	if err != nil {
 		return utils.FailResponse(c, "could not fetch invites")
@@ -66,7 +66,7 @@ func (ctr *Controller) GetInvites(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) AcceptEventInvite(c *fiber.Ctx) error {
-	auth := ParseAuthContext(c.UserContext())
+	auth := GetAuthContext(c.UserContext())
 	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
 
 	tx, err := ctr.DB.BeginTx(c.Context(), nil)
@@ -104,7 +104,7 @@ func (ctr *Controller) AcceptEventInvite(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) DeclineEventInvite(c *fiber.Ctx) error {
-	auth := ParseAuthContext(c.UserContext())
+	auth := GetAuthContext(c.UserContext())
 	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
 	_, err := ctr.Querier.DeclineEventInvite(c.Context(), database.DeclineEventInviteParams{
 		EventID: event_id,
@@ -222,7 +222,7 @@ func (ctr *Controller) JoinEventViaInviteCode(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "invite code is expired or invalid")
 	}
 
-	auth := ParseAuthContext(c.UserContext())
+	auth := GetAuthContext(c.UserContext())
 	_, err = ctr.Querier.VerifyEventWithEmailOrUser(c.Context(), database.VerifyEventWithEmailOrUserParams{
 		EventID: res.EventID,
 		UserID: sql.NullInt64{

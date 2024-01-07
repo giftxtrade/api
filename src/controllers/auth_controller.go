@@ -15,7 +15,7 @@ import (
 
 // [GET] /auth/profile (authentication required)
 func (ctr Controller) GetProfile(c *fiber.Ctx) error {
-	auth := ParseAuthContext(c.UserContext())
+	auth := GetAuthContext(c.UserContext())
 	return utils.DataResponse(c, auth)
 }
 

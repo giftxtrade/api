@@ -82,11 +82,16 @@ func GetAuthContext(user_context context.Context) types.Auth {
 }
 
 // Returns the even_id based on the route `*/:event_id/*` param
-func GetEventIdFromContext(c *fiber.Ctx) (event_id int64, error error) {
+func ParseEventIdFromRoute(c *fiber.Ctx) (event_id int64, error error) {
 	id_raw := c.Params("event_id")
 	id, err := strconv.ParseInt(id_raw, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("invalid event id")
 	}
 	return id, nil
+}
+
+func GetEventIdFromContext(c *fiber.Ctx) int64 {
+	id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	return id
 }

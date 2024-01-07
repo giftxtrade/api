@@ -46,7 +46,7 @@ func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
-	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_id := GetEventIdFromContext(c.UserContext())
 	event_rows, err := ctr.Querier.FindEventById(c.Context(), event_id)
 	if err != nil {
 		return utils.FailResponse(c, "could not load event")
@@ -67,7 +67,7 @@ func (ctr *Controller) GetInvites(c *fiber.Ctx) error {
 
 func (ctr *Controller) AcceptEventInvite(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
-	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_id := GetEventIdFromContext(c.UserContext())
 
 	tx, err := ctr.DB.BeginTx(c.Context(), nil)
 	if err != nil {
@@ -105,7 +105,7 @@ func (ctr *Controller) AcceptEventInvite(c *fiber.Ctx) error {
 
 func (ctr *Controller) DeclineEventInvite(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
-	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_id := GetEventIdFromContext(c.UserContext())
 	_, err := ctr.Querier.DeclineEventInvite(c.Context(), database.DeclineEventInviteParams{
 		EventID: event_id,
 		Email: auth.User.Email,
@@ -120,7 +120,7 @@ func (ctr *Controller) DeclineEventInvite(c *fiber.Ctx) error {
 
 // [PATCH] events/:event_id - Organizer Auth
 func (ctr *Controller) UpdateProduct(c *fiber.Ctx) error {
-	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_id := GetEventIdFromContext(c.UserContext())
 	var input types.UpdateEvent
 	if c.BodyParser(&input) != nil {
 		return utils.FailResponse(c, "could not parse body data")
@@ -166,7 +166,7 @@ func (ctr *Controller) UpdateProduct(c *fiber.Ctx) error {
 
 // [DELETE] /events/:event_id - Uses organizer auth
 func (ctr *Controller) DeleteEvent(c *fiber.Ctx) error {
-	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_id := GetEventIdFromContext(c.UserContext())
 	_, err := ctr.Querier.DeleteEvent(c.Context(), event_id)
 	if err != nil {
 		return utils.FailResponse(c, "event could not be deleted. please try again.")
@@ -178,7 +178,7 @@ func (ctr *Controller) DeleteEvent(c *fiber.Ctx) error {
 
 // [GET] /events/:event_id/get-link - Uses event participant auth
 func (ctr *Controller) GetEventLink(c *fiber.Ctx) error {
-	event_id := c.UserContext().Value(EVENT_ID_PARAM_KEY).(int64)
+	event_id := GetEventIdFromContext(c.UserContext())
 	event, _ := ctr.Querier.FindEventSimple(c.Context(), event_id)
 	code, _ := utils.GenerateRandomUrlEncodedString(EVENT_LINK_CODE_LEN)
 	link, err := ctr.Querier.CreateLink(c.Context(), database.CreateLinkParams{

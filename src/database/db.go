@@ -78,6 +78,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findParticipantFromEventIdAndUserStmt, err = db.PrepareContext(ctx, findParticipantFromEventIdAndUser); err != nil {
 		return nil, fmt.Errorf("error preparing query FindParticipantFromEventIdAndUser: %w", err)
 	}
+	if q.findParticipantWithIdAndEventIdStmt, err = db.PrepareContext(ctx, findParticipantWithIdAndEventId); err != nil {
+		return nil, fmt.Errorf("error preparing query FindParticipantWithIdAndEventId: %w", err)
+	}
 	if q.findProductByIdStmt, err = db.PrepareContext(ctx, findProductById); err != nil {
 		return nil, fmt.Errorf("error preparing query FindProductById: %w", err)
 	}
@@ -101,6 +104,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.updateEventStmt, err = db.PrepareContext(ctx, updateEvent); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateEvent: %w", err)
+	}
+	if q.updateParticipantStatusStmt, err = db.PrepareContext(ctx, updateParticipantStatus); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateParticipantStatus: %w", err)
 	}
 	if q.updateProductStmt, err = db.PrepareContext(ctx, updateProduct); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateProduct: %w", err)
@@ -212,6 +218,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findParticipantFromEventIdAndUserStmt: %w", cerr)
 		}
 	}
+	if q.findParticipantWithIdAndEventIdStmt != nil {
+		if cerr := q.findParticipantWithIdAndEventIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findParticipantWithIdAndEventIdStmt: %w", cerr)
+		}
+	}
 	if q.findProductByIdStmt != nil {
 		if cerr := q.findProductByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findProductByIdStmt: %w", cerr)
@@ -250,6 +261,11 @@ func (q *Queries) Close() error {
 	if q.updateEventStmt != nil {
 		if cerr := q.updateEventStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateEventStmt: %w", cerr)
+		}
+	}
+	if q.updateParticipantStatusStmt != nil {
+		if cerr := q.updateParticipantStatusStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateParticipantStatusStmt: %w", cerr)
 		}
 	}
 	if q.updateProductStmt != nil {
@@ -334,6 +350,7 @@ type Queries struct {
 	findLinkByCodeStmt                    *sql.Stmt
 	findLinkWithEventByCodeStmt           *sql.Stmt
 	findParticipantFromEventIdAndUserStmt *sql.Stmt
+	findParticipantWithIdAndEventIdStmt   *sql.Stmt
 	findProductByIdStmt                   *sql.Stmt
 	findProductByProductKeyStmt           *sql.Stmt
 	findUserByEmailStmt                   *sql.Stmt
@@ -342,6 +359,7 @@ type Queries struct {
 	findUserByIdOrEmailStmt               *sql.Stmt
 	setUserAsAdminStmt                    *sql.Stmt
 	updateEventStmt                       *sql.Stmt
+	updateParticipantStatusStmt           *sql.Stmt
 	updateProductStmt                     *sql.Stmt
 	verifyEventForUserAsOrganizerStmt     *sql.Stmt
 	verifyEventForUserAsParticipantStmt   *sql.Stmt
@@ -371,6 +389,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findLinkByCodeStmt:                    q.findLinkByCodeStmt,
 		findLinkWithEventByCodeStmt:           q.findLinkWithEventByCodeStmt,
 		findParticipantFromEventIdAndUserStmt: q.findParticipantFromEventIdAndUserStmt,
+		findParticipantWithIdAndEventIdStmt:   q.findParticipantWithIdAndEventIdStmt,
 		findProductByIdStmt:                   q.findProductByIdStmt,
 		findProductByProductKeyStmt:           q.findProductByProductKeyStmt,
 		findUserByEmailStmt:                   q.findUserByEmailStmt,
@@ -379,6 +398,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdOrEmailStmt:               q.findUserByIdOrEmailStmt,
 		setUserAsAdminStmt:                    q.setUserAsAdminStmt,
 		updateEventStmt:                       q.updateEventStmt,
+		updateParticipantStatusStmt:           q.updateParticipantStatusStmt,
 		updateProductStmt:                     q.updateProductStmt,
 		verifyEventForUserAsOrganizerStmt:     q.verifyEventForUserAsOrganizerStmt,
 		verifyEventForUserAsParticipantStmt:   q.verifyEventForUserAsParticipantStmt,

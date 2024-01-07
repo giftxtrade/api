@@ -161,3 +161,73 @@ func (q *Queries) FindParticipantFromEventIdAndUser(ctx context.Context, arg Fin
 	)
 	return i, err
 }
+
+const findParticipantWithIdAndEventId = `-- name: FindParticipantWithIdAndEventId :one
+SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at FROM "participant"
+WHERE "event_id" = $1 AND "id" = $2
+`
+
+type FindParticipantWithIdAndEventIdParams struct {
+	EventID       int64 `db:"event_id" json:"eventId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) FindParticipantWithIdAndEventId(ctx context.Context, arg FindParticipantWithIdAndEventIdParams) (Participant, error) {
+	row := q.queryRow(ctx, q.findParticipantWithIdAndEventIdStmt, findParticipantWithIdAndEventId, arg.EventID, arg.ParticipantID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateParticipantStatus = `-- name: UpdateParticipantStatus :one
+UPDATE "participant"
+SET
+    "organizer" = COALESCE($2, "organizer"),
+    "participates" = COALESCE($3, "participates"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = $4
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type UpdateParticipantStatusParams struct {
+	EventID       int64        `db:"event_id" json:"eventId"`
+	Organizer     sql.NullBool `db:"organizer" json:"organizer"`
+	Participates  sql.NullBool `db:"participates" json:"participates"`
+	ParticipantID int64        `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) UpdateParticipantStatus(ctx context.Context, arg UpdateParticipantStatusParams) (Participant, error) {
+	row := q.queryRow(ctx, q.updateParticipantStatusStmt, updateParticipantStatus,
+		arg.EventID,
+		arg.Organizer,
+		arg.Participates,
+		arg.ParticipantID,
+	)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

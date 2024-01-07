@@ -33,3 +33,16 @@ RETURNING *;
 -- name: FindParticipantFromEventIdAndUser :one
 SELECT * FROM "participant"
 WHERE "event_id" = $1 AND "user_id" = $2;
+
+-- name: FindParticipantWithIdAndEventId :one
+SELECT * FROM "participant"
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id);
+
+-- name: UpdateParticipantStatus :one
+UPDATE "participant"
+SET
+    "organizer" = COALESCE(sqlc.narg(organizer), "organizer"),
+    "participates" = COALESCE(sqlc.narg(participates), "participates"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)
+RETURNING *;

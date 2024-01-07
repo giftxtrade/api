@@ -1,6 +1,10 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
+	"strconv"
+
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
@@ -65,4 +69,24 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		})
 	})
 	return c
+}
+
+func SetUserContext(c *fiber.Ctx, key interface{}, value interface{}) {
+	c.SetUserContext(context.WithValue(c.UserContext(), key, value))
+}
+
+// Given a `fiber.Ctx.UserContext`, find and return the auth struct using the types.AuthKey key
+func ParseAuthContext(user_context context.Context) types.Auth {
+	auth := user_context.Value(AUTH_KEY).(types.Auth)
+	return auth
+}
+
+// Returns the even_id based on the route `*/:event_id/*` param
+func ParseEventIdFromContext(c *fiber.Ctx) (event_id int64, error error) {
+	id_raw := c.Params("event_id")
+	id, err := strconv.ParseInt(id_raw, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid event id")
+	}
+	return id, nil
 }

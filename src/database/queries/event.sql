@@ -51,7 +51,11 @@ SELECT
     sqlc.embed(p)
 FROM "event_link"
 JOIN "participant_user" "p" ON "p"."event_id" = "event_link"."id"
-WHERE "event_link"."id" = $1;
+WHERE "event_link"."id" = $1
+ORDER BY 
+    "p"."organizer" DESC,
+	"p"."accepted" DESC,
+    "p"."created_at" DESC;
 
 -- name: FindEventInvites :many
 SELECT "event".*

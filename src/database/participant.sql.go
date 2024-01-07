@@ -105,7 +105,12 @@ func (q *Queries) CreateParticipant(ctx context.Context, arg CreateParticipantPa
 
 const declineEventInvite = `-- name: DeclineEventInvite :one
 DELETE FROM "participant"
-WHERE "email" = $1 AND "event_id" = $2
+WHERE 
+    "email" = $1
+        AND
+    "event_id" = $2
+        AND
+    "accepted" = FALSE
 RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
 `
 

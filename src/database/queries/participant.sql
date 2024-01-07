@@ -27,7 +27,12 @@ RETURNING *;
 
 -- name: DeclineEventInvite :one
 DELETE FROM "participant"
-WHERE "email" = $1 AND "event_id" = $2
+WHERE 
+    "email" = $1
+        AND
+    "event_id" = $2
+        AND
+    "accepted" = FALSE
 RETURNING *;
 
 -- name: FindParticipantFromEventIdAndUser :one

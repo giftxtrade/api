@@ -15,6 +15,7 @@ const AUTH_REQ string = "authorization required"
 const AUTH_KEY types.AuthKeyType = "auth"
 const AUTH_HEADER string = "Authorization"
 const EVENT_ID_PARAM_KEY types.EventIdParamKeyType = "EVENT_ID_PARAM"
+const PARTICIPANT_QUERY_KEY string = "PARTICIPANT_QUERY_OB"
 
 // Authentication middleware. Saves user data in request user context with the `AUTH_KEY` key
 func (ctx *Controller) UseJwtAuth(c *fiber.Ctx) error {
@@ -108,6 +109,10 @@ func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 	return c.Next()
 }
 
+// Verifies if the auth user is a valid organizer of an event
+// based on the URL param `:event_id`.
+//
+// Saves the event_id (int64) value in the request user context with the `EVENT_ID_PARAM_KEY` key
 func (ctr *Controller) UseEventOrganizerAuthWithParam(c *fiber.Ctx) error {
 	auth_user := GetAuthContext(c.UserContext())
 	id, err := ParseEventIdFromRoute(c)
@@ -123,5 +128,29 @@ func (ctr *Controller) UseEventOrganizerAuthWithParam(c *fiber.Ctx) error {
 		return utils.FailResponseNotFound(c, "event not found")
 	}
 	SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
+	return c.Next()
+}
+
+// Verifies if the query param participantId (?participantId=int64) is a valid participant of an event
+// based on the URL param `:event_id`.
+//
+// Saves the participant object (database.Participant) value in the request user context with the `PARTICIPANT_QUERY_KEY` key.
+// NOTE: This middleware MUST only be used following either `UseEventAuthWithParam` or `UseEventOrganizerAuthWithParam`
+func (ctr *Controller) UseEventParticipantAuthWithQuery(c *fiber.Ctx) error {
+	event_id := GetEventIdFromContext(c.UserContext())
+	participant_id, err := strconv.ParseInt(c.Query("participantId"), 10, 64)
+	if err != nil {
+		return utils.FailResponse(c, "invalid participant id")
+	}
+
+	// verify if participant exists in event
+	participant, err := ctr.Querier.FindParticipantWithIdAndEventId(c.Context(), database.FindParticipantWithIdAndEventIdParams{
+		EventID: event_id,
+		ParticipantID: participant_id,
+	})
+	if err != nil {
+		return utils.FailResponse(c, "participant does not exist on the event")
+	}
+	SetUserContext(c, PARTICIPANT_QUERY_KEY, participant)
 	return c.Next()
 }

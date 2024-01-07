@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"encoding/json"
-	"strconv"
 
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/mappers"
@@ -15,32 +13,17 @@ import (
 func (ctr *Controller) ManageParticipantUpdate(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
-	participant_id, err := strconv.ParseInt(c.Query("participantId"), 10, 64)
-	if err != nil {
-		return utils.FailResponse(c, "invalid participant id")
-	}
-
-	// verify if participant exists in event
-	participant, err := ctr.Querier.FindParticipantWithIdAndEventId(c.Context(), database.FindParticipantWithIdAndEventIdParams{
-		EventID: event_id,
-		ParticipantID: participant_id,
-	})
-	if err != nil {
-		return utils.FailResponse(c, "participant does not exist on the event")
-	}
+	participant := c.UserContext().Value(PARTICIPANT_QUERY_KEY).(database.Participant)
 
 	// parse/validate body
-	var input types.PatchParticipant
-	if json.Unmarshal(c.Body(), &input) != nil {
-		return utils.FailResponse(c, "could not parse body data")
-	}
-	if err := ctr.Validator.StructCtx(c.Context(), input); err != nil {
+	input, err := utils.ParseAndValidateBody[types.PatchParticipant](ctr.Validator, c.Body())
+	if err != nil {
 		return utils.FailResponse(c, err.Error())
 	}
 	
 	patch_data := database.UpdateParticipantStatusParams{
 		EventID: event_id,
-		ParticipantID: participant_id,
+		ParticipantID: participant.ID,
 	}
 	if input.Organizer != nil {
 		if participant.UserID.Int64 == auth.User.ID {

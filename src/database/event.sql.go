@@ -398,3 +398,25 @@ func (q *Queries) VerifyEventWithEmailOrUser(ctx context.Context, arg VerifyEven
 	err := row.Scan(&id)
 	return id, err
 }
+
+const verifyEventWithParticipantId = `-- name: VerifyEventWithParticipantId :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE
+    "event"."id" = $1
+        AND
+    "participant"."id" = $2
+`
+
+type VerifyEventWithParticipantIdParams struct {
+	EventID       int64 `db:"event_id" json:"eventId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) VerifyEventWithParticipantId(ctx context.Context, arg VerifyEventWithParticipantIdParams) (int64, error) {
+	row := q.queryRow(ctx, q.verifyEventWithParticipantIdStmt, verifyEventWithParticipantId, arg.EventID, arg.ParticipantID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}

@@ -78,6 +78,15 @@ WHERE
         "participant"."user_id" = sqlc.narg(user_id) OR "participant"."email" = sqlc.narg(email)
     );
 
+-- name: VerifyEventWithParticipantId :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE
+    "event"."id" = sqlc.arg(event_id)
+        AND
+    "participant"."id" = sqlc.arg(participant_id);
+
 -- name: VerifyEventForUserAsParticipant :one
 SELECT "event"."id"
 FROM "event"

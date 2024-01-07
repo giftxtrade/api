@@ -114,6 +114,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.verifyEventWithEmailOrUserStmt, err = db.PrepareContext(ctx, verifyEventWithEmailOrUser); err != nil {
 		return nil, fmt.Errorf("error preparing query VerifyEventWithEmailOrUser: %w", err)
 	}
+	if q.verifyEventWithParticipantIdStmt, err = db.PrepareContext(ctx, verifyEventWithParticipantId); err != nil {
+		return nil, fmt.Errorf("error preparing query VerifyEventWithParticipantId: %w", err)
+	}
 	return &q, nil
 }
 
@@ -269,6 +272,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing verifyEventWithEmailOrUserStmt: %w", cerr)
 		}
 	}
+	if q.verifyEventWithParticipantIdStmt != nil {
+		if cerr := q.verifyEventWithParticipantIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing verifyEventWithParticipantIdStmt: %w", cerr)
+		}
+	}
 	return err
 }
 
@@ -338,6 +346,7 @@ type Queries struct {
 	verifyEventForUserAsOrganizerStmt     *sql.Stmt
 	verifyEventForUserAsParticipantStmt   *sql.Stmt
 	verifyEventWithEmailOrUserStmt        *sql.Stmt
+	verifyEventWithParticipantIdStmt      *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -374,5 +383,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		verifyEventForUserAsOrganizerStmt:     q.verifyEventForUserAsOrganizerStmt,
 		verifyEventForUserAsParticipantStmt:   q.verifyEventForUserAsParticipantStmt,
 		verifyEventWithEmailOrUserStmt:        q.verifyEventWithEmailOrUserStmt,
+		verifyEventWithParticipantIdStmt:      q.verifyEventWithParticipantIdStmt,
 	}
 }

@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/mappers"
@@ -191,14 +192,74 @@ func (ctr *Controller) GetEventLink(c *fiber.Ctx) error {
 	return utils.DataResponseCreated(c, mappers.DbLinkToLink(link, nil))
 }
 
-func (ctr *Controller) VerifyEventLinkCode(c *fiber.Ctx) error {
+func (Ctr *Controller) get_invite_code(c *fiber.Ctx) (code string, error error) {
 	invite_code := c.Params("invite_code")
 	if len(invite_code) != EVENT_LINK_CODE_LEN {
-		return utils.FailResponse(c, "invalid invite code")
+		return "", fmt.Errorf("invalid invite code")
+	}
+	return invite_code, nil
+}
+
+func (ctr *Controller) VerifyEventLinkCode(c *fiber.Ctx) error {
+	invite_code, err := ctr.get_invite_code(c)
+	if err != nil {
+		return utils.FailResponse(c, err.Error())
 	}
 	res, err := ctr.Querier.FindLinkWithEventByCode(c.Context(), invite_code)
 	if err != nil {
 		return utils.FailResponse(c, "invite code expired or invalid")
 	}
 	return utils.DataResponse(c, mappers.DbLinkToLink(res.Link, &res.Event))
+}
+
+func (ctr *Controller) JoinEventViaInviteCode(c *fiber.Ctx) error {
+	invite_code, err := ctr.get_invite_code(c)
+	if err != nil {
+		return utils.FailResponse(c, err.Error())
+	}
+	res, err := ctr.Querier.FindLinkByCode(c.Context(), invite_code)
+	if err != nil || res.ExpirationDate.Before(time.Now()) {
+		return utils.FailResponse(c, "invite code is expired or invalid")
+	}
+
+	auth := ParseAuthContext(c.UserContext())
+	_, err = ctr.Querier.VerifyEventWithEmailOrUser(c.Context(), database.VerifyEventWithEmailOrUserParams{
+		EventID: res.EventID,
+		UserID: sql.NullInt64{
+			Valid: true,
+			Int64: auth.User.ID,
+		},
+		Email: sql.NullString{
+			Valid: true,
+			String: auth.User.Email,
+		},
+	})
+	// auth user is already a participant in the event
+	if err == nil {
+		p, _ := ctr.Querier.FindParticipantFromEventIdAndUser(c.Context(), database.FindParticipantFromEventIdAndUserParams{
+			EventID: res.EventID,
+			UserID: sql.NullInt64{
+				Valid: true,
+				Int64: auth.User.ID,
+			},
+		})
+		return utils.DataResponse(c, mappers.DbParticipantToParticipant(p, nil, nil))
+	}
+
+	participant, err := ctr.Querier.CreateParticipant(c.Context(), database.CreateParticipantParams{
+		Name: auth.User.Name,
+		Email: auth.User.Email,
+		Organizer: false,
+		Participates: true,
+		Accepted: true,
+		EventID: res.EventID,
+		UserID: sql.NullInt64{
+			Valid: true,
+			Int64: auth.User.ID,
+		},
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not join event")
+	}
+	return utils.DataResponseCreated(c, mappers.DbParticipantToParticipant(participant, nil, nil))
 }

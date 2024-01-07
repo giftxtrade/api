@@ -48,6 +48,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	events := server.Group("/events")
 	{
 		events.Get("/verify-invite-code/:invite_code", c.VerifyEventLinkCode)
+		events.Get("/join/:invite_code", c.UseJwtAuth, c.JoinEventViaInviteCode)
 		events.Post("", c.UseJwtAuth, c.CreateEvent)
 		events.Get("", c.UseJwtAuth, c.GetEvents)
 		events.Get("/invites", c.UseJwtAuth, c.GetInvites)

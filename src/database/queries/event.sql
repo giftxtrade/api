@@ -42,13 +42,16 @@ ORDER BY
     "event"."close_at" ASC,
     "p"."id" ASC;
 
+-- name: FindEventSimple :one
+SELECT * FROM "event" WHERE "event"."id" = $1;
+
 -- name: FindEventById :many
 SELECT
-    sqlc.embed(event),
+    sqlc.embed(event_link),
     sqlc.embed(p)
-FROM "event"
-JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
-WHERE "event"."id" = $1;
+FROM "event_link"
+JOIN "participant_user" "p" ON "p"."event_id" = "event_link"."id"
+WHERE "event_link"."id" = $1;
 
 -- name: FindEventInvites :many
 SELECT "event".*

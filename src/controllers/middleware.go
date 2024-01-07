@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -65,7 +64,7 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	utils.SetUserContext(c, AUTH_KEY, types.Auth{
+	SetUserContext(c, AUTH_KEY, types.Auth{
 		Token: raw_token,
 		User: types.User{
 			ID: user.ID,
@@ -78,22 +77,6 @@ func (ctx Controller) authenticate_user(c *fiber.Ctx) error {
 		},
 	})
 	return nil
-}
-
-// Given a context, find and return the auth struct using the types.AuthKey key
-func ParseAuthContext(context context.Context) types.Auth {
-	auth := context.Value(AUTH_KEY).(types.Auth)
-	return auth
-}
-
-// Returns the even_id based on the route `*/:event_id/*` param
-func ParseEventIdFromContext(c *fiber.Ctx) (event_id int64, error error) {
-	id_raw := c.Params("event_id")
-	id, err := strconv.ParseInt(id_raw, 10, 64)
-	if err != nil {
-		return 0, fmt.Errorf("invalid event id")
-	}
-	return id, nil
 }
 
 // Verifies if auth user is a valid participant of an event
@@ -121,7 +104,7 @@ func (ctr *Controller) UseEventAuthWithParam(c *fiber.Ctx) error {
 	if err != nil || event_id != id {
 		return utils.FailResponseNotFound(c, "event not found")
 	}
-	utils.SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
+	SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
 	return c.Next()
 }
 
@@ -139,6 +122,6 @@ func (ctr *Controller) UseEventOrganizerAuthWithParam(c *fiber.Ctx) error {
 	if err != nil || event_id != id {
 		return utils.FailResponseNotFound(c, "event not found")
 	}
-	utils.SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
+	SetUserContext(c, EVENT_ID_PARAM_KEY, event_id)
 	return c.Next()
 }

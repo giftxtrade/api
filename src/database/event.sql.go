@@ -150,15 +150,15 @@ func (q *Queries) FindAllEventsWithUser(ctx context.Context, userID sql.NullInt6
 
 const findEventById = `-- name: FindEventById :many
 SELECT
-    event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
+    event_link.id, event_link.name, event_link.description, event_link.budget, event_link.invitation_message, event_link.draw_at, event_link.close_at, event_link.created_at, event_link.updated_at, event_link.link_id, event_link.link_code, event_link.link_expiration_date,
     p.id, p.name, p.email, p.address, p.organizer, p.participates, p.accepted, p.event_id, p.user_id, p.created_at, p.updated_at, p.user_name, p.user_email, p.user_image_url
-FROM "event"
-JOIN "participant_user" "p" ON "p"."event_id" = "event"."id"
-WHERE "event"."id" = $1
+FROM "event_link"
+JOIN "participant_user" "p" ON "p"."event_id" = "event_link"."id"
+WHERE "event_link"."id" = $1
 `
 
 type FindEventByIdRow struct {
-	Event           Event           `db:"event" json:"event"`
+	EventLink       EventLink       `db:"event_link" json:"eventLink"`
 	ParticipantUser ParticipantUser `db:"participant_user" json:"participantUser"`
 }
 
@@ -172,15 +172,18 @@ func (q *Queries) FindEventById(ctx context.Context, id int64) ([]FindEventByIdR
 	for rows.Next() {
 		var i FindEventByIdRow
 		if err := rows.Scan(
-			&i.Event.ID,
-			&i.Event.Name,
-			&i.Event.Description,
-			&i.Event.Budget,
-			&i.Event.InvitationMessage,
-			&i.Event.DrawAt,
-			&i.Event.CloseAt,
-			&i.Event.CreatedAt,
-			&i.Event.UpdatedAt,
+			&i.EventLink.ID,
+			&i.EventLink.Name,
+			&i.EventLink.Description,
+			&i.EventLink.Budget,
+			&i.EventLink.InvitationMessage,
+			&i.EventLink.DrawAt,
+			&i.EventLink.CloseAt,
+			&i.EventLink.CreatedAt,
+			&i.EventLink.UpdatedAt,
+			&i.EventLink.LinkID,
+			&i.EventLink.LinkCode,
+			&i.EventLink.LinkExpirationDate,
 			&i.ParticipantUser.ID,
 			&i.ParticipantUser.Name,
 			&i.ParticipantUser.Email,
@@ -250,6 +253,27 @@ func (q *Queries) FindEventInvites(ctx context.Context, email string) ([]Event, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const findEventSimple = `-- name: FindEventSimple :one
+SELECT id, name, description, budget, invitation_message, draw_at, close_at, created_at, updated_at FROM "event" WHERE "event"."id" = $1
+`
+
+func (q *Queries) FindEventSimple(ctx context.Context, id int64) (Event, error) {
+	row := q.queryRow(ctx, q.findEventSimpleStmt, findEventSimple, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Budget,
+		&i.InvitationMessage,
+		&i.DrawAt,
+		&i.CloseAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const updateEvent = `-- name: UpdateEvent :one

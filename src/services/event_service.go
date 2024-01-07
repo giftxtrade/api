@@ -42,6 +42,6 @@ func (s *EventService) CreateEvent(ctx context.Context, user *types.User, input 
 		return types.Event{}, fmt.Errorf("could not commit transaction")
 	}
 	// build new event dto
-	mapped_event := mappers.DbEventToEvent(new_event, participants)
+	mapped_event := mappers.DbEventToEvent(new_event, participants, nil)
 	return mapped_event, nil
 }

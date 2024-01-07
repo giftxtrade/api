@@ -31,9 +31,10 @@ func DbParticipantToParticipant(participant database.Participant, event *databas
 		Organizer: participant.Organizer,
 		Participates: participant.Participates,
 		Accepted: participant.Accepted,
+		EventID: participant.EventID,
 	}
 	if event != nil {
-		event := DbEventToEvent(*event, nil)
+		event := DbEventToEvent(*event, nil, nil)
 		result.Event = &event
 		result.EventID = event.ID
 	}
@@ -64,6 +65,7 @@ func DbParticipantUserToParticipant(participant_user database.ParticipantUser, e
 			Organizer: participant_user.Organizer,
 			Participates: participant_user.Participates,
 			Accepted: participant_user.Accepted,
+			EventID: participant_user.EventID,
 		},
 		event,
 		user,

@@ -132,3 +132,32 @@ func (q *Queries) DeclineEventInvite(ctx context.Context, arg DeclineEventInvite
 	)
 	return i, err
 }
+
+const findParticipantFromEventIdAndUser = `-- name: FindParticipantFromEventIdAndUser :one
+SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at FROM "participant"
+WHERE "event_id" = $1 AND "user_id" = $2
+`
+
+type FindParticipantFromEventIdAndUserParams struct {
+	EventID int64         `db:"event_id" json:"eventId"`
+	UserID  sql.NullInt64 `db:"user_id" json:"userId"`
+}
+
+func (q *Queries) FindParticipantFromEventIdAndUser(ctx context.Context, arg FindParticipantFromEventIdAndUserParams) (Participant, error) {
+	row := q.queryRow(ctx, q.findParticipantFromEventIdAndUserStmt, findParticipantFromEventIdAndUser, arg.EventID, arg.UserID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

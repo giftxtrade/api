@@ -29,3 +29,7 @@ RETURNING *;
 DELETE FROM "participant"
 WHERE "email" = $1 AND "event_id" = $2
 RETURNING *;
+
+-- name: FindParticipantFromEventIdAndUser :one
+SELECT * FROM "participant"
+WHERE "event_id" = $1 AND "user_id" = $2;

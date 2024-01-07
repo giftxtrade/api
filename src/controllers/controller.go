@@ -66,6 +66,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	participants := server.Group("/participants")
 	{
 		participants.Patch("/manage/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UseEventParticipantAuthWithQuery, c.ManageParticipantUpdate)
+		participants.Delete("/manage/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UseEventParticipantAuthWithQuery, c.ManageParticipantRemoval)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{

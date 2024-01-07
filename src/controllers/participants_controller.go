@@ -46,3 +46,20 @@ func (ctr *Controller) ManageParticipantUpdate(c *fiber.Ctx) error {
 	}
 	return utils.DataResponse(c, mappers.DbParticipantToParticipant(patched_participant, nil, nil))
 }
+
+func (ctr *Controller) ManageParticipantRemoval(c *fiber.Ctx) error {
+	auth := GetAuthContext(c.UserContext())
+	event_id := GetEventIdFromContext(c.UserContext())
+	participant := c.UserContext().Value(PARTICIPANT_QUERY_KEY).(database.Participant)
+	if participant.UserID.Int64 == auth.User.ID {
+		utils.FailResponse(c, "event organizer cannot remove themselves")
+	}
+	_, err := ctr.Querier.DeleteParticipantByIdAndEventId(c.Context(), database.DeleteParticipantByIdAndEventIdParams{
+		EventID: event_id,
+		ParticipantID: participant.ID,
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not remove participant")
+	}
+	return utils.DataResponse(c, mappers.DbParticipantToParticipant(participant, nil, nil))
+}

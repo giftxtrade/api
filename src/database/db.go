@@ -51,6 +51,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteEventStmt, err = db.PrepareContext(ctx, deleteEvent); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteEvent: %w", err)
 	}
+	if q.deleteParticipantByIdAndEventIdStmt, err = db.PrepareContext(ctx, deleteParticipantByIdAndEventId); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteParticipantByIdAndEventId: %w", err)
+	}
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
 	}
@@ -171,6 +174,11 @@ func (q *Queries) Close() error {
 	if q.deleteEventStmt != nil {
 		if cerr := q.deleteEventStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteEventStmt: %w", cerr)
+		}
+	}
+	if q.deleteParticipantByIdAndEventIdStmt != nil {
+		if cerr := q.deleteParticipantByIdAndEventIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteParticipantByIdAndEventIdStmt: %w", cerr)
 		}
 	}
 	if q.filterProductsStmt != nil {
@@ -341,6 +349,7 @@ type Queries struct {
 	createUserStmt                        *sql.Stmt
 	declineEventInviteStmt                *sql.Stmt
 	deleteEventStmt                       *sql.Stmt
+	deleteParticipantByIdAndEventIdStmt   *sql.Stmt
 	filterProductsStmt                    *sql.Stmt
 	findAllEventsWithUserStmt             *sql.Stmt
 	findCategoryByNameStmt                *sql.Stmt
@@ -380,6 +389,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createUserStmt:                        q.createUserStmt,
 		declineEventInviteStmt:                q.declineEventInviteStmt,
 		deleteEventStmt:                       q.deleteEventStmt,
+		deleteParticipantByIdAndEventIdStmt:   q.deleteParticipantByIdAndEventIdStmt,
 		filterProductsStmt:                    q.filterProductsStmt,
 		findAllEventsWithUserStmt:             q.findAllEventsWithUserStmt,
 		findCategoryByNameStmt:                q.findCategoryByNameStmt,

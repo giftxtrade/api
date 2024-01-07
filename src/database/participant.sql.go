@@ -138,6 +138,36 @@ func (q *Queries) DeclineEventInvite(ctx context.Context, arg DeclineEventInvite
 	return i, err
 }
 
+const deleteParticipantByIdAndEventId = `-- name: DeleteParticipantByIdAndEventId :one
+DELETE FROM "participant"
+WHERE "event_id" = $1 AND "id" = $2
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type DeleteParticipantByIdAndEventIdParams struct {
+	EventID       int64 `db:"event_id" json:"eventId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) DeleteParticipantByIdAndEventId(ctx context.Context, arg DeleteParticipantByIdAndEventIdParams) (Participant, error) {
+	row := q.queryRow(ctx, q.deleteParticipantByIdAndEventIdStmt, deleteParticipantByIdAndEventId, arg.EventID, arg.ParticipantID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findParticipantFromEventIdAndUser = `-- name: FindParticipantFromEventIdAndUser :one
 SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at FROM "participant"
 WHERE "event_id" = $1 AND "user_id" = $2

@@ -93,7 +93,7 @@ func TestParticipant(t *testing.T) {
 				user1_participant = p
 			}
 			server.Get("/events/:event_id/manage", controller.UseJwtAuth, controller.UseEventAuthWithParam, controller.UseEventParticipantAuthWithQuery, func(c *fiber.Ctx) error {
-				participant := c.UserContext().Value(controllers.PARTICIPANT_QUERY_KEY).(database.Participant)
+				participant := c.UserContext().Value(controllers.PARTICIPANT_OB_KEY).(database.Participant)
 				return utils.DataResponse(c, map[string]interface{}{"event_id": participant.EventID, "participant_id": participant.ID, "email": participant.Email})
 			})
 

@@ -81,6 +81,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findParticipantFromEventIdAndUserStmt, err = db.PrepareContext(ctx, findParticipantFromEventIdAndUser); err != nil {
 		return nil, fmt.Errorf("error preparing query FindParticipantFromEventIdAndUser: %w", err)
 	}
+	if q.findParticipantUserWithIdStmt, err = db.PrepareContext(ctx, findParticipantUserWithId); err != nil {
+		return nil, fmt.Errorf("error preparing query FindParticipantUserWithId: %w", err)
+	}
 	if q.findParticipantWithIdAndEventIdStmt, err = db.PrepareContext(ctx, findParticipantWithIdAndEventId); err != nil {
 		return nil, fmt.Errorf("error preparing query FindParticipantWithIdAndEventId: %w", err)
 	}
@@ -226,6 +229,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findParticipantFromEventIdAndUserStmt: %w", cerr)
 		}
 	}
+	if q.findParticipantUserWithIdStmt != nil {
+		if cerr := q.findParticipantUserWithIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findParticipantUserWithIdStmt: %w", cerr)
+		}
+	}
 	if q.findParticipantWithIdAndEventIdStmt != nil {
 		if cerr := q.findParticipantWithIdAndEventIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findParticipantWithIdAndEventIdStmt: %w", cerr)
@@ -359,6 +367,7 @@ type Queries struct {
 	findLinkByCodeStmt                    *sql.Stmt
 	findLinkWithEventByCodeStmt           *sql.Stmt
 	findParticipantFromEventIdAndUserStmt *sql.Stmt
+	findParticipantUserWithIdStmt         *sql.Stmt
 	findParticipantWithIdAndEventIdStmt   *sql.Stmt
 	findProductByIdStmt                   *sql.Stmt
 	findProductByProductKeyStmt           *sql.Stmt
@@ -399,6 +408,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findLinkByCodeStmt:                    q.findLinkByCodeStmt,
 		findLinkWithEventByCodeStmt:           q.findLinkWithEventByCodeStmt,
 		findParticipantFromEventIdAndUserStmt: q.findParticipantFromEventIdAndUserStmt,
+		findParticipantUserWithIdStmt:         q.findParticipantUserWithIdStmt,
 		findParticipantWithIdAndEventIdStmt:   q.findParticipantWithIdAndEventIdStmt,
 		findProductByIdStmt:                   q.findProductByIdStmt,
 		findProductByProductKeyStmt:           q.findProductByProductKeyStmt,

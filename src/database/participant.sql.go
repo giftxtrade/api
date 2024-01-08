@@ -197,6 +197,33 @@ func (q *Queries) FindParticipantFromEventIdAndUser(ctx context.Context, arg Fin
 	return i, err
 }
 
+const findParticipantUserWithId = `-- name: FindParticipantUserWithId :one
+SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at, user_name, user_email, user_image_url FROM "participant_user"
+WHERE "id" = $1
+`
+
+func (q *Queries) FindParticipantUserWithId(ctx context.Context, id int64) (ParticipantUser, error) {
+	row := q.queryRow(ctx, q.findParticipantUserWithIdStmt, findParticipantUserWithId, id)
+	var i ParticipantUser
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserName,
+		&i.UserEmail,
+		&i.UserImageUrl,
+	)
+	return i, err
+}
+
 const findParticipantWithIdAndEventId = `-- name: FindParticipantWithIdAndEventId :one
 SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at FROM "participant"
 WHERE "event_id" = $1 AND "id" = $2

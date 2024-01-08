@@ -13,7 +13,7 @@ import (
 func (ctr *Controller) ManageParticipantUpdate(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
-	participant := c.UserContext().Value(PARTICIPANT_QUERY_KEY).(database.Participant)
+	participant := c.UserContext().Value(PARTICIPANT_OB_KEY).(database.Participant)
 
 	// parse/validate body
 	input, err := utils.ParseAndValidateBody[types.PatchParticipant](ctr.Validator, c.Body())
@@ -50,7 +50,7 @@ func (ctr *Controller) ManageParticipantUpdate(c *fiber.Ctx) error {
 func (ctr *Controller) ManageParticipantRemoval(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
-	participant := c.UserContext().Value(PARTICIPANT_QUERY_KEY).(database.Participant)
+	participant := c.UserContext().Value(PARTICIPANT_OB_KEY).(database.Participant)
 	if participant.UserID.Int64 == auth.User.ID {
 		utils.FailResponse(c, "event organizer cannot remove themselves")
 	}
@@ -62,4 +62,13 @@ func (ctr *Controller) ManageParticipantRemoval(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not remove participant")
 	}
 	return utils.DataResponse(c, mappers.DbParticipantToParticipant(participant, nil, nil))
+}
+
+func (ctr *Controller) GetParticipantById(c *fiber.Ctx) error {
+	participant := c.UserContext().Value(PARTICIPANT_OB_KEY).(database.Participant)
+	pu_raw, err := ctr.Querier.FindParticipantUserWithId(c.Context(), participant.ID)
+	if err != nil {
+		return utils.FailResponseNotFound(c, "could not find participant with the id", err.Error())
+	}
+	return utils.DataResponse(c, mappers.DbParticipantUserToParticipant(pu_raw, nil))
 }

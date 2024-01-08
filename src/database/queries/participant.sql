@@ -43,6 +43,10 @@ WHERE "event_id" = $1 AND "user_id" = $2;
 SELECT * FROM "participant"
 WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id);
 
+-- name: FindParticipantUserWithId :one
+SELECT * FROM "participant_user"
+WHERE "id" = $1;
+
 -- name: UpdateParticipantStatus :one
 UPDATE "participant"
 SET

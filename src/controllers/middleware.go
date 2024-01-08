@@ -171,7 +171,7 @@ func (ctr *Controller) UseEventParticipantAuthWithQuery(c *fiber.Ctx) error {
 // NOTE: This middleware MUST only be used following either `UseEventAuthWithParam` or `UseEventOrganizerAuthWithParam`
 func (ctr *Controller) UseEventParticipantAuthWithParam(c *fiber.Ctx) error {
 	event_id := GetEventIdFromContext(c.UserContext())
-	participant, err := ctr.handleParticipantFromId(c.Context(), event_id, c.Params("participantId"))
+	participant, err := ctr.handleParticipantFromId(c.Context(), event_id, c.Params("participant_id"))
 	if err != nil {
 		utils.FailResponse(c, err.Error())
 	}

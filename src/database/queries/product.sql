@@ -32,11 +32,9 @@ FROM "product"
 INNER JOIN "category" 
   ON "category"."id" = "product"."category_id"
 WHERE
-  "product"."product_ts" @@ to_tsquery('english', sqlc.arg(search))
-ORDER BY
-  "weight" DESC,
-  "product"."rating" DESC,
-  "product"."total_reviews" DESC
+  (sqlc.narg(search) IS NULL) OR 
+    "product"."product_ts" @@ to_tsquery('english', sqlc.narg(search))
+ORDER BY "weight" DESC
 LIMIT $1
 OFFSET $1 * (sqlc.arg(page)::INTEGER - 1);
 

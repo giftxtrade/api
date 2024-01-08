@@ -80,6 +80,14 @@ export interface ProductFilter {
   maxPrice?: number /* float32 */;
   sort?: string;
 }
+export interface Wish {
+  id: number /* int64 */;
+  userId: number /* int64 */;
+  participantId: number /* int64 */;
+  productId?: number /* int64 */;
+  product?: Product;
+  EventID: number /* int64 */;
+}
 export interface Participant {
   id: number /* int64 */;
   name: string;
@@ -92,6 +100,7 @@ export interface Participant {
   event?: Event;
   userId?: number /* int64 */;
   user?: User;
+  wishes?: Wish[];
 }
 export interface CreateParticipant {
   email: string;

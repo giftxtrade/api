@@ -93,6 +93,15 @@ type ProductFilter struct {
 	Sort string `json:"sort,omitempty" validate:"omitempty"`
 }
 
+type Wish struct {
+	ID int64 `json:"id"`
+	UserID int64 `json:"userId"`
+	ParticipantID int64 `json:"participantId"`
+	ProductID int64 `json:"productId,omitempty"`
+	Product *Product `json:"product,omitempty"`
+	EventID int64 `son:"eventId"`
+}
+
 type Participant struct {
 	ID int64 `json:"id"`
 	Name string `json:"name"`
@@ -105,6 +114,7 @@ type Participant struct {
 	Event *Event `json:"event,omitempty"`
 	UserID int64 `json:"userId,omitempty"`
 	User *User `json:"user,omitempty"`
+	Wishes []Wish `json:"wishes,omitempty"`
 }
 
 type CreateParticipant struct {

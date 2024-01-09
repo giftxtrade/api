@@ -89,6 +89,7 @@ func DbFindEventByIdToEvent(rows []database.FindEventByIdRow) types.Event {
 	event := DbEventLinkToEvent(rows[0].EventLink)
 	link_map := map[int64]types.Link{}
 	participant_map := map[int64]types.Participant{}
+	participants := []types.Participant{} // TODO: optimize by preallocating memory
 	for _, row := range rows {
 		el := row.EventLink
 		if el.LinkID.Valid && link_map[el.LinkID.Int64] == (types.Link{}) {
@@ -102,10 +103,12 @@ func DbFindEventByIdToEvent(rows []database.FindEventByIdRow) types.Event {
 
 		pu := row.ParticipantUser
 		if pu != (database.ParticipantUser{}) && participant_map[pu.ID] == (types.Participant{}) {
-			participant_map[pu.ID] = DbParticipantUserToParticipant(pu, nil)
+			mapped_participant := DbParticipantUserToParticipant(pu, nil)
+			participant_map[pu.ID] = mapped_participant
+			participants = append(participants, mapped_participant)
 		}
 	}
 	event.Links = maps.Values(link_map)
-	event.Participants = maps.Values(participant_map)
+	event.Participants = participants
 	return event
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/giftxtrade/api/src/types"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -56,4 +57,15 @@ func GetJwtClaims(jwt_token string, key string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("could not fetch jwt claims")
 	}
 	return claims, nil
+}
+
+// Parses json serializable []byte into result data and validates the decoded result
+func ParseAndValidateBody[T comparable](validator *validator.Validate, data []byte) (result T, error error) {
+	if json.Unmarshal(data, &result) != nil {
+		return result, fmt.Errorf("could not parse data")
+	}
+	if err := validator.Struct(result); err != nil {
+		return result, err
+	}
+	return result, nil
 }

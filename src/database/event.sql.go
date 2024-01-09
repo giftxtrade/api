@@ -155,6 +155,10 @@ SELECT
 FROM "event_link"
 JOIN "participant_user" "p" ON "p"."event_id" = "event_link"."id"
 WHERE "event_link"."id" = $1
+ORDER BY 
+    "p"."organizer" DESC,
+	"p"."accepted" DESC,
+    "p"."created_at" DESC
 `
 
 type FindEventByIdRow struct {
@@ -394,6 +398,28 @@ type VerifyEventWithEmailOrUserParams struct {
 // event verification queries
 func (q *Queries) VerifyEventWithEmailOrUser(ctx context.Context, arg VerifyEventWithEmailOrUserParams) (int64, error) {
 	row := q.queryRow(ctx, q.verifyEventWithEmailOrUserStmt, verifyEventWithEmailOrUser, arg.EventID, arg.UserID, arg.Email)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const verifyEventWithParticipantId = `-- name: VerifyEventWithParticipantId :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE
+    "event"."id" = $1
+        AND
+    "participant"."id" = $2
+`
+
+type VerifyEventWithParticipantIdParams struct {
+	EventID       int64 `db:"event_id" json:"eventId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) VerifyEventWithParticipantId(ctx context.Context, arg VerifyEventWithParticipantIdParams) (int64, error) {
+	row := q.queryRow(ctx, q.verifyEventWithParticipantIdStmt, verifyEventWithParticipantId, arg.EventID, arg.ParticipantID)
 	var id int64
 	err := row.Scan(&id)
 	return id, err

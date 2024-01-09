@@ -198,28 +198,46 @@ func (q *Queries) FindParticipantFromEventIdAndUser(ctx context.Context, arg Fin
 }
 
 const findParticipantUserWithId = `-- name: FindParticipantUserWithId :one
-SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at, user_name, user_email, user_image_url FROM "participant_user"
-WHERE "id" = $1
+SELECT
+    participant_user.id, participant_user.name, participant_user.email, participant_user.address, participant_user.organizer, participant_user.participates, participant_user.accepted, participant_user.event_id, participant_user.user_id, participant_user.created_at, participant_user.updated_at, participant_user.user_name, participant_user.user_email, participant_user.user_image_url,
+    event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at
+FROM "participant_user"
+JOIN "event" ON "event"."id" = "participant_user"."event_id"
+WHERE "participant_user"."id" = $1
 `
 
-func (q *Queries) FindParticipantUserWithId(ctx context.Context, id int64) (ParticipantUser, error) {
+type FindParticipantUserWithIdRow struct {
+	ParticipantUser ParticipantUser `db:"participant_user" json:"participantUser"`
+	Event           Event           `db:"event" json:"event"`
+}
+
+func (q *Queries) FindParticipantUserWithId(ctx context.Context, id int64) (FindParticipantUserWithIdRow, error) {
 	row := q.queryRow(ctx, q.findParticipantUserWithIdStmt, findParticipantUserWithId, id)
-	var i ParticipantUser
+	var i FindParticipantUserWithIdRow
 	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Email,
-		&i.Address,
-		&i.Organizer,
-		&i.Participates,
-		&i.Accepted,
-		&i.EventID,
-		&i.UserID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.UserName,
-		&i.UserEmail,
-		&i.UserImageUrl,
+		&i.ParticipantUser.ID,
+		&i.ParticipantUser.Name,
+		&i.ParticipantUser.Email,
+		&i.ParticipantUser.Address,
+		&i.ParticipantUser.Organizer,
+		&i.ParticipantUser.Participates,
+		&i.ParticipantUser.Accepted,
+		&i.ParticipantUser.EventID,
+		&i.ParticipantUser.UserID,
+		&i.ParticipantUser.CreatedAt,
+		&i.ParticipantUser.UpdatedAt,
+		&i.ParticipantUser.UserName,
+		&i.ParticipantUser.UserEmail,
+		&i.ParticipantUser.UserImageUrl,
+		&i.Event.ID,
+		&i.Event.Name,
+		&i.Event.Description,
+		&i.Event.Budget,
+		&i.Event.InvitationMessage,
+		&i.Event.DrawAt,
+		&i.Event.CloseAt,
+		&i.Event.CreatedAt,
+		&i.Event.UpdatedAt,
 	)
 	return i, err
 }

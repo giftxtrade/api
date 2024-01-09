@@ -44,8 +44,12 @@ SELECT * FROM "participant"
 WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id);
 
 -- name: FindParticipantUserWithId :one
-SELECT * FROM "participant_user"
-WHERE "id" = $1;
+SELECT
+    sqlc.embed(participant_user),
+    sqlc.embed(event)
+FROM "participant_user"
+JOIN "event" ON "event"."id" = "participant_user"."event_id"
+WHERE "participant_user"."id" = $1;
 
 -- name: UpdateParticipantStatus :one
 UPDATE "participant"

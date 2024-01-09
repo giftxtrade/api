@@ -158,7 +158,7 @@ func (ctr *Controller) UseEventParticipantAuthWithQuery(c *fiber.Ctx) error {
 	event_id := GetEventIdFromContext(c.UserContext())
 	participant, err := ctr.handleParticipantFromId(c.Context(), event_id, c.Query("participantId"))
 	if err != nil {
-		utils.FailResponse(c, err.Error())
+		return utils.FailResponse(c, err.Error())
 	}
 	SetUserContext(c, PARTICIPANT_OB_KEY, participant)
 	return c.Next()
@@ -173,7 +173,7 @@ func (ctr *Controller) UseEventParticipantAuthWithParam(c *fiber.Ctx) error {
 	event_id := GetEventIdFromContext(c.UserContext())
 	participant, err := ctr.handleParticipantFromId(c.Context(), event_id, c.Params("participant_id"))
 	if err != nil {
-		utils.FailResponse(c, err.Error())
+		return utils.FailResponse(c, err.Error())
 	}
 	SetUserContext(c, PARTICIPANT_OB_KEY, participant)
 	return c.Next()

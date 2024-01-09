@@ -66,10 +66,18 @@ func (ctr *Controller) ManageParticipantRemoval(c *fiber.Ctx) error {
 
 func (ctr *Controller) GetParticipantById(c *fiber.Ctx) error {
 	participant := c.UserContext().Value(PARTICIPANT_OB_KEY).(database.Participant)
-	row, err := ctr.Querier.FindParticipantUserWithId(c.Context(), participant.ID)
+	rows, err := ctr.Querier.FindParticipantUserWithFullEventById(c.Context(), participant.ID)
 	if err != nil {
 		return utils.FailResponseNotFound(c, "could not find participant with the id", err.Error())
 	}
-	mapped_participant := mappers.DbParticipantUserToParticipant(row.ParticipantUser, &row.Event)
+	if len(rows) <= 0 {
+		return utils.FailResponse(c, "result error")
+	}
+	mapped_participant := mappers.DbParticipantUserToParticipant(rows[0].ParticipantUser, &rows[0].Event)
+	participants := make([]types.Participant, len(rows))
+	for i, row := range rows {
+		participants[i] = mappers.DbParticipantUserToParticipant(row.ParticipantUser_2, nil)
+	}
+	mapped_participant.Event.Participants = participants
 	return utils.DataResponse(c, mapped_participant)
 }

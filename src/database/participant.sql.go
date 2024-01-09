@@ -197,49 +197,82 @@ func (q *Queries) FindParticipantFromEventIdAndUser(ctx context.Context, arg Fin
 	return i, err
 }
 
-const findParticipantUserWithId = `-- name: FindParticipantUserWithId :one
+const findParticipantUserWithFullEventById = `-- name: FindParticipantUserWithFullEventById :many
 SELECT
-    participant_user.id, participant_user.name, participant_user.email, participant_user.address, participant_user.organizer, participant_user.participates, participant_user.accepted, participant_user.event_id, participant_user.user_id, participant_user.created_at, participant_user.updated_at, participant_user.user_name, participant_user.user_email, participant_user.user_image_url,
-    event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at
-FROM "participant_user"
-JOIN "event" ON "event"."id" = "participant_user"."event_id"
-WHERE "participant_user"."id" = $1
+    main_participant.id, main_participant.name, main_participant.email, main_participant.address, main_participant.organizer, main_participant.participates, main_participant.accepted, main_participant.event_id, main_participant.user_id, main_participant.created_at, main_participant.updated_at, main_participant.user_name, main_participant.user_email, main_participant.user_image_url,
+    event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
+    pu.id, pu.name, pu.email, pu.address, pu.organizer, pu.participates, pu.accepted, pu.event_id, pu.user_id, pu.created_at, pu.updated_at, pu.user_name, pu.user_email, pu.user_image_url
+FROM "participant_user" "main_participant"
+JOIN "event" ON "event"."id" = "main_participant"."event_id"
+JOIN "participant_user" "pu" ON "pu"."event_id" = "event"."id"
+WHERE "main_participant"."id" = $1
 `
 
-type FindParticipantUserWithIdRow struct {
-	ParticipantUser ParticipantUser `db:"participant_user" json:"participantUser"`
-	Event           Event           `db:"event" json:"event"`
+type FindParticipantUserWithFullEventByIdRow struct {
+	ParticipantUser   ParticipantUser `db:"participant_user" json:"participantUser"`
+	Event             Event           `db:"event" json:"event"`
+	ParticipantUser_2 ParticipantUser `db:"participant_user_2" json:"participantUser2"`
 }
 
-func (q *Queries) FindParticipantUserWithId(ctx context.Context, id int64) (FindParticipantUserWithIdRow, error) {
-	row := q.queryRow(ctx, q.findParticipantUserWithIdStmt, findParticipantUserWithId, id)
-	var i FindParticipantUserWithIdRow
-	err := row.Scan(
-		&i.ParticipantUser.ID,
-		&i.ParticipantUser.Name,
-		&i.ParticipantUser.Email,
-		&i.ParticipantUser.Address,
-		&i.ParticipantUser.Organizer,
-		&i.ParticipantUser.Participates,
-		&i.ParticipantUser.Accepted,
-		&i.ParticipantUser.EventID,
-		&i.ParticipantUser.UserID,
-		&i.ParticipantUser.CreatedAt,
-		&i.ParticipantUser.UpdatedAt,
-		&i.ParticipantUser.UserName,
-		&i.ParticipantUser.UserEmail,
-		&i.ParticipantUser.UserImageUrl,
-		&i.Event.ID,
-		&i.Event.Name,
-		&i.Event.Description,
-		&i.Event.Budget,
-		&i.Event.InvitationMessage,
-		&i.Event.DrawAt,
-		&i.Event.CloseAt,
-		&i.Event.CreatedAt,
-		&i.Event.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) FindParticipantUserWithFullEventById(ctx context.Context, id int64) ([]FindParticipantUserWithFullEventByIdRow, error) {
+	rows, err := q.query(ctx, q.findParticipantUserWithFullEventByIdStmt, findParticipantUserWithFullEventById, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindParticipantUserWithFullEventByIdRow
+	for rows.Next() {
+		var i FindParticipantUserWithFullEventByIdRow
+		if err := rows.Scan(
+			&i.ParticipantUser.ID,
+			&i.ParticipantUser.Name,
+			&i.ParticipantUser.Email,
+			&i.ParticipantUser.Address,
+			&i.ParticipantUser.Organizer,
+			&i.ParticipantUser.Participates,
+			&i.ParticipantUser.Accepted,
+			&i.ParticipantUser.EventID,
+			&i.ParticipantUser.UserID,
+			&i.ParticipantUser.CreatedAt,
+			&i.ParticipantUser.UpdatedAt,
+			&i.ParticipantUser.UserName,
+			&i.ParticipantUser.UserEmail,
+			&i.ParticipantUser.UserImageUrl,
+			&i.Event.ID,
+			&i.Event.Name,
+			&i.Event.Description,
+			&i.Event.Budget,
+			&i.Event.InvitationMessage,
+			&i.Event.DrawAt,
+			&i.Event.CloseAt,
+			&i.Event.CreatedAt,
+			&i.Event.UpdatedAt,
+			&i.ParticipantUser_2.ID,
+			&i.ParticipantUser_2.Name,
+			&i.ParticipantUser_2.Email,
+			&i.ParticipantUser_2.Address,
+			&i.ParticipantUser_2.Organizer,
+			&i.ParticipantUser_2.Participates,
+			&i.ParticipantUser_2.Accepted,
+			&i.ParticipantUser_2.EventID,
+			&i.ParticipantUser_2.UserID,
+			&i.ParticipantUser_2.CreatedAt,
+			&i.ParticipantUser_2.UpdatedAt,
+			&i.ParticipantUser_2.UserName,
+			&i.ParticipantUser_2.UserEmail,
+			&i.ParticipantUser_2.UserImageUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const findParticipantWithIdAndEventId = `-- name: FindParticipantWithIdAndEventId :one

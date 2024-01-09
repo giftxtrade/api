@@ -114,7 +114,7 @@ type Participant struct {
 	Event *Event `json:"event,omitempty"`
 	UserID int64 `json:"userId,omitempty"`
 	User *User `json:"user,omitempty"`
-	Wishes []Wish `json:"wishes,omitempty"`
+	Wishes *[]Wish `json:"wishes,omitempty"`
 }
 
 type CreateParticipant struct {

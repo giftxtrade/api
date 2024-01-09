@@ -105,6 +105,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
 	}
+	if q.patchParticipantStmt, err = db.PrepareContext(ctx, patchParticipant); err != nil {
+		return nil, fmt.Errorf("error preparing query PatchParticipant: %w", err)
+	}
 	if q.setUserAsAdminStmt, err = db.PrepareContext(ctx, setUserAsAdmin); err != nil {
 		return nil, fmt.Errorf("error preparing query SetUserAsAdmin: %w", err)
 	}
@@ -269,6 +272,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
 		}
 	}
+	if q.patchParticipantStmt != nil {
+		if cerr := q.patchParticipantStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing patchParticipantStmt: %w", cerr)
+		}
+	}
 	if q.setUserAsAdminStmt != nil {
 		if cerr := q.setUserAsAdminStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing setUserAsAdminStmt: %w", cerr)
@@ -375,6 +383,7 @@ type Queries struct {
 	findUserByIdStmt                         *sql.Stmt
 	findUserByIdAndEmailStmt                 *sql.Stmt
 	findUserByIdOrEmailStmt                  *sql.Stmt
+	patchParticipantStmt                     *sql.Stmt
 	setUserAsAdminStmt                       *sql.Stmt
 	updateEventStmt                          *sql.Stmt
 	updateParticipantStatusStmt              *sql.Stmt
@@ -416,6 +425,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdStmt:                         q.findUserByIdStmt,
 		findUserByIdAndEmailStmt:                 q.findUserByIdAndEmailStmt,
 		findUserByIdOrEmailStmt:                  q.findUserByIdOrEmailStmt,
+		patchParticipantStmt:                     q.patchParticipantStmt,
 		setUserAsAdminStmt:                       q.setUserAsAdminStmt,
 		updateEventStmt:                          q.updateEventStmt,
 		updateParticipantStatusStmt:              q.updateParticipantStatusStmt,

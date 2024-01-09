@@ -81,3 +81,42 @@ func (ctr *Controller) GetParticipantById(c *fiber.Ctx) error {
 	mapped_participant.Event.Participants = participants
 	return utils.DataResponse(c, mapped_participant)
 }
+
+func (ctr *Controller) UpdateMeParticipant(c *fiber.Ctx) error {
+	auth := GetAuthContext(c.UserContext())
+	participant := c.UserContext().Value(PARTICIPANT_OB_KEY).(database.Participant)
+	if !participant.UserID.Valid || participant.UserID.Int64 != auth.User.ID {
+		return utils.FailResponse(c, "action on participant not allowed")
+	}
+	input, err := utils.ParseAndValidateBody[types.PatchParticipant](ctr.Validator, c.Body())
+	if err != nil {
+		return utils.FailResponse(c, err.Error())
+	}
+	values := database.PatchParticipantParams{
+		EventID: participant.EventID,
+		ParticipantID: participant.ID,
+	}
+	if input.Address != nil && input.Address != &participant.Address.String {
+		values.Address = sql.NullString{
+			Valid: true,
+			String: *input.Address,
+		}
+	}
+	if input.Name != nil && input.Name != &participant.Name {
+		values.Name = sql.NullString{
+			Valid: true,
+			String: *input.Name,
+		}
+	}
+	if input.Participates != nil && input.Participates != &participant.Participates {
+		values.Participates = sql.NullBool{
+			Valid: true,
+			Bool: *input.Participates,
+		}
+	}
+	updated_participant, err := ctr.Querier.PatchParticipant(c.Context(), values)
+	if err != nil {
+		return utils.FailResponse(c, "could not update participant")
+	}
+	return utils.DataResponse(c, mappers.DbParticipantToParticipant(updated_participant, nil, nil))
+}

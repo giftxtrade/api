@@ -62,6 +62,16 @@ SET
 WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)
 RETURNING *;
 
+-- name: PatchParticipant :one
+UPDATE "participant"
+SET
+    "participates" = COALESCE(sqlc.narg(participates), "participates"),
+    "address" = COALESCE(sqlc.narg(address), "address"),
+    "name" = COALESCE(sqlc.narg(name), "name"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)
+RETURNING *;
+
 -- name: DeleteParticipantByIdAndEventId :one
 DELETE FROM "participant"
 WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)

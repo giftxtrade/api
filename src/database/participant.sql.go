@@ -304,6 +304,50 @@ func (q *Queries) FindParticipantWithIdAndEventId(ctx context.Context, arg FindP
 	return i, err
 }
 
+const patchParticipant = `-- name: PatchParticipant :one
+UPDATE "participant"
+SET
+    "participates" = COALESCE($2, "participates"),
+    "address" = COALESCE($3, "address"),
+    "name" = COALESCE($4, "name"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = $5
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type PatchParticipantParams struct {
+	EventID       int64          `db:"event_id" json:"eventId"`
+	Participates  sql.NullBool   `db:"participates" json:"participates"`
+	Address       sql.NullString `db:"address" json:"address"`
+	Name          sql.NullString `db:"name" json:"name"`
+	ParticipantID int64          `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) PatchParticipant(ctx context.Context, arg PatchParticipantParams) (Participant, error) {
+	row := q.queryRow(ctx, q.patchParticipantStmt, patchParticipant,
+		arg.EventID,
+		arg.Participates,
+		arg.Address,
+		arg.Name,
+		arg.ParticipantID,
+	)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateParticipantStatus = `-- name: UpdateParticipantStatus :one
 UPDATE "participant"
 SET

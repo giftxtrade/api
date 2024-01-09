@@ -63,6 +63,13 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		events.Patch("/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UpdateProduct)
 		events.Delete("/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.DeleteEvent)
 	}
+	participants := server.Group("/participants")
+	{
+		participants.Patch("/manage/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UseEventParticipantAuthWithQuery, c.ManageParticipantUpdate)
+		participants.Delete("/manage/:event_id", c.UseJwtAuth, c.UseEventOrganizerAuthWithParam, c.UseEventParticipantAuthWithQuery, c.ManageParticipantRemoval)
+		participants.Get("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.GetParticipantById)
+		participants.Patch("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.UpdateMeParticipant)
+	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{
 			Errors: []string{"resource not found"},
@@ -76,17 +83,22 @@ func SetUserContext(c *fiber.Ctx, key interface{}, value interface{}) {
 }
 
 // Given a `fiber.Ctx.UserContext`, find and return the auth struct using the types.AuthKey key
-func ParseAuthContext(user_context context.Context) types.Auth {
+func GetAuthContext(user_context context.Context) types.Auth {
 	auth := user_context.Value(AUTH_KEY).(types.Auth)
 	return auth
 }
 
 // Returns the even_id based on the route `*/:event_id/*` param
-func ParseEventIdFromContext(c *fiber.Ctx) (event_id int64, error error) {
+func ParseEventIdFromRoute(c *fiber.Ctx) (event_id int64, error error) {
 	id_raw := c.Params("event_id")
 	id, err := strconv.ParseInt(id_raw, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("invalid event id")
 	}
 	return id, nil
+}
+
+func GetEventIdFromContext(user_context context.Context) int64 {
+	id := user_context.Value(EVENT_ID_PARAM_KEY).(int64)
+	return id
 }

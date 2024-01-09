@@ -27,9 +27,52 @@ RETURNING *;
 
 -- name: DeclineEventInvite :one
 DELETE FROM "participant"
-WHERE "email" = $1 AND "event_id" = $2
+WHERE 
+    "email" = $1
+        AND
+    "event_id" = $2
+        AND
+    "accepted" = FALSE
 RETURNING *;
 
 -- name: FindParticipantFromEventIdAndUser :one
 SELECT * FROM "participant"
 WHERE "event_id" = $1 AND "user_id" = $2;
+
+-- name: FindParticipantWithIdAndEventId :one
+SELECT * FROM "participant"
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id);
+
+-- name: FindParticipantUserWithFullEventById :many
+SELECT
+    sqlc.embed(main_participant),
+    sqlc.embed(event),
+    sqlc.embed(pu)
+FROM "participant_user" "main_participant"
+JOIN "event" ON "event"."id" = "main_participant"."event_id"
+JOIN "participant_user" "pu" ON "pu"."event_id" = "event"."id"
+WHERE "main_participant"."id" = $1;
+
+-- name: UpdateParticipantStatus :one
+UPDATE "participant"
+SET
+    "organizer" = COALESCE(sqlc.narg(organizer), "organizer"),
+    "participates" = COALESCE(sqlc.narg(participates), "participates"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)
+RETURNING *;
+
+-- name: PatchParticipant :one
+UPDATE "participant"
+SET
+    "participates" = COALESCE(sqlc.narg(participates), "participates"),
+    "address" = COALESCE(sqlc.narg(address), "address"),
+    "name" = COALESCE(sqlc.narg(name), "name"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)
+RETURNING *;
+
+-- name: DeleteParticipantByIdAndEventId :one
+DELETE FROM "participant"
+WHERE "event_id" = $1 AND "id" = sqlc.arg(participant_id)
+RETURNING *;

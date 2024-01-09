@@ -51,7 +51,11 @@ SELECT
     sqlc.embed(p)
 FROM "event_link"
 JOIN "participant_user" "p" ON "p"."event_id" = "event_link"."id"
-WHERE "event_link"."id" = $1;
+WHERE "event_link"."id" = $1
+ORDER BY 
+    "p"."organizer" DESC,
+	"p"."accepted" DESC,
+    "p"."created_at" DESC;
 
 -- name: FindEventInvites :many
 SELECT "event".*
@@ -77,6 +81,15 @@ WHERE
     (
         "participant"."user_id" = sqlc.narg(user_id) OR "participant"."email" = sqlc.narg(email)
     );
+
+-- name: VerifyEventWithParticipantId :one
+SELECT "event"."id"
+FROM "event"
+JOIN "participant" ON "participant"."event_id" = "event"."id"
+WHERE
+    "event"."id" = sqlc.arg(event_id)
+        AND
+    "participant"."id" = sqlc.arg(participant_id);
 
 -- name: VerifyEventForUserAsParticipant :one
 SELECT "event"."id"

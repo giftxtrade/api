@@ -105,7 +105,12 @@ func (q *Queries) CreateParticipant(ctx context.Context, arg CreateParticipantPa
 
 const declineEventInvite = `-- name: DeclineEventInvite :one
 DELETE FROM "participant"
-WHERE "email" = $1 AND "event_id" = $2
+WHERE 
+    "email" = $1
+        AND
+    "event_id" = $2
+        AND
+    "accepted" = FALSE
 RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
 `
 
@@ -116,6 +121,36 @@ type DeclineEventInviteParams struct {
 
 func (q *Queries) DeclineEventInvite(ctx context.Context, arg DeclineEventInviteParams) (Participant, error) {
 	row := q.queryRow(ctx, q.declineEventInviteStmt, declineEventInvite, arg.Email, arg.EventID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteParticipantByIdAndEventId = `-- name: DeleteParticipantByIdAndEventId :one
+DELETE FROM "participant"
+WHERE "event_id" = $1 AND "id" = $2
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type DeleteParticipantByIdAndEventIdParams struct {
+	EventID       int64 `db:"event_id" json:"eventId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) DeleteParticipantByIdAndEventId(ctx context.Context, arg DeleteParticipantByIdAndEventIdParams) (Participant, error) {
+	row := q.queryRow(ctx, q.deleteParticipantByIdAndEventIdStmt, deleteParticipantByIdAndEventId, arg.EventID, arg.ParticipantID)
 	var i Participant
 	err := row.Scan(
 		&i.ID,
@@ -145,6 +180,198 @@ type FindParticipantFromEventIdAndUserParams struct {
 
 func (q *Queries) FindParticipantFromEventIdAndUser(ctx context.Context, arg FindParticipantFromEventIdAndUserParams) (Participant, error) {
 	row := q.queryRow(ctx, q.findParticipantFromEventIdAndUserStmt, findParticipantFromEventIdAndUser, arg.EventID, arg.UserID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const findParticipantUserWithFullEventById = `-- name: FindParticipantUserWithFullEventById :many
+SELECT
+    main_participant.id, main_participant.name, main_participant.email, main_participant.address, main_participant.organizer, main_participant.participates, main_participant.accepted, main_participant.event_id, main_participant.user_id, main_participant.created_at, main_participant.updated_at, main_participant.user_name, main_participant.user_email, main_participant.user_image_url,
+    event.id, event.name, event.description, event.budget, event.invitation_message, event.draw_at, event.close_at, event.created_at, event.updated_at,
+    pu.id, pu.name, pu.email, pu.address, pu.organizer, pu.participates, pu.accepted, pu.event_id, pu.user_id, pu.created_at, pu.updated_at, pu.user_name, pu.user_email, pu.user_image_url
+FROM "participant_user" "main_participant"
+JOIN "event" ON "event"."id" = "main_participant"."event_id"
+JOIN "participant_user" "pu" ON "pu"."event_id" = "event"."id"
+WHERE "main_participant"."id" = $1
+`
+
+type FindParticipantUserWithFullEventByIdRow struct {
+	ParticipantUser   ParticipantUser `db:"participant_user" json:"participantUser"`
+	Event             Event           `db:"event" json:"event"`
+	ParticipantUser_2 ParticipantUser `db:"participant_user_2" json:"participantUser2"`
+}
+
+func (q *Queries) FindParticipantUserWithFullEventById(ctx context.Context, id int64) ([]FindParticipantUserWithFullEventByIdRow, error) {
+	rows, err := q.query(ctx, q.findParticipantUserWithFullEventByIdStmt, findParticipantUserWithFullEventById, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindParticipantUserWithFullEventByIdRow
+	for rows.Next() {
+		var i FindParticipantUserWithFullEventByIdRow
+		if err := rows.Scan(
+			&i.ParticipantUser.ID,
+			&i.ParticipantUser.Name,
+			&i.ParticipantUser.Email,
+			&i.ParticipantUser.Address,
+			&i.ParticipantUser.Organizer,
+			&i.ParticipantUser.Participates,
+			&i.ParticipantUser.Accepted,
+			&i.ParticipantUser.EventID,
+			&i.ParticipantUser.UserID,
+			&i.ParticipantUser.CreatedAt,
+			&i.ParticipantUser.UpdatedAt,
+			&i.ParticipantUser.UserName,
+			&i.ParticipantUser.UserEmail,
+			&i.ParticipantUser.UserImageUrl,
+			&i.Event.ID,
+			&i.Event.Name,
+			&i.Event.Description,
+			&i.Event.Budget,
+			&i.Event.InvitationMessage,
+			&i.Event.DrawAt,
+			&i.Event.CloseAt,
+			&i.Event.CreatedAt,
+			&i.Event.UpdatedAt,
+			&i.ParticipantUser_2.ID,
+			&i.ParticipantUser_2.Name,
+			&i.ParticipantUser_2.Email,
+			&i.ParticipantUser_2.Address,
+			&i.ParticipantUser_2.Organizer,
+			&i.ParticipantUser_2.Participates,
+			&i.ParticipantUser_2.Accepted,
+			&i.ParticipantUser_2.EventID,
+			&i.ParticipantUser_2.UserID,
+			&i.ParticipantUser_2.CreatedAt,
+			&i.ParticipantUser_2.UpdatedAt,
+			&i.ParticipantUser_2.UserName,
+			&i.ParticipantUser_2.UserEmail,
+			&i.ParticipantUser_2.UserImageUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findParticipantWithIdAndEventId = `-- name: FindParticipantWithIdAndEventId :one
+SELECT id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at FROM "participant"
+WHERE "event_id" = $1 AND "id" = $2
+`
+
+type FindParticipantWithIdAndEventIdParams struct {
+	EventID       int64 `db:"event_id" json:"eventId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) FindParticipantWithIdAndEventId(ctx context.Context, arg FindParticipantWithIdAndEventIdParams) (Participant, error) {
+	row := q.queryRow(ctx, q.findParticipantWithIdAndEventIdStmt, findParticipantWithIdAndEventId, arg.EventID, arg.ParticipantID)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const patchParticipant = `-- name: PatchParticipant :one
+UPDATE "participant"
+SET
+    "participates" = COALESCE($2, "participates"),
+    "address" = COALESCE($3, "address"),
+    "name" = COALESCE($4, "name"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = $5
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type PatchParticipantParams struct {
+	EventID       int64          `db:"event_id" json:"eventId"`
+	Participates  sql.NullBool   `db:"participates" json:"participates"`
+	Address       sql.NullString `db:"address" json:"address"`
+	Name          sql.NullString `db:"name" json:"name"`
+	ParticipantID int64          `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) PatchParticipant(ctx context.Context, arg PatchParticipantParams) (Participant, error) {
+	row := q.queryRow(ctx, q.patchParticipantStmt, patchParticipant,
+		arg.EventID,
+		arg.Participates,
+		arg.Address,
+		arg.Name,
+		arg.ParticipantID,
+	)
+	var i Participant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.Organizer,
+		&i.Participates,
+		&i.Accepted,
+		&i.EventID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateParticipantStatus = `-- name: UpdateParticipantStatus :one
+UPDATE "participant"
+SET
+    "organizer" = COALESCE($2, "organizer"),
+    "participates" = COALESCE($3, "participates"),
+    "updated_at" = now()
+WHERE "event_id" = $1 AND "id" = $4
+RETURNING id, name, email, address, organizer, participates, accepted, event_id, user_id, created_at, updated_at
+`
+
+type UpdateParticipantStatusParams struct {
+	EventID       int64        `db:"event_id" json:"eventId"`
+	Organizer     sql.NullBool `db:"organizer" json:"organizer"`
+	Participates  sql.NullBool `db:"participates" json:"participates"`
+	ParticipantID int64        `db:"participant_id" json:"participantId"`
+}
+
+func (q *Queries) UpdateParticipantStatus(ctx context.Context, arg UpdateParticipantStatusParams) (Participant, error) {
+	row := q.queryRow(ctx, q.updateParticipantStatusStmt, updateParticipantStatus,
+		arg.EventID,
+		arg.Organizer,
+		arg.Participates,
+		arg.ParticipantID,
+	)
 	var i Participant
 	err := row.Scan(
 		&i.ID,

@@ -86,19 +86,17 @@ FROM "product"
 INNER JOIN "category" 
   ON "category"."id" = "product"."category_id"
 WHERE
-  "product"."product_ts" @@ to_tsquery('english', $2)
-ORDER BY
-  "weight" DESC,
-  "product"."rating" DESC,
-  "product"."total_reviews" DESC
+  ($2::TEXT IS NULL) OR 
+    "product"."product_ts" @@ to_tsquery('english', $2::TEXT)
+ORDER BY "weight" DESC
 LIMIT $1
 OFFSET $1 * ($3::INTEGER - 1)
 `
 
 type FilterProductsParams struct {
-	Limit  int32  `db:"limit" json:"limit"`
-	Search string `db:"search" json:"search"`
-	Page   int32  `db:"page" json:"page"`
+	Limit  int32          `db:"limit" json:"limit"`
+	Search sql.NullString `db:"search" json:"search"`
+	Page   int32          `db:"page" json:"page"`
 }
 
 type FilterProductsRow struct {

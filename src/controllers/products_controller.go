@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"strconv"
 	"strings"
 
@@ -12,16 +13,21 @@ import (
 
 // [GET] /products
 func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
-	var filter types.ProductFilter
-	if c.BodyParser(&filter) != nil {
-		return utils.FailResponse(c, "could not parse body data")
+	search_query := c.Query("search")
+	filter := types.ProductFilter{
+		Search: &search_query,
+		Limit: int32(c.QueryInt("limit")),
+		Page: int32(c.QueryInt("page")),
 	}
 	if err := ctr.Validator.Struct(filter); err != nil {
 		return utils.FailResponse(c, err.Error())
 	}
 	
 	products, err := ctr.Querier.FilterProducts(c.Context(), database.FilterProductsParams{
-		Search: filter.Search,
+		Search: sql.NullString{
+			Valid: filter.Search != nil && *filter.Search != "",
+			String: *filter.Search,
+		},
 		Limit: filter.Limit,
 		Page: filter.Page,
 	})

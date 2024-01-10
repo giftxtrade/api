@@ -86,17 +86,23 @@ FROM "product"
 INNER JOIN "category" 
   ON "category"."id" = "product"."category_id"
 WHERE
-  ($2::TEXT IS NULL) OR 
+  (
+    ($2::TEXT IS NULL) OR 
     "product"."product_ts" @@ to_tsquery('english', $2::TEXT)
+  ) AND (
+    "product"."price" BETWEEN $3 AND $4
+  )
 ORDER BY "weight" DESC
 LIMIT $1
-OFFSET $1 * ($3::INTEGER - 1)
+OFFSET $1 * ($5::INTEGER - 1)
 `
 
 type FilterProductsParams struct {
-	Limit  int32          `db:"limit" json:"limit"`
-	Search sql.NullString `db:"search" json:"search"`
-	Page   int32          `db:"page" json:"page"`
+	Limit    int32          `db:"limit" json:"limit"`
+	Search   sql.NullString `db:"search" json:"search"`
+	MinPrice string         `db:"min_price" json:"minPrice"`
+	MaxPrice string         `db:"max_price" json:"maxPrice"`
+	Page     int32          `db:"page" json:"page"`
 }
 
 type FilterProductsRow struct {
@@ -106,7 +112,13 @@ type FilterProductsRow struct {
 }
 
 func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) ([]FilterProductsRow, error) {
-	rows, err := q.query(ctx, q.filterProductsStmt, filterProducts, arg.Limit, arg.Search, arg.Page)
+	rows, err := q.query(ctx, q.filterProductsStmt, filterProducts,
+		arg.Limit,
+		arg.Search,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.Page,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -18,6 +19,8 @@ func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 		Search: &search_query,
 		Limit: int32(c.QueryInt("limit")),
 		Page: int32(c.QueryInt("page")),
+		MinPrice: float32(c.QueryFloat("minPrice")),
+		MaxPrice: float32(c.QueryFloat("maxPrice")),
 	}
 	if err := ctr.Validator.Struct(filter); err != nil {
 		return utils.FailResponse(c, err.Error())
@@ -30,6 +33,8 @@ func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 		},
 		Limit: filter.Limit,
 		Page: filter.Page,
+		MaxPrice: fmt.Sprintf("$%.2f", filter.MaxPrice),
+		MinPrice: fmt.Sprintf("$%.2f", filter.MinPrice),
 	})
 	if err != nil {
 		errors := strings.Split(err.Error(), "\n")

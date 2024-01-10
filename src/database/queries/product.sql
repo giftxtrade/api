@@ -32,8 +32,12 @@ FROM "product"
 INNER JOIN "category" 
   ON "category"."id" = "product"."category_id"
 WHERE
-  (sqlc.narg(search)::TEXT IS NULL) OR 
+  (
+    (sqlc.narg(search)::TEXT IS NULL) OR 
     "product"."product_ts" @@ to_tsquery('english', sqlc.narg(search)::TEXT)
+  ) AND (
+    "product"."price" BETWEEN sqlc.arg(min_price) AND sqlc.arg(max_price)
+  )
 ORDER BY "weight" DESC
 LIMIT $1
 OFFSET $1 * (sqlc.arg(page)::INTEGER - 1);

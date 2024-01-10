@@ -169,7 +169,10 @@ func TestProductService(t *testing.T) {
 		t.Run("limit", func(t *testing.T) {
 			products, err := product_service.Querier.FilterProducts(context.Background(), database.FilterProductsParams{
 				Limit: 10,
-				Search: "manga",
+				Search: sql.NullString{
+					Valid: true,
+					String: "manga",
+				},
 				Page: 1,
 			})
 			if err != nil {

@@ -40,8 +40,6 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	{
 		auth.Get("/profile", c.UseJwtAuth, c.GetProfile)
 		auth.Get("/google/verify", c.GoogleVerify)
-		auth.Get("/:provider", c.SignIn)
-		auth.Get("/:provider/callback", c.Callback)
 	}
 	products := server.Group("/products")
 	{

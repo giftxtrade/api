@@ -49,8 +49,9 @@ func (app *AppBase) NewBaseHandler() *AppBase {
 	})
 	m.RunMigration()
 
-	app.Service = services.New(app.DB, app.Querier, app.Validator, app.Tokens) // create services
-	controllers.SetupOauthProviders(*app.Tokens) // oauth providers
+	// initialize services
+	app.Service = services.New(app.DB, app.Querier, app.Validator, app.Tokens)
+	// initialize controllers
 	controllers.New(app.AppContext, app.Querier, app.Service)
 	return app
 }

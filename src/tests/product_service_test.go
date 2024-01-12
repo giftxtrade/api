@@ -174,6 +174,8 @@ func TestProductService(t *testing.T) {
 					String: "manga",
 				},
 				Page: 1,
+				MinPrice: "$1",
+				MaxPrice: "$200",
 			})
 			if err != nil {
 				t.Fatal(err)

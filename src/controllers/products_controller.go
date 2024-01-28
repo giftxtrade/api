@@ -22,6 +22,18 @@ func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 		MinPrice: float32(c.QueryFloat("minPrice")),
 		MaxPrice: float32(c.QueryFloat("maxPrice")),
 	}
+	if sort := c.Query("sort"); sort != "" {
+		value := ""
+		switch sort {
+		case "price":
+			value = "price"
+		case "rating":
+			value = "rating"
+		default:
+			return utils.FailResponse(c, "invalid value for param 'sort'")
+		}
+		filter.Sort = &value
+	}
 	if err := ctr.Validator.Struct(filter); err != nil {
 		return utils.FailResponse(c, err.Error())
 	}
@@ -35,6 +47,10 @@ func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 		Page: filter.Page,
 		MaxPrice: fmt.Sprintf("$%.2f", filter.MaxPrice),
 		MinPrice: fmt.Sprintf("$%.2f", filter.MinPrice),
+		SortByPrice: sql.NullBool{
+			Valid: *filter.Sort == "price",
+			Bool: *filter.Sort == "price",
+		},
 	})
 	if err != nil {
 		errors := strings.Split(err.Error(), "\n")

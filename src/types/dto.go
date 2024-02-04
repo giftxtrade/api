@@ -94,7 +94,7 @@ type ProductFilter struct {
 }
 
 type CreateWish struct {
-	ProductID *int64 `json:"product_id,omitempty"`
+	ProductID *int64 `json:"productId,omitempty"`
 }
 
 type Wish struct {
@@ -103,7 +103,7 @@ type Wish struct {
 	ParticipantID int64 `json:"participantId"`
 	ProductID int64 `json:"productId,omitempty"`
 	Product *Product `json:"product,omitempty"`
-	EventID int64 `son:"eventId"`
+	EventID int64 `json:"eventId"`
 }
 
 type Participant struct {

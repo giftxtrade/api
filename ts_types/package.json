@@ -4,5 +4,5 @@
   "license": "ISC",
   "main": "types.ts",
   "name": "@giftxtrade/api-types",
-  "version": "1.0.8"
+  "version": "1.0.9"
 }

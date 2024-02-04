@@ -80,6 +80,9 @@ export interface ProductFilter {
   maxPrice?: number /* float32 */;
   sort?: string;
 }
+export interface CreateWish {
+  product_id?: number /* int64 */;
+}
 export interface Wish {
   id: number /* int64 */;
   userId: number /* int64 */;

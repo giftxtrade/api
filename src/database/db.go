@@ -45,6 +45,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.createWishStmt, err = db.PrepareContext(ctx, createWish); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateWish: %w", err)
+	}
 	if q.declineEventInviteStmt, err = db.PrepareContext(ctx, declineEventInvite); err != nil {
 		return nil, fmt.Errorf("error preparing query DeclineEventInvite: %w", err)
 	}
@@ -170,6 +173,11 @@ func (q *Queries) Close() error {
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.createWishStmt != nil {
+		if cerr := q.createWishStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createWishStmt: %w", cerr)
 		}
 	}
 	if q.declineEventInviteStmt != nil {
@@ -363,6 +371,7 @@ type Queries struct {
 	createParticipantStmt                    *sql.Stmt
 	createProductStmt                        *sql.Stmt
 	createUserStmt                           *sql.Stmt
+	createWishStmt                           *sql.Stmt
 	declineEventInviteStmt                   *sql.Stmt
 	deleteEventStmt                          *sql.Stmt
 	deleteParticipantByIdAndEventIdStmt      *sql.Stmt
@@ -405,6 +414,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createParticipantStmt:                    q.createParticipantStmt,
 		createProductStmt:                        q.createProductStmt,
 		createUserStmt:                           q.createUserStmt,
+		createWishStmt:                           q.createWishStmt,
 		declineEventInviteStmt:                   q.declineEventInviteStmt,
 		deleteEventStmt:                          q.deleteEventStmt,
 		deleteParticipantByIdAndEventIdStmt:      q.deleteParticipantByIdAndEventIdStmt,

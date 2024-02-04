@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	_ "github.com/lib/pq"
+	_ "github.com/sqlc-dev/sqlc"
 )
 
 func main() {

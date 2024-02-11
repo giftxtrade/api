@@ -23,3 +23,15 @@ WHERE
     user_id = $2 AND
     participant_id = $3 AND
     event_id = $4;
+
+-- name: GetAllWishesForUser :many
+SELECT
+    sqlc.embed(wish),
+    sqlc.embed(product)
+FROM wish
+INNER JOIN product ON product.id = wish.product_id
+WHERE
+    wish.user_id = $1 AND
+    wish.participant_id = $2 AND
+    wish.event_id = $3
+ORDER BY wish.created_at DESC;

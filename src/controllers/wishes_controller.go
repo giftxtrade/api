@@ -87,3 +87,23 @@ func (ctr *Controller) DeleteWish(c *fiber.Ctx) error {
 	}
 	return utils.DataResponse(c, mappers.DbWishToWish(wish, nil))
 }
+
+func (ctr *Controller) GetWishes(c *fiber.Ctx) error {
+	auth := GetAuthContext(c.UserContext())
+	event_id := GetEventIdFromContext(c.UserContext())
+	participant := GetParticipantFromContext(c.UserContext())
+	wishes, err := ctr.Querier.GetAllWishesForUser(c.Context(), database.GetAllWishesForUserParams{
+		UserID: auth.User.ID,
+		EventID: event_id,
+		ParticipantID: participant.ID,
+	})
+	if err != nil {
+		return utils.FailResponse(c, "could not fetch wishes")
+	}
+
+	mapped_wishes := make([]types.Wish, len(wishes))
+	for i, w := range wishes {
+		mapped_wishes[i] = mappers.DbWishToWish(w.Wish, &w.Product)
+	}
+	return utils.DataResponse(c, mapped_wishes)
+}

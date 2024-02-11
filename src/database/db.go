@@ -111,6 +111,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
 	}
+	if q.getAllWishesForUserStmt, err = db.PrepareContext(ctx, getAllWishesForUser); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAllWishesForUser: %w", err)
+	}
 	if q.getWishByAllIDsStmt, err = db.PrepareContext(ctx, getWishByAllIDs); err != nil {
 		return nil, fmt.Errorf("error preparing query GetWishByAllIDs: %w", err)
 	}
@@ -291,6 +294,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
 		}
 	}
+	if q.getAllWishesForUserStmt != nil {
+		if cerr := q.getAllWishesForUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAllWishesForUserStmt: %w", cerr)
+		}
+	}
 	if q.getWishByAllIDsStmt != nil {
 		if cerr := q.getWishByAllIDsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getWishByAllIDsStmt: %w", cerr)
@@ -409,6 +417,7 @@ type Queries struct {
 	findUserByIdStmt                         *sql.Stmt
 	findUserByIdAndEmailStmt                 *sql.Stmt
 	findUserByIdOrEmailStmt                  *sql.Stmt
+	getAllWishesForUserStmt                  *sql.Stmt
 	getWishByAllIDsStmt                      *sql.Stmt
 	patchParticipantStmt                     *sql.Stmt
 	setUserAsAdminStmt                       *sql.Stmt
@@ -454,6 +463,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdStmt:                         q.findUserByIdStmt,
 		findUserByIdAndEmailStmt:                 q.findUserByIdAndEmailStmt,
 		findUserByIdOrEmailStmt:                  q.findUserByIdOrEmailStmt,
+		getAllWishesForUserStmt:                  q.getAllWishesForUserStmt,
 		getWishByAllIDsStmt:                      q.getWishByAllIDsStmt,
 		patchParticipantStmt:                     q.patchParticipantStmt,
 		setUserAsAdminStmt:                       q.setUserAsAdminStmt,

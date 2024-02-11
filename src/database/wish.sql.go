@@ -62,6 +62,76 @@ func (q *Queries) DeleteWish(ctx context.Context, id int64) (int64, error) {
 	return id, err
 }
 
+const getAllWishesForUser = `-- name: GetAllWishesForUser :many
+SELECT
+    wish.id, wish.user_id, wish.participant_id, wish.product_id, wish.event_id, wish.created_at, wish.updated_at,
+    product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin
+FROM wish
+INNER JOIN product ON product.id = wish.product_id
+WHERE
+    wish.user_id = $1 AND
+    wish.participant_id = $2 AND
+    wish.event_id = $3
+ORDER BY wish.created_at DESC
+`
+
+type GetAllWishesForUserParams struct {
+	UserID        int64 `db:"user_id" json:"userId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+	EventID       int64 `db:"event_id" json:"eventId"`
+}
+
+type GetAllWishesForUserRow struct {
+	Wish    Wish    `db:"wish" json:"wish"`
+	Product Product `db:"product" json:"product"`
+}
+
+func (q *Queries) GetAllWishesForUser(ctx context.Context, arg GetAllWishesForUserParams) ([]GetAllWishesForUserRow, error) {
+	rows, err := q.query(ctx, q.getAllWishesForUserStmt, getAllWishesForUser, arg.UserID, arg.ParticipantID, arg.EventID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllWishesForUserRow
+	for rows.Next() {
+		var i GetAllWishesForUserRow
+		if err := rows.Scan(
+			&i.Wish.ID,
+			&i.Wish.UserID,
+			&i.Wish.ParticipantID,
+			&i.Wish.ProductID,
+			&i.Wish.EventID,
+			&i.Wish.CreatedAt,
+			&i.Wish.UpdatedAt,
+			&i.Product.ID,
+			&i.Product.Title,
+			&i.Product.Description,
+			&i.Product.ProductKey,
+			&i.Product.ImageUrl,
+			&i.Product.TotalReviews,
+			&i.Product.Rating,
+			&i.Product.Price,
+			&i.Product.Currency,
+			&i.Product.Url,
+			&i.Product.CategoryID,
+			&i.Product.CreatedAt,
+			&i.Product.UpdatedAt,
+			&i.Product.ProductTs,
+			&i.Product.Origin,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWishByAllIDs = `-- name: GetWishByAllIDs :one
 SELECT id, user_id, participant_id, product_id, event_id, created_at, updated_at
 FROM wish 

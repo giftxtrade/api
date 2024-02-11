@@ -49,3 +49,52 @@ func (q *Queries) CreateWish(ctx context.Context, arg CreateWishParams) (Wish, e
 	)
 	return i, err
 }
+
+const deleteWish = `-- name: DeleteWish :one
+DELETE FROM wish 
+WHERE id = $1
+RETURNING id
+`
+
+func (q *Queries) DeleteWish(ctx context.Context, id int64) (int64, error) {
+	row := q.queryRow(ctx, q.deleteWishStmt, deleteWish, id)
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getWishByAllIDs = `-- name: GetWishByAllIDs :one
+SELECT id, user_id, participant_id, product_id, event_id, created_at, updated_at
+FROM wish 
+WHERE
+    id = $1 AND
+    user_id = $2 AND
+    participant_id = $3 AND
+    event_id = $4
+`
+
+type GetWishByAllIDsParams struct {
+	ID            int64 `db:"id" json:"id"`
+	UserID        int64 `db:"user_id" json:"userId"`
+	ParticipantID int64 `db:"participant_id" json:"participantId"`
+	EventID       int64 `db:"event_id" json:"eventId"`
+}
+
+func (q *Queries) GetWishByAllIDs(ctx context.Context, arg GetWishByAllIDsParams) (Wish, error) {
+	row := q.queryRow(ctx, q.getWishByAllIDsStmt, getWishByAllIDs,
+		arg.ID,
+		arg.UserID,
+		arg.ParticipantID,
+		arg.EventID,
+	)
+	var i Wish
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ParticipantID,
+		&i.ProductID,
+		&i.EventID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

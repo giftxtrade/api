@@ -57,6 +57,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteParticipantByIdAndEventIdStmt, err = db.PrepareContext(ctx, deleteParticipantByIdAndEventId); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteParticipantByIdAndEventId: %w", err)
 	}
+	if q.deleteWishStmt, err = db.PrepareContext(ctx, deleteWish); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteWish: %w", err)
+	}
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
 	}
@@ -107,6 +110,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
+	}
+	if q.getWishByAllIDsStmt, err = db.PrepareContext(ctx, getWishByAllIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetWishByAllIDs: %w", err)
 	}
 	if q.patchParticipantStmt, err = db.PrepareContext(ctx, patchParticipant); err != nil {
 		return nil, fmt.Errorf("error preparing query PatchParticipant: %w", err)
@@ -195,6 +201,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteParticipantByIdAndEventIdStmt: %w", cerr)
 		}
 	}
+	if q.deleteWishStmt != nil {
+		if cerr := q.deleteWishStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteWishStmt: %w", cerr)
+		}
+	}
 	if q.filterProductsStmt != nil {
 		if cerr := q.filterProductsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing filterProductsStmt: %w", cerr)
@@ -278,6 +289,11 @@ func (q *Queries) Close() error {
 	if q.findUserByIdOrEmailStmt != nil {
 		if cerr := q.findUserByIdOrEmailStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
+		}
+	}
+	if q.getWishByAllIDsStmt != nil {
+		if cerr := q.getWishByAllIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getWishByAllIDsStmt: %w", cerr)
 		}
 	}
 	if q.patchParticipantStmt != nil {
@@ -375,6 +391,7 @@ type Queries struct {
 	declineEventInviteStmt                   *sql.Stmt
 	deleteEventStmt                          *sql.Stmt
 	deleteParticipantByIdAndEventIdStmt      *sql.Stmt
+	deleteWishStmt                           *sql.Stmt
 	filterProductsStmt                       *sql.Stmt
 	findAllEventsWithUserStmt                *sql.Stmt
 	findCategoryByNameStmt                   *sql.Stmt
@@ -392,6 +409,7 @@ type Queries struct {
 	findUserByIdStmt                         *sql.Stmt
 	findUserByIdAndEmailStmt                 *sql.Stmt
 	findUserByIdOrEmailStmt                  *sql.Stmt
+	getWishByAllIDsStmt                      *sql.Stmt
 	patchParticipantStmt                     *sql.Stmt
 	setUserAsAdminStmt                       *sql.Stmt
 	updateEventStmt                          *sql.Stmt
@@ -418,6 +436,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		declineEventInviteStmt:                   q.declineEventInviteStmt,
 		deleteEventStmt:                          q.deleteEventStmt,
 		deleteParticipantByIdAndEventIdStmt:      q.deleteParticipantByIdAndEventIdStmt,
+		deleteWishStmt:                           q.deleteWishStmt,
 		filterProductsStmt:                       q.filterProductsStmt,
 		findAllEventsWithUserStmt:                q.findAllEventsWithUserStmt,
 		findCategoryByNameStmt:                   q.findCategoryByNameStmt,
@@ -435,6 +454,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdStmt:                         q.findUserByIdStmt,
 		findUserByIdAndEmailStmt:                 q.findUserByIdAndEmailStmt,
 		findUserByIdOrEmailStmt:                  q.findUserByIdOrEmailStmt,
+		getWishByAllIDsStmt:                      q.getWishByAllIDsStmt,
 		patchParticipantStmt:                     q.patchParticipantStmt,
 		setUserAsAdminStmt:                       q.setUserAsAdminStmt,
 		updateEventStmt:                          q.updateEventStmt,

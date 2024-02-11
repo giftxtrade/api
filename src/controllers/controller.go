@@ -71,6 +71,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 	wishes := server.Group("/wishes")
 	{
 		wishes.Post("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.CreateWish)
+		wishes.Delete("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.DeleteWish)
 	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{

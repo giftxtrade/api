@@ -83,6 +83,9 @@ export interface ProductFilter {
 export interface CreateWish {
   productId?: number /* int64 */;
 }
+export interface DeleteWish {
+  wishId: number /* int64 */;
+}
 export interface Wish {
   id: number /* int64 */;
   userId: number /* int64 */;

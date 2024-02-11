@@ -97,6 +97,10 @@ type CreateWish struct {
 	ProductID *int64 `json:"productId,omitempty"`
 }
 
+type DeleteWish struct {
+	WishID int64 `json:"wishId"`
+}
+
 type Wish struct {
 	ID int64 `json:"id"`
 	UserID int64 `json:"userId"`

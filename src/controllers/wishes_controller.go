@@ -81,7 +81,7 @@ func (ctr *Controller) DeleteWish(c *fiber.Ctx) error {
 		return utils.FailResponse(c, "could not find wish with the given inputs")
 	}
 
-	_, err = ctr.Querier.DeleteEvent(c.Context(), wish.ID)
+	_, err = ctr.Querier.DeleteWish(c.Context(), wish.ID)
 	if err != nil {
 		return utils.FailResponse(c, "could not delete wish")
 	}

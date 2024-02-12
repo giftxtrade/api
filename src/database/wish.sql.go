@@ -20,7 +20,7 @@ INSERT INTO wish (
     updated_at
 ) VALUES (
     $1, $2, $3, $4, now(), now()
-) RETURNING id, user_id, participant_id, product_id, event_id, created_at, updated_at
+) RETURNING id, user_id, participant_id, product_id, event_id, created_at, updated_at, quantity
 `
 
 type CreateWishParams struct {
@@ -46,6 +46,7 @@ func (q *Queries) CreateWish(ctx context.Context, arg CreateWishParams) (Wish, e
 		&i.EventID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Quantity,
 	)
 	return i, err
 }
@@ -64,7 +65,7 @@ func (q *Queries) DeleteWish(ctx context.Context, id int64) (int64, error) {
 
 const getAllWishesForUser = `-- name: GetAllWishesForUser :many
 SELECT
-    wish.id, wish.user_id, wish.participant_id, wish.product_id, wish.event_id, wish.created_at, wish.updated_at,
+    wish.id, wish.user_id, wish.participant_id, wish.product_id, wish.event_id, wish.created_at, wish.updated_at, wish.quantity,
     product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin
 FROM wish
 INNER JOIN product ON product.id = wish.product_id
@@ -103,6 +104,7 @@ func (q *Queries) GetAllWishesForUser(ctx context.Context, arg GetAllWishesForUs
 			&i.Wish.EventID,
 			&i.Wish.CreatedAt,
 			&i.Wish.UpdatedAt,
+			&i.Wish.Quantity,
 			&i.Product.ID,
 			&i.Product.Title,
 			&i.Product.Description,
@@ -133,7 +135,7 @@ func (q *Queries) GetAllWishesForUser(ctx context.Context, arg GetAllWishesForUs
 }
 
 const getWishByAllIDs = `-- name: GetWishByAllIDs :one
-SELECT id, user_id, participant_id, product_id, event_id, created_at, updated_at
+SELECT id, user_id, participant_id, product_id, event_id, created_at, updated_at, quantity
 FROM wish 
 WHERE
     id = $1 AND
@@ -165,6 +167,7 @@ func (q *Queries) GetWishByAllIDs(ctx context.Context, arg GetWishByAllIDsParams
 		&i.EventID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Quantity,
 	)
 	return i, err
 }

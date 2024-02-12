@@ -192,4 +192,5 @@ type Wish struct {
 	EventID       int64         `db:"event_id" json:"eventId"`
 	CreatedAt     time.Time     `db:"created_at" json:"createdAt"`
 	UpdatedAt     time.Time     `db:"updated_at" json:"updatedAt"`
+	Quantity      int32         `db:"quantity" json:"quantity"`
 }

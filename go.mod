@@ -17,6 +17,7 @@ require (
 	github.com/bep/godartsass v0.16.0 // indirect
 	github.com/bep/golibsass v1.1.0 // indirect
 	github.com/cli/safeexec v1.0.0 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/creack/pty v1.1.18 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
@@ -45,12 +46,14 @@ require (
 	github.com/pingcap/tidb/pkg/parser v0.0.0-20231103154709-4f00ece106b1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/riza-io/grpc-go v0.2.0 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/tdewolff/parse/v2 v2.6.5 // indirect
 	github.com/tetratelabs/wazero v1.6.0 // indirect
+	github.com/urfave/cli v1.22.12 // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20231208014744-de63626a1e99 // indirect
 	github.com/wasilibs/wazerox v0.0.0-20231208014050-e6b725634531 // indirect
 	go.uber.org/atomic v1.11.0 // indirect

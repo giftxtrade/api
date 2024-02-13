@@ -68,6 +68,7 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		participants.Get("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.GetParticipantById)
 		participants.Patch("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.UpdateMeParticipant)
 	}
+	server.Get("/test", c.TestRoute)
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{
 			Errors: []string{"resource not found"},

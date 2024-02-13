@@ -21,7 +21,7 @@ type DeleteStatus struct {
 }
 
 type User struct {
-	ID int64 `json:"id"`
+	ID int64 `json:"id" sql:"primary_key"`
 	Name string `json:"name"`
 	Email string `json:"email" `
 	ImageUrl string `json:"imageUrl,omitempty"`
@@ -103,7 +103,7 @@ type Wish struct {
 }
 
 type Participant struct {
-	ID int64 `json:"id"`
+	ID int64 `json:"id" sql:"primary_key"`
 	Name string `json:"name"`
 	Email string `json:"email"`
 	Address string `json:"address,omitempty"`
@@ -133,24 +133,24 @@ type PatchParticipant struct {
 }
 
 type Link struct {
-	ID int64 `json:"id"`
-	Code string `json:"code"`
-	EventID int64 `json:"eventId,omitempty"`
+	ID int64 `json:"id" sql:"primary_key" alias:"link.id"`
+	Code string `json:"code" alias:"link.code"`
+	EventID int64 `json:"eventId,omitempty" alias:"link.event_id"`
 	Event *Event `json:"event,omitempty"`
-	ExpirationDate time.Time `json:"expiration_date"`
+	ExpirationDate time.Time `json:"expiration_date" alias:"link.expiration_date"`
 }
 
 type Event struct {
-	ID int64 `json:"id"`
-	Name string `json:"name"`
+	ID int64 `json:"id" sql:"primary_key" alias:"event.id"`
+	Name string `json:"name" alias:"event.name"`
 	Slug string `json:"slug,omitempty"`
-	Description string `json:"description,omitempty"`
-	Budget string `json:"budget"`
-	InvitationMessage string `json:"invitationMessage,omitempty"`
-	DrawAt time.Time `json:"drawAt"`
-	CloseAt time.Time `json:"closeAt"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Description string `json:"description,omitempty" alias:"event.description"`
+	Budget string `json:"budget" alias:"event.budget"`
+	InvitationMessage string `json:"invitationMessage,omitempty" alias:"event.invitation_message"`
+	DrawAt time.Time `json:"drawAt" alias:"event.draw_at"`
+	CloseAt time.Time `json:"closeAt" alias:"event.close_at"`
+	CreatedAt time.Time `json:"createdAt" alias:"event.created_at"`
+	UpdatedAt time.Time `json:"updatedAt" alias:"event.updated_at"`
 	Participants []Participant `json:"participants,omitempty"`
 	Links []Link `json:"links,omitempty"`
 }

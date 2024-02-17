@@ -93,6 +93,7 @@ export interface Wish {
   productId?: number /* int64 */;
   product?: Product;
   eventId: number /* int64 */;
+  quantity: number /* int32 */;
 }
 export interface Participant {
   id: number /* int64 */;

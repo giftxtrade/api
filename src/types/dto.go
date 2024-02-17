@@ -108,6 +108,7 @@ type Wish struct {
 	ProductID int64 `json:"productId,omitempty"`
 	Product *Product `json:"product,omitempty"`
 	EventID int64 `json:"eventId"`
+	Quantity int32 `json:"quantity"`
 }
 
 type Participant struct {

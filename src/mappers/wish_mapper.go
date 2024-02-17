@@ -11,6 +11,7 @@ func DbWishToWish(wish database.Wish, product *database.Product) types.Wish {
 		UserID: wish.UserID,
 		ParticipantID: wish.ParticipantID,
 		EventID: wish.EventID,
+		Quantity: wish.Quantity,
 	}
 	if product != nil {
 		result.ProductID = product.ID

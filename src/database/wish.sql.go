@@ -16,10 +16,11 @@ INSERT INTO wish (
     participant_id,
     product_id,
     event_id,
+    quantity,
     created_at,
     updated_at
 ) VALUES (
-    $1, $2, $3, $4, now(), now()
+    $1, $2, $3, $4, COALESCE($5::INTEGER, 1), now(), now()
 ) RETURNING id, user_id, participant_id, product_id, event_id, created_at, updated_at, quantity
 `
 
@@ -28,6 +29,7 @@ type CreateWishParams struct {
 	ParticipantID int64         `db:"participant_id" json:"participantId"`
 	ProductID     sql.NullInt64 `db:"product_id" json:"productId"`
 	EventID       int64         `db:"event_id" json:"eventId"`
+	Quantity      sql.NullInt32 `db:"quantity" json:"quantity"`
 }
 
 func (q *Queries) CreateWish(ctx context.Context, arg CreateWishParams) (Wish, error) {
@@ -36,6 +38,7 @@ func (q *Queries) CreateWish(ctx context.Context, arg CreateWishParams) (Wish, e
 		arg.ParticipantID,
 		arg.ProductID,
 		arg.EventID,
+		arg.Quantity,
 	)
 	var i Wish
 	err := row.Scan(
@@ -158,6 +161,73 @@ func (q *Queries) GetWishByAllIDs(ctx context.Context, arg GetWishByAllIDsParams
 		arg.ParticipantID,
 		arg.EventID,
 	)
+	var i Wish
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ParticipantID,
+		&i.ProductID,
+		&i.EventID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Quantity,
+	)
+	return i, err
+}
+
+const getWishWithProductID = `-- name: GetWishWithProductID :one
+SELECT id, user_id, participant_id, product_id, event_id, created_at, updated_at, quantity FROM wish
+WHERE
+    user_id = $1 AND 
+    event_id = $2 AND
+    participant_id = $3 AND
+    product_id = $4
+`
+
+type GetWishWithProductIDParams struct {
+	UserID        int64         `db:"user_id" json:"userId"`
+	EventID       int64         `db:"event_id" json:"eventId"`
+	ParticipantID int64         `db:"participant_id" json:"participantId"`
+	ProductID     sql.NullInt64 `db:"product_id" json:"productId"`
+}
+
+func (q *Queries) GetWishWithProductID(ctx context.Context, arg GetWishWithProductIDParams) (Wish, error) {
+	row := q.queryRow(ctx, q.getWishWithProductIDStmt, getWishWithProductID,
+		arg.UserID,
+		arg.EventID,
+		arg.ParticipantID,
+		arg.ProductID,
+	)
+	var i Wish
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ParticipantID,
+		&i.ProductID,
+		&i.EventID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Quantity,
+	)
+	return i, err
+}
+
+const updateWishQuantity = `-- name: UpdateWishQuantity :one
+UPDATE wish
+SET
+    quantity = $2, 
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, user_id, participant_id, product_id, event_id, created_at, updated_at, quantity
+`
+
+type UpdateWishQuantityParams struct {
+	ID       int64 `db:"id" json:"id"`
+	Quantity int32 `db:"quantity" json:"quantity"`
+}
+
+func (q *Queries) UpdateWishQuantity(ctx context.Context, arg UpdateWishQuantityParams) (Wish, error) {
+	row := q.queryRow(ctx, q.updateWishQuantityStmt, updateWishQuantity, arg.ID, arg.Quantity)
 	var i Wish
 	err := row.Scan(
 		&i.ID,

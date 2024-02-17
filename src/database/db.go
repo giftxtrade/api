@@ -117,6 +117,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getWishByAllIDsStmt, err = db.PrepareContext(ctx, getWishByAllIDs); err != nil {
 		return nil, fmt.Errorf("error preparing query GetWishByAllIDs: %w", err)
 	}
+	if q.getWishWithProductIDStmt, err = db.PrepareContext(ctx, getWishWithProductID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetWishWithProductID: %w", err)
+	}
 	if q.patchParticipantStmt, err = db.PrepareContext(ctx, patchParticipant); err != nil {
 		return nil, fmt.Errorf("error preparing query PatchParticipant: %w", err)
 	}
@@ -131,6 +134,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.updateProductStmt, err = db.PrepareContext(ctx, updateProduct); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateProduct: %w", err)
+	}
+	if q.updateWishQuantityStmt, err = db.PrepareContext(ctx, updateWishQuantity); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateWishQuantity: %w", err)
 	}
 	if q.verifyEventForUserAsOrganizerStmt, err = db.PrepareContext(ctx, verifyEventForUserAsOrganizer); err != nil {
 		return nil, fmt.Errorf("error preparing query VerifyEventForUserAsOrganizer: %w", err)
@@ -304,6 +310,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getWishByAllIDsStmt: %w", cerr)
 		}
 	}
+	if q.getWishWithProductIDStmt != nil {
+		if cerr := q.getWishWithProductIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getWishWithProductIDStmt: %w", cerr)
+		}
+	}
 	if q.patchParticipantStmt != nil {
 		if cerr := q.patchParticipantStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing patchParticipantStmt: %w", cerr)
@@ -327,6 +338,11 @@ func (q *Queries) Close() error {
 	if q.updateProductStmt != nil {
 		if cerr := q.updateProductStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateProductStmt: %w", cerr)
+		}
+	}
+	if q.updateWishQuantityStmt != nil {
+		if cerr := q.updateWishQuantityStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateWishQuantityStmt: %w", cerr)
 		}
 	}
 	if q.verifyEventForUserAsOrganizerStmt != nil {
@@ -419,11 +435,13 @@ type Queries struct {
 	findUserByIdOrEmailStmt                  *sql.Stmt
 	getAllWishesForUserStmt                  *sql.Stmt
 	getWishByAllIDsStmt                      *sql.Stmt
+	getWishWithProductIDStmt                 *sql.Stmt
 	patchParticipantStmt                     *sql.Stmt
 	setUserAsAdminStmt                       *sql.Stmt
 	updateEventStmt                          *sql.Stmt
 	updateParticipantStatusStmt              *sql.Stmt
 	updateProductStmt                        *sql.Stmt
+	updateWishQuantityStmt                   *sql.Stmt
 	verifyEventForUserAsOrganizerStmt        *sql.Stmt
 	verifyEventForUserAsParticipantStmt      *sql.Stmt
 	verifyEventWithEmailOrUserStmt           *sql.Stmt
@@ -465,11 +483,13 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdOrEmailStmt:                  q.findUserByIdOrEmailStmt,
 		getAllWishesForUserStmt:                  q.getAllWishesForUserStmt,
 		getWishByAllIDsStmt:                      q.getWishByAllIDsStmt,
+		getWishWithProductIDStmt:                 q.getWishWithProductIDStmt,
 		patchParticipantStmt:                     q.patchParticipantStmt,
 		setUserAsAdminStmt:                       q.setUserAsAdminStmt,
 		updateEventStmt:                          q.updateEventStmt,
 		updateParticipantStatusStmt:              q.updateParticipantStatusStmt,
 		updateProductStmt:                        q.updateProductStmt,
+		updateWishQuantityStmt:                   q.updateWishQuantityStmt,
 		verifyEventForUserAsOrganizerStmt:        q.verifyEventForUserAsOrganizerStmt,
 		verifyEventForUserAsParticipantStmt:      q.verifyEventForUserAsParticipantStmt,
 		verifyEventWithEmailOrUserStmt:           q.verifyEventWithEmailOrUserStmt,

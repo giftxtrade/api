@@ -35,16 +35,40 @@ func (ctr *Controller) CreateWish(c *fiber.Ctx) error {
 	}
 	var product *database.Product = nil
 	if input.ProductID != nil {
-		p, err := ctr.Querier.FindProductById(c.Context(), *input.ProductID)
+		// check if product id is valid
+		product_id := *input.ProductID
+		p, err := ctr.Querier.FindProductById(c.Context(), product_id)
 		if err != nil {
 			return utils.FailResponse(c, "invalid product id")
 		}
 		product = &p
 		create_wish_params.ProductID = sql.NullInt64{
-			Int64: *input.ProductID,
+			Int64: product_id,
 			Valid: true,
 		}
+
+		// check if wish with `product_id` already exists and update `quantity`
+		existing_wish, existing_wish_err := ctr.Querier.GetWishWithProductID(c.Context(), database.GetWishWithProductIDParams{
+			UserID: auth.User.ID,
+			EventID: event_id,
+			ParticipantID: participant.ID,
+			ProductID: sql.NullInt64{
+				Valid: true,
+				Int64: product_id,
+			},
+		})
+		if existing_wish_err == nil {
+			updated_wish, update_wish_err := ctr.Querier.UpdateWishQuantity(c.Context(), database.UpdateWishQuantityParams{
+				ID: existing_wish.ID,
+				Quantity: existing_wish.Quantity + 1,
+			})
+			if update_wish_err != nil {
+				return utils.FailResponse(c, "could not update wish quantity")
+			}
+			return utils.DataResponse(c, mappers.DbWishToWish(updated_wish, product))
+		}
 	}
+
 	wish, err := ctr.Querier.CreateWish(c.Context(), create_wish_params)
 	if err != nil {
 		return utils.FailResponse(c, "could not create wish")

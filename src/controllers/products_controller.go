@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
@@ -58,27 +59,7 @@ func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 	}
 	mapped_products := make([]types.Product, len(products))
 	for i, p := range products {
-		mapped_products[i] = types.Product{
-			ID: p.Product.ID,
-			Title: p.Product.Title,
-			Description: p.Product.Description.String,
-			ProductKey: p.Product.ProductKey,
-			ImageUrl: p.Product.ImageUrl,
-			TotalReviews: p.Product.TotalReviews,
-			Rating: p.Product.Rating,
-			Price: p.Product.Price,
-			Currency: string(p.Product.Currency),
-			Url: p.Product.Url,
-			CategoryID: p.Product.CategoryID.Int64,
-			Category: types.Category{
-				ID: p.Category.ID,
-				Name: p.Category.Name,
-				Description: p.Category.Description.String,
-			},
-			CreatedAt: p.Product.CreatedAt,
-			UpdatedAt: p.Product.UpdatedAt,
-			Origin: p.Product.Origin,
-		}
+		mapped_products[i] = mappers.DbProductToProduct(p.Product, &p.Category)
 	}
 	return utils.DataResponse(c, mapped_products)
 }
@@ -94,10 +75,11 @@ func (ctr Controller) CreateProduct(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.FailResponse(c, "could not create/update product")
 	}
+	mapped_product := mappers.DbProductToProduct(product, nil)
 	if created {
-		return utils.DataResponseCreated(c, product)
+		return utils.DataResponseCreated(c, mapped_product)
 	}
-	return utils.DataResponse(c, product)
+	return utils.DataResponse(c, mapped_product)
 }
 
 // [GET] /products/:id
@@ -111,5 +93,5 @@ func (ctr Controller) FindProduct(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.FailResponse(c, "product not found")
 	}
-	return utils.DataResponse(c, product)
+	return utils.DataResponse(c, mappers.DbProductToProduct(product, nil))
 }

@@ -45,6 +45,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.createWishStmt, err = db.PrepareContext(ctx, createWish); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateWish: %w", err)
+	}
 	if q.declineEventInviteStmt, err = db.PrepareContext(ctx, declineEventInvite); err != nil {
 		return nil, fmt.Errorf("error preparing query DeclineEventInvite: %w", err)
 	}
@@ -53,6 +56,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.deleteParticipantByIdAndEventIdStmt, err = db.PrepareContext(ctx, deleteParticipantByIdAndEventId); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteParticipantByIdAndEventId: %w", err)
+	}
+	if q.deleteWishStmt, err = db.PrepareContext(ctx, deleteWish); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteWish: %w", err)
 	}
 	if q.filterProductsStmt, err = db.PrepareContext(ctx, filterProducts); err != nil {
 		return nil, fmt.Errorf("error preparing query FilterProducts: %w", err)
@@ -105,6 +111,15 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.findUserByIdOrEmailStmt, err = db.PrepareContext(ctx, findUserByIdOrEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query FindUserByIdOrEmail: %w", err)
 	}
+	if q.getAllWishesForUserStmt, err = db.PrepareContext(ctx, getAllWishesForUser); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAllWishesForUser: %w", err)
+	}
+	if q.getWishByAllIDsStmt, err = db.PrepareContext(ctx, getWishByAllIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetWishByAllIDs: %w", err)
+	}
+	if q.getWishWithProductIDStmt, err = db.PrepareContext(ctx, getWishWithProductID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetWishWithProductID: %w", err)
+	}
 	if q.patchParticipantStmt, err = db.PrepareContext(ctx, patchParticipant); err != nil {
 		return nil, fmt.Errorf("error preparing query PatchParticipant: %w", err)
 	}
@@ -119,6 +134,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.updateProductStmt, err = db.PrepareContext(ctx, updateProduct); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateProduct: %w", err)
+	}
+	if q.updateWishQuantityStmt, err = db.PrepareContext(ctx, updateWishQuantity); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateWishQuantity: %w", err)
 	}
 	if q.verifyEventForUserAsOrganizerStmt, err = db.PrepareContext(ctx, verifyEventForUserAsOrganizer); err != nil {
 		return nil, fmt.Errorf("error preparing query VerifyEventForUserAsOrganizer: %w", err)
@@ -172,6 +190,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
 		}
 	}
+	if q.createWishStmt != nil {
+		if cerr := q.createWishStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createWishStmt: %w", cerr)
+		}
+	}
 	if q.declineEventInviteStmt != nil {
 		if cerr := q.declineEventInviteStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing declineEventInviteStmt: %w", cerr)
@@ -185,6 +208,11 @@ func (q *Queries) Close() error {
 	if q.deleteParticipantByIdAndEventIdStmt != nil {
 		if cerr := q.deleteParticipantByIdAndEventIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteParticipantByIdAndEventIdStmt: %w", cerr)
+		}
+	}
+	if q.deleteWishStmt != nil {
+		if cerr := q.deleteWishStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteWishStmt: %w", cerr)
 		}
 	}
 	if q.filterProductsStmt != nil {
@@ -272,6 +300,21 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing findUserByIdOrEmailStmt: %w", cerr)
 		}
 	}
+	if q.getAllWishesForUserStmt != nil {
+		if cerr := q.getAllWishesForUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAllWishesForUserStmt: %w", cerr)
+		}
+	}
+	if q.getWishByAllIDsStmt != nil {
+		if cerr := q.getWishByAllIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getWishByAllIDsStmt: %w", cerr)
+		}
+	}
+	if q.getWishWithProductIDStmt != nil {
+		if cerr := q.getWishWithProductIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getWishWithProductIDStmt: %w", cerr)
+		}
+	}
 	if q.patchParticipantStmt != nil {
 		if cerr := q.patchParticipantStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing patchParticipantStmt: %w", cerr)
@@ -295,6 +338,11 @@ func (q *Queries) Close() error {
 	if q.updateProductStmt != nil {
 		if cerr := q.updateProductStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateProductStmt: %w", cerr)
+		}
+	}
+	if q.updateWishQuantityStmt != nil {
+		if cerr := q.updateWishQuantityStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateWishQuantityStmt: %w", cerr)
 		}
 	}
 	if q.verifyEventForUserAsOrganizerStmt != nil {
@@ -363,9 +411,11 @@ type Queries struct {
 	createParticipantStmt                    *sql.Stmt
 	createProductStmt                        *sql.Stmt
 	createUserStmt                           *sql.Stmt
+	createWishStmt                           *sql.Stmt
 	declineEventInviteStmt                   *sql.Stmt
 	deleteEventStmt                          *sql.Stmt
 	deleteParticipantByIdAndEventIdStmt      *sql.Stmt
+	deleteWishStmt                           *sql.Stmt
 	filterProductsStmt                       *sql.Stmt
 	findAllEventsWithUserStmt                *sql.Stmt
 	findCategoryByNameStmt                   *sql.Stmt
@@ -383,11 +433,15 @@ type Queries struct {
 	findUserByIdStmt                         *sql.Stmt
 	findUserByIdAndEmailStmt                 *sql.Stmt
 	findUserByIdOrEmailStmt                  *sql.Stmt
+	getAllWishesForUserStmt                  *sql.Stmt
+	getWishByAllIDsStmt                      *sql.Stmt
+	getWishWithProductIDStmt                 *sql.Stmt
 	patchParticipantStmt                     *sql.Stmt
 	setUserAsAdminStmt                       *sql.Stmt
 	updateEventStmt                          *sql.Stmt
 	updateParticipantStatusStmt              *sql.Stmt
 	updateProductStmt                        *sql.Stmt
+	updateWishQuantityStmt                   *sql.Stmt
 	verifyEventForUserAsOrganizerStmt        *sql.Stmt
 	verifyEventForUserAsParticipantStmt      *sql.Stmt
 	verifyEventWithEmailOrUserStmt           *sql.Stmt
@@ -405,9 +459,11 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createParticipantStmt:                    q.createParticipantStmt,
 		createProductStmt:                        q.createProductStmt,
 		createUserStmt:                           q.createUserStmt,
+		createWishStmt:                           q.createWishStmt,
 		declineEventInviteStmt:                   q.declineEventInviteStmt,
 		deleteEventStmt:                          q.deleteEventStmt,
 		deleteParticipantByIdAndEventIdStmt:      q.deleteParticipantByIdAndEventIdStmt,
+		deleteWishStmt:                           q.deleteWishStmt,
 		filterProductsStmt:                       q.filterProductsStmt,
 		findAllEventsWithUserStmt:                q.findAllEventsWithUserStmt,
 		findCategoryByNameStmt:                   q.findCategoryByNameStmt,
@@ -425,11 +481,15 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		findUserByIdStmt:                         q.findUserByIdStmt,
 		findUserByIdAndEmailStmt:                 q.findUserByIdAndEmailStmt,
 		findUserByIdOrEmailStmt:                  q.findUserByIdOrEmailStmt,
+		getAllWishesForUserStmt:                  q.getAllWishesForUserStmt,
+		getWishByAllIDsStmt:                      q.getWishByAllIDsStmt,
+		getWishWithProductIDStmt:                 q.getWishWithProductIDStmt,
 		patchParticipantStmt:                     q.patchParticipantStmt,
 		setUserAsAdminStmt:                       q.setUserAsAdminStmt,
 		updateEventStmt:                          q.updateEventStmt,
 		updateParticipantStatusStmt:              q.updateParticipantStatusStmt,
 		updateProductStmt:                        q.updateProductStmt,
+		updateWishQuantityStmt:                   q.updateWishQuantityStmt,
 		verifyEventForUserAsOrganizerStmt:        q.verifyEventForUserAsOrganizerStmt,
 		verifyEventForUserAsParticipantStmt:      q.verifyEventForUserAsParticipantStmt,
 		verifyEventWithEmailOrUserStmt:           q.verifyEventWithEmailOrUserStmt,

@@ -80,13 +80,20 @@ export interface ProductFilter {
   maxPrice?: number /* float32 */;
   sort?: string;
 }
+export interface CreateWish {
+  productId?: number /* int64 */;
+}
+export interface DeleteWish {
+  wishId: number /* int64 */;
+}
 export interface Wish {
   id: number /* int64 */;
   userId: number /* int64 */;
   participantId: number /* int64 */;
   productId?: number /* int64 */;
   product?: Product;
-  EventID: number /* int64 */;
+  eventId: number /* int64 */;
+  quantity: number /* int32 */;
 }
 export interface Participant {
   id: number /* int64 */;

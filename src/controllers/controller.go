@@ -68,6 +68,12 @@ func New(app_ctx types.AppContext, querier *database.Queries, service services.S
 		participants.Get("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.GetParticipantById)
 		participants.Patch("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.UpdateMeParticipant)
 	}
+	wishes := server.Group("/wishes")
+	{
+		wishes.Post("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.CreateWish)
+		wishes.Delete("/:event_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.DeleteWish)
+		wishes.Get("/:event_id/:participant_id", c.UseJwtAuth, c.UseEventAuthWithParam, c.UseEventParticipantAuthWithParam, c.GetWishes)
+	}
 	server.Get("*", func(c *fiber.Ctx) error {
 		return utils.ResponseWithStatusCode(c, fiber.ErrNotFound.Code, types.Errors{
 			Errors: []string{"resource not found"},
@@ -99,4 +105,8 @@ func ParseEventIdFromRoute(c *fiber.Ctx) (event_id int64, error error) {
 func GetEventIdFromContext(user_context context.Context) int64 {
 	id := user_context.Value(EVENT_ID_PARAM_KEY).(int64)
 	return id
+}
+
+func GetParticipantFromContext(user_context context.Context) database.Participant {
+	return user_context.Value(PARTICIPANT_OB_KEY).(database.Participant)
 }

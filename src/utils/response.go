@@ -5,12 +5,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ResponseWithStatusCode(c *fiber.Ctx, statusCode int, data interface{}) error {
+func ResponseWithStatusCode[T any](c *fiber.Ctx, statusCode int, data T) error {
 	return c.Status(statusCode).JSON(data)
 }
 
 // Generic json response with status code 200
-func JsonResponse(c *fiber.Ctx, data interface{}) error {
+func JsonResponse[T any](c *fiber.Ctx, data T) error {
 	return ResponseWithStatusCode(c, fiber.StatusOK, data)
 }
 
@@ -36,11 +36,11 @@ func FailResponseNotFound(c *fiber.Ctx, errors ...string) error {
 }
 
 // types.Data json response with status code 200
-func DataResponse(c *fiber.Ctx, data interface{}) error {
+func DataResponse[T any](c *fiber.Ctx, data T) error {
 	return ResponseWithStatusCode(c, fiber.StatusOK, data)
 }
 
 // types.Data json response with status code 201
-func DataResponseCreated(c *fiber.Ctx, data interface{}) error {
+func DataResponseCreated[T any](c *fiber.Ctx, data T) error {
 	return ResponseWithStatusCode(c, fiber.StatusCreated, data)
 }

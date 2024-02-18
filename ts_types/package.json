@@ -1,0 +1,8 @@
+{
+  "author": "ayaanqui",
+  "description": "",
+  "license": "ISC",
+  "main": "types.ts",
+  "name": "@giftxtrade/api-types",
+  "version": "1.1.3"
+}

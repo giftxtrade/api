@@ -102,13 +102,13 @@ type DeleteWish struct {
 }
 
 type Wish struct {
-	ID int64 `json:"id"`
+	ID int64 `json:"id" sql:"primary_key"`
 	UserID int64 `json:"userId"`
 	ParticipantID int64 `json:"participantId"`
 	ProductID int64 `json:"productId,omitempty"`
 	Product *Product `json:"product,omitempty"`
 	EventID int64 `json:"eventId"`
-	Quantity int32 `json:"quantity"`
+	Quantity int32 `json:"quantity" alias:"wish.quantity"`
 }
 
 type Participant struct {
@@ -162,6 +162,7 @@ type Event struct {
 	UpdatedAt time.Time `json:"updatedAt" alias:"event.updated_at"`
 	Participants []Participant `json:"participants,omitempty"`
 	Links []Link `json:"links,omitempty"`
+	MyWishList []Wish `json:"my_wish_list,omitempty"`
 }
 
 type CreateEvent struct {

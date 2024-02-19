@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/giftxtrade/api/src/database"
+	. "github.com/giftxtrade/api/src/database/jet/postgres/public/table"
 	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
+	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -33,26 +35,84 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 
 func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 	auth_user := GetAuthContext(c.UserContext())
-	events, err := ctr.Querier.FindAllEventsWithUser(c.Context(), sql.NullInt64{
-		Valid: true,
-		Int64: auth_user.User.ID,
-	})
-	if err != nil {
-		return utils.FailResponse(c, "could not return events", err.Error())
-	}
 
-	mapped_events := mappers.DbFindAllEventsWithUserRowToEvent(events)
-	return utils.DataResponse(c, mapped_events)
+	participant_user_sub_query := SELECT(
+		Participant.AllColumns,
+		User.AllColumns,
+	).
+	FROM(
+		Participant.
+			LEFT_JOIN(User, Participant.UserID.EQ(User.ID)),
+	).
+	ORDER_BY(Participant.ID.ASC()).
+	AsTable(Participant.TableName())
+
+	query := SELECT(
+		Event.AllColumns,
+		Link.AllColumns,
+		participant_user_sub_query.AllColumns(),
+	).FROM(
+		Event.
+			LEFT_JOIN(Link, Event.ID.EQ(Link.EventID)).
+			LEFT_JOIN(Participant.AS("p1"), Event.ID.EQ(Participant.AS("p1").EventID)).
+			LEFT_JOIN(
+				participant_user_sub_query,
+				Event.ID.EQ(Participant.EventID.From(participant_user_sub_query)),
+			),
+	).
+	WHERE(
+		Participant.AS("p1").UserID.EQ(Int(auth_user.User.ID)),
+	).
+	ORDER_BY(
+		Event.DrawAt.ASC(),
+		Event.CloseAt.ASC(),
+		Participant.ID.From(participant_user_sub_query).ASC(),
+	)
+
+	var dest []types.Event
+	err := query.QueryContext(c.Context(), ctr.DB, &dest)
+	if err != nil {
+		fmt.Println(query.DebugSql(), err)
+		return utils.FailResponse(c, "could not return events")
+	}
+	return utils.DataResponse(c, dest)
 }
 
 func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
+	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
-	event_rows, err := ctr.Querier.FindEventById(c.Context(), event_id)
+
+	query := SELECT(
+		Event.AllColumns,
+		Participant.AllColumns,
+		User.AllColumns,
+		Link.AllColumns,
+		Wish.AllColumns,
+		Product.AllColumns,
+	).FROM(
+		Event.
+			LEFT_JOIN(Link, Event.ID.EQ(Link.EventID)).
+			INNER_JOIN(Participant, Event.ID.EQ(Participant.EventID)).
+			LEFT_JOIN(User, Participant.UserID.EQ(User.ID)).
+			LEFT_JOIN(
+				Wish,
+				Event.ID.EQ(Wish.EventID).
+				AND(
+					Wish.UserID.EQ(Int(auth.User.ID)),
+				),
+			).
+			LEFT_JOIN(Product, Wish.ProductID.EQ(Product.ID)),
+	).WHERE(Event.ID.EQ(Int(event_id))).ORDER_BY(
+		Participant.Organizer.DESC(),
+		Participant.Accepted.DESC(),
+		Participant.CreatedAt.DESC(),
+	)
+
+	var event types.Event
+	err := query.QueryContext(c.Context(), ctr.DB, &event)
 	if err != nil {
 		return utils.FailResponse(c, "could not load event")
 	}
-
-	event := mappers.DbFindEventByIdToEvent(event_rows)
 	return utils.DataResponse(c, event)
 }
 

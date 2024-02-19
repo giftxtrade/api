@@ -24,6 +24,7 @@ type wishTable struct {
 	EventID       postgres.ColumnInteger
 	CreatedAt     postgres.ColumnTimestampz
 	UpdatedAt     postgres.ColumnTimestampz
+	Quantity      postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -71,8 +72,9 @@ func newWishTableImpl(schemaName, tableName, alias string) wishTable {
 		EventIDColumn       = postgres.IntegerColumn("event_id")
 		CreatedAtColumn     = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn     = postgres.TimestampzColumn("updated_at")
-		allColumns          = postgres.ColumnList{IDColumn, UserIDColumn, ParticipantIDColumn, ProductIDColumn, EventIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns      = postgres.ColumnList{UserIDColumn, ParticipantIDColumn, ProductIDColumn, EventIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		QuantityColumn      = postgres.IntegerColumn("quantity")
+		allColumns          = postgres.ColumnList{IDColumn, UserIDColumn, ParticipantIDColumn, ProductIDColumn, EventIDColumn, CreatedAtColumn, UpdatedAtColumn, QuantityColumn}
+		mutableColumns      = postgres.ColumnList{UserIDColumn, ParticipantIDColumn, ProductIDColumn, EventIDColumn, CreatedAtColumn, UpdatedAtColumn, QuantityColumn}
 	)
 
 	return wishTable{
@@ -86,6 +88,7 @@ func newWishTableImpl(schemaName, tableName, alias string) wishTable {
 		EventID:       EventIDColumn,
 		CreatedAt:     CreatedAtColumn,
 		UpdatedAt:     UpdatedAtColumn,
+		Quantity:      QuantityColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

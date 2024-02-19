@@ -1,6 +1,9 @@
 sqlc:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 
+jet:
+	go run github.com/go-jet/jet/v2/cmd/jet -dsn=postgresql://postgres:postgres@localhost:5433/postgres?sslmode=disable -path=./src/database/jet
+
 create-migration:
 	go run github.com/ayaanqui/go-migration-tool --directory "./src/database/migrations" create-migration $(fileName)
 

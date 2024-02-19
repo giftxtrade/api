@@ -19,4 +19,5 @@ type Wish struct {
 	EventID       int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	Quantity      int32
 }

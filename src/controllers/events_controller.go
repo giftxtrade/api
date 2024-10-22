@@ -33,26 +33,21 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 
 func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 	auth_user := GetAuthContext(c.UserContext())
-	events, err := ctr.Querier.FindAllEventsWithUser(c.Context(), sql.NullInt64{
-		Valid: true,
-		Int64: auth_user.User.ID,
-	})
+	events, err := ctr.Service.EventService.FindEventsForUser(c.Context(), auth_user.User)
 	if err != nil {
-		return utils.FailResponse(c, "could not return events", err.Error())
+		return utils.FailResponse(c, "could not return events")
 	}
-
-	mapped_events := mappers.DbFindAllEventsWithUserRowToEvent(events)
-	return utils.DataResponse(c, mapped_events)
+	return utils.DataResponse(c, events)
 }
 
 func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
+	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
-	event_rows, err := ctr.Querier.FindEventById(c.Context(), event_id)
+
+	event, err := ctr.Service.EventService.FindEventById(c.Context(), auth.User, event_id)
 	if err != nil {
 		return utils.FailResponse(c, "could not load event")
 	}
-
-	event := mappers.DbFindEventByIdToEvent(event_rows)
 	return utils.DataResponse(c, event)
 }
 

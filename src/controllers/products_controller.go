@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"database/sql"
-	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -39,29 +36,12 @@ func (ctr Controller) FindAllProducts(c *fiber.Ctx) error {
 		return utils.FailResponse(c, err.Error())
 	}
 	
-	products, err := ctr.Querier.FilterProducts(c.Context(), database.FilterProductsParams{
-		Search: sql.NullString{
-			Valid: filter.Search != nil && *filter.Search != "",
-			String: *filter.Search,
-		},
-		Limit: filter.Limit,
-		Page: filter.Page,
-		MaxPrice: fmt.Sprintf("$%.2f", filter.MaxPrice),
-		MinPrice: fmt.Sprintf("$%.2f", filter.MinPrice),
-		SortByPrice: sql.NullBool{
-			Valid: *filter.Sort == "price",
-			Bool: *filter.Sort == "price",
-		},
-	})
+	products, err := ctr.Service.ProductService.Search(c.Context(), filter)
 	if err != nil {
 		errors := strings.Split(err.Error(), "\n")
 		return utils.FailResponse(c, errors...)
 	}
-	mapped_products := make([]types.Product, len(products))
-	for i, p := range products {
-		mapped_products[i] = mappers.DbProductToProduct(p.Product, &p.Category)
-	}
-	return utils.DataResponse(c, mapped_products)
+	return utils.DataResponse(c, products)
 }
 
 // [POST] /products

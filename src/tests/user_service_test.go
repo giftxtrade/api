@@ -10,7 +10,6 @@ import (
 )
 
 func TestUserService(t *testing.T) {
-	app := New(t)
 	user_service := app.Service.UserService
 
 	test_user1 := database.CreateUserParams{
@@ -21,7 +20,7 @@ func TestUserService(t *testing.T) {
 
 	test_user2 := database.CreateUserParams{
 		Name: "Test User",
-		Email: "testuser@email.com",
+		Email: "testuser123@email.com",
 		ImageUrl: "https://images.com/test_user2",
 	}
 

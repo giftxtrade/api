@@ -3,14 +3,73 @@ package services
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/url"
 
 	"github.com/giftxtrade/api/src/database"
+	"github.com/giftxtrade/api/src/database/jet/postgres/public/table"
 	"github.com/giftxtrade/api/src/types"
+	"github.com/go-jet/jet/v2/postgres"
 )
 
 type ProductService struct {
 	ServiceBase
+}
+
+func (service *ProductService) Search(ctx context.Context, filter types.ProductFilter) (products []types.Product, err error) {
+	products = []types.Product{}
+	search := ""
+	if filter.Search != nil {
+		search = *filter.Search
+	}
+	qb := table.Product.
+		SELECT(
+			table.Product.AllColumns, 
+			table.Category.ID,
+			table.Category.Name,
+			postgres.CEIL(postgres.RawFloat(fmt.Sprintf(
+				"%s.%s * %s.%s", 
+				table.Product.TableName(), 
+				table.Product.TotalReviews.Name(), 
+				table.Product.TableName(), 
+				table.Product.Rating.Name(),
+			))).AS("weight"),
+		).
+		FROM(table.Product.
+			INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID),
+		)).
+		WHERE(
+			postgres.AND(
+				postgres.String(search).EQ(postgres.String("")). // skips the ts_query expression if search is empty
+				OR(
+					postgres.RawBool(
+						fmt.Sprintf(
+							"%s.%s @@ to_tsquery('english', $search::TEXT)",
+							table.Product.ProductTs.TableName(),
+							table.Product.ProductTs.Name(),
+						),
+						postgres.RawArgs{"$search": search},
+					),
+				),
+				postgres.RawBool(fmt.Sprintf(
+					"%s.%s BETWEEN '$%.2f'::MONEY AND '$%.2f'::MONEY", 
+					table.Product.TableName(), table.Product.Price.Name(), 
+					filter.MinPrice, 
+					filter.MaxPrice,
+				)),
+			),
+		).
+		ORDER_BY(
+			postgres.CASE().
+				WHEN(postgres.Bool(*filter.Sort == "price")).
+				THEN(table.Product.Price).
+				ASC(),
+			postgres.FloatColumn("weight").DESC(),
+		).
+		LIMIT(int64(filter.Limit)).
+		OFFSET(int64(filter.Limit * (filter.Page - 1)))
+	err = qb.QueryContext(ctx, service.DB, &products)
+	return products, err
 }
 
 func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.CreateProduct) (database.Product, bool, error) {

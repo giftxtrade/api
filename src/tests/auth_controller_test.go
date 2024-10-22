@@ -6,17 +6,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/gofiber/fiber/v2"
 )
 
 func TestAuthController(t *testing.T) {
-	app := New(t)
 	user_service := app.Service.UserService
-	controller := SetupMockController(app)
 	token := app.Tokens.JwtKey
-	server := fiber.New()
 
 	t.Run("auth middleware", func(t *testing.T) {
 		t.Run("should throw status 401", func(t *testing.T) {
@@ -50,7 +46,7 @@ func TestAuthController(t *testing.T) {
 			})
 
 			t.Run("invalid jwt", func(t *testing.T) {
-				jwt, err := user_service.GenerateJWT(token, &database.User{
+				jwt, err := user_service.GenerateJWT(token, &types.User{
 					Name: "New User 1",
 					Email: "new_user1@email.com",
 					Active: true,
@@ -79,6 +75,7 @@ func TestAuthController(t *testing.T) {
 			user, _, err := user_service.FindOrCreate(context.Background(), types.CreateUser{
 				Name: "Naruto Uzumaki",
 				Email: "naruto_uzumaki@gmail.com",
+				ImageUrl: "",
 			})
 			if err != nil {
 				t.Fatal(err)
@@ -189,7 +186,7 @@ func TestAuthController(t *testing.T) {
 					Email: user.Email,
 					ImageUrl: user.ImageUrl,
 					Active: user.Active,
-					Phone: user.Phone.String,
+					Phone: user.Phone,
 					Admin: user.Admin,
 				},
 			}

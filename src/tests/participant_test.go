@@ -12,17 +12,13 @@ import (
 
 	"github.com/giftxtrade/api/src/controllers"
 	"github.com/giftxtrade/api/src/database"
-	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
 func TestParticipant(t *testing.T) {
-	app := New(t)
-	controller := SetupMockController(app)
 	token := app.Tokens.JwtKey
-	server := fiber.New()
 	user_service := app.Service.UserService
 	event_service := app.Service.EventService
 
@@ -35,7 +31,6 @@ func TestParticipant(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user1_dto := mappers.DbUserToUser(user1)
 
 	// User #2
 	user2, _, err := app.Service.UserService.FindOrCreate(context.Background(), types.CreateUser{
@@ -61,7 +56,7 @@ func TestParticipant(t *testing.T) {
 			Participates: false,
 		}),
 	}
-	user1_event, err := event_service.CreateEvent(context.Background(), &user1_dto, event1_input)
+	user1_event, err := event_service.CreateEvent(context.Background(), &user1, event1_input)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,7 +9,6 @@ import (
 )
 
 func TestCategoryService(t *testing.T) {
-	app := New(t)
 	querier := app.Querier
 
 	input1 := database.CreateCategoryParams{

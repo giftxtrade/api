@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/giftxtrade/api/src/controllers"
-	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/services"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
@@ -76,7 +75,7 @@ func TestGetJwtClaims(t *testing.T) {
 
 func TestGenerateTokens(t *testing.T) {
     {
-        user := database.User{
+        user := types.User{
             ID: 1,
             Email: "johndoe@example.com",
             Name: "John Doe",

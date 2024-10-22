@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/giftxtrade/api/src/controllers"
-	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
 	"github.com/gofiber/fiber/v2"
@@ -29,7 +28,6 @@ func create_participants(n int) []types.CreateParticipant {
 }
 
 func TestEventService(t *testing.T) {
-	app := New(t)
 	user_service := app.Service.UserService
 	event_service := app.Service.EventService
 	user_1, _, err := app.Service.UserService.FindOrCreate(context.Background(), types.CreateUser{
@@ -39,7 +37,6 @@ func TestEventService(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user1_dto := mappers.DbUserToUser(user_1)
 	user_2, _, err := app.Service.UserService.FindOrCreate(context.Background(), types.CreateUser{
 		Name: "Some other random user",
 		Email: "thisrandomuser@email.com",
@@ -47,7 +44,6 @@ func TestEventService(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user2_dto := mappers.DbUserToUser(user_2)
 
 	t.Run("create event", func(t *testing.T) {
 		t.Run("correct params", func(t *testing.T) {
@@ -63,7 +59,7 @@ func TestEventService(t *testing.T) {
 					Participates: false,
 				}),
 			}
-			new_event, err := event_service.CreateEvent(context.Background(), &user1_dto, input)
+			new_event, err := event_service.CreateEvent(context.Background(), &user_1, input)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -100,13 +96,13 @@ func TestEventService(t *testing.T) {
 					Participates: true,
 				}),
 			}
-			_, err := event_service.CreateEvent(context.Background(), &user1_dto, event)
+			_, err := event_service.CreateEvent(context.Background(), &user_1, event)
 			if err == nil {
 				t.Fatal("event should not be created. main participant is not marked 'organizer'")
 			}
 
 			event.Participants = create_participants(20)
-			_, err = event_service.CreateEvent(context.Background(), &user1_dto, event)
+			_, err = event_service.CreateEvent(context.Background(), &user_1, event)
 			if err == nil {
 				t.Fatal("event should not be created. main participant was not provided")
 			}
@@ -114,20 +110,18 @@ func TestEventService(t *testing.T) {
 	})
 
 	t.Run("event authentication", func(t *testing.T) {
-		controller := SetupMockController(app)
 		token := app.Tokens.JwtKey
-		server := fiber.New()
 		user_1_jwt, _ := user_service.GenerateJWT(token, &user_1)
 		user_2_jwt, _ := user_service.GenerateJWT(token, &user_2)
 
-		user2_event, err := event_service.CreateEvent(context.Background(), &user2_dto, types.CreateEvent{
+		user2_event, err := event_service.CreateEvent(context.Background(), &user_2, types.CreateEvent{
 			Name: "UseEventAuthWithParam Test Event",
 			Budget: 200,
 			DrawAt: time.Now(),
 			CloseAt: time.Now().Add(time.Hour * 24 * 30), // 30 days from now
 			Participants: append(create_participants(20), types.CreateParticipant{
-				Email: user2_dto.Email,
-				Name: user2_dto.Name,
+				Email: user_2.Email,
+				Name: user_2.Name,
 				Organizer: true,
 			}),
 		})

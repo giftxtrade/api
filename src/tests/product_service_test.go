@@ -11,7 +11,6 @@ import (
 )
 
 func TestProductService(t *testing.T) {
-	app := New(t)
 	product_service := app.Service.ProductService
 
 	t.Run("create product", func(t *testing.T) {

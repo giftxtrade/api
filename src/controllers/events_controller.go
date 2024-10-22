@@ -6,11 +6,9 @@ import (
 	"time"
 
 	"github.com/giftxtrade/api/src/database"
-	"github.com/giftxtrade/api/src/database/jet/postgres/public/table"
 	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	"github.com/go-jet/jet/v2/postgres"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,81 +33,18 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 
 func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 	auth_user := GetAuthContext(c.UserContext())
-
-	participant_user_sub_query := table.Participant.SELECT(
-		table.Participant.AllColumns,
-		table.User.AllColumns,
-	).
-	FROM(
-		table.Participant.
-			LEFT_JOIN(table.User, table.Participant.UserID.EQ(table.User.ID)),
-	).
-	ORDER_BY(table.Participant.ID.ASC()).
-	AsTable(table.Participant.TableName())
-
-	query := table.Event.SELECT(
-		table.Event.AllColumns,
-		table.Link.AllColumns,
-		participant_user_sub_query.AllColumns(),
-	).FROM(
-		table.Event.
-			LEFT_JOIN(table.Link, table.Event.ID.EQ(table.Link.EventID)).
-			LEFT_JOIN(table.Participant.AS("p1"), table.Event.ID.EQ(table.Participant.AS("p1").EventID)).
-			LEFT_JOIN(
-				participant_user_sub_query,
-				table.Event.ID.EQ(table.Participant.EventID.From(participant_user_sub_query)),
-			),
-	).
-	WHERE(
-		table.Participant.AS("p1").UserID.EQ(postgres.Int(auth_user.User.ID)),
-	).
-	ORDER_BY(
-		table.Event.DrawAt.ASC(),
-		table.Event.CloseAt.ASC(),
-		table.Participant.ID.From(participant_user_sub_query).ASC(),
-	)
-
-	var dest []types.Event
-	err := query.QueryContext(c.Context(), ctr.DB, &dest)
+	events, err := ctr.Service.EventService.FindEventsForUser(c.Context(), auth_user.User)
 	if err != nil {
-		fmt.Println(query.DebugSql(), err)
 		return utils.FailResponse(c, "could not return events")
 	}
-	return utils.DataResponse(c, dest)
+	return utils.DataResponse(c, events)
 }
 
 func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
 
-	query := table.Event.SELECT(
-		table.Event.AllColumns,
-		table.Participant.AllColumns,
-		table.User.AllColumns,
-		table.Link.AllColumns,
-		table.Wish.AllColumns,
-		table.Product.AllColumns,
-	).FROM(
-		table.Event.
-			LEFT_JOIN(table.Link, table.Event.ID.EQ(table.Link.EventID)).
-			INNER_JOIN(table.Participant, table.Event.ID.EQ(table.Participant.EventID)).
-			LEFT_JOIN(table.User, table.Participant.UserID.EQ(table.User.ID)).
-			LEFT_JOIN(
-				table.Wish,
-				table.Event.ID.EQ(table.Wish.EventID).
-				AND(
-					table.Wish.UserID.EQ(postgres.Int(auth.User.ID)),
-				),
-			).
-			LEFT_JOIN(table.Product, table.Wish.ProductID.EQ(table.Product.ID)),
-	).WHERE(table.Event.ID.EQ(postgres.Int64(event_id))).ORDER_BY(
-		table.Participant.Organizer.DESC(),
-		table.Participant.Accepted.DESC(),
-		table.Participant.CreatedAt.DESC(),
-	)
-
-	var event types.Event
-	err := query.QueryContext(c.Context(), ctr.DB, &event)
+	event, err := ctr.Service.EventService.FindEventById(c.Context(), auth.User, event_id)
 	if err != nil {
 		return utils.FailResponse(c, "could not load event")
 	}

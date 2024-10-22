@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5433:5432'
+    volumes: 
+      - giftxtrade-db:/var/lib/postgresql/data
+  
+  db-test:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '54322:5432'
+    volumes: 
+      - giftxtrade-db-test:/var/lib/postgresql/data
+volumes:
+  giftxtrade-db:
+    driver: local
+  giftxtrade-db-test:
+    driver: local

@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/giftxtrade/api/src/database"
-	. "github.com/giftxtrade/api/src/database/jet/postgres/public/table"
+	"github.com/giftxtrade/api/src/database/jet/postgres/public/table"
 	"github.com/giftxtrade/api/src/mappers"
 	"github.com/giftxtrade/api/src/types"
 	"github.com/giftxtrade/api/src/utils"
-	. "github.com/go-jet/jet/v2/postgres"
+	"github.com/go-jet/jet/v2/postgres"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -36,37 +36,37 @@ func (ctr *Controller) CreateEvent(c *fiber.Ctx) error {
 func (ctr *Controller) GetEvents(c *fiber.Ctx) error {
 	auth_user := GetAuthContext(c.UserContext())
 
-	participant_user_sub_query := SELECT(
-		Participant.AllColumns,
-		User.AllColumns,
+	participant_user_sub_query := table.Participant.SELECT(
+		table.Participant.AllColumns,
+		table.User.AllColumns,
 	).
 	FROM(
-		Participant.
-			LEFT_JOIN(User, Participant.UserID.EQ(User.ID)),
+		table.Participant.
+			LEFT_JOIN(table.User, table.Participant.UserID.EQ(table.User.ID)),
 	).
-	ORDER_BY(Participant.ID.ASC()).
-	AsTable(Participant.TableName())
+	ORDER_BY(table.Participant.ID.ASC()).
+	AsTable(table.Participant.TableName())
 
-	query := SELECT(
-		Event.AllColumns,
-		Link.AllColumns,
+	query := table.Event.SELECT(
+		table.Event.AllColumns,
+		table.Link.AllColumns,
 		participant_user_sub_query.AllColumns(),
 	).FROM(
-		Event.
-			LEFT_JOIN(Link, Event.ID.EQ(Link.EventID)).
-			LEFT_JOIN(Participant.AS("p1"), Event.ID.EQ(Participant.AS("p1").EventID)).
+		table.Event.
+			LEFT_JOIN(table.Link, table.Event.ID.EQ(table.Link.EventID)).
+			LEFT_JOIN(table.Participant.AS("p1"), table.Event.ID.EQ(table.Participant.AS("p1").EventID)).
 			LEFT_JOIN(
 				participant_user_sub_query,
-				Event.ID.EQ(Participant.EventID.From(participant_user_sub_query)),
+				table.Event.ID.EQ(table.Participant.EventID.From(participant_user_sub_query)),
 			),
 	).
 	WHERE(
-		Participant.AS("p1").UserID.EQ(Int(auth_user.User.ID)),
+		table.Participant.AS("p1").UserID.EQ(postgres.Int(auth_user.User.ID)),
 	).
 	ORDER_BY(
-		Event.DrawAt.ASC(),
-		Event.CloseAt.ASC(),
-		Participant.ID.From(participant_user_sub_query).ASC(),
+		table.Event.DrawAt.ASC(),
+		table.Event.CloseAt.ASC(),
+		table.Participant.ID.From(participant_user_sub_query).ASC(),
 	)
 
 	var dest []types.Event
@@ -82,30 +82,30 @@ func (ctr *Controller) GetEventById(c *fiber.Ctx) error {
 	auth := GetAuthContext(c.UserContext())
 	event_id := GetEventIdFromContext(c.UserContext())
 
-	query := SELECT(
-		Event.AllColumns,
-		Participant.AllColumns,
-		User.AllColumns,
-		Link.AllColumns,
-		Wish.AllColumns,
-		Product.AllColumns,
+	query := table.Event.SELECT(
+		table.Event.AllColumns,
+		table.Participant.AllColumns,
+		table.User.AllColumns,
+		table.Link.AllColumns,
+		table.Wish.AllColumns,
+		table.Product.AllColumns,
 	).FROM(
-		Event.
-			LEFT_JOIN(Link, Event.ID.EQ(Link.EventID)).
-			INNER_JOIN(Participant, Event.ID.EQ(Participant.EventID)).
-			LEFT_JOIN(User, Participant.UserID.EQ(User.ID)).
+		table.Event.
+			LEFT_JOIN(table.Link, table.Event.ID.EQ(table.Link.EventID)).
+			INNER_JOIN(table.Participant, table.Event.ID.EQ(table.Participant.EventID)).
+			LEFT_JOIN(table.User, table.Participant.UserID.EQ(table.User.ID)).
 			LEFT_JOIN(
-				Wish,
-				Event.ID.EQ(Wish.EventID).
+				table.Wish,
+				table.Event.ID.EQ(table.Wish.EventID).
 				AND(
-					Wish.UserID.EQ(Int(auth.User.ID)),
+					table.Wish.UserID.EQ(postgres.Int(auth.User.ID)),
 				),
 			).
-			LEFT_JOIN(Product, Wish.ProductID.EQ(Product.ID)),
-	).WHERE(Event.ID.EQ(Int(event_id))).ORDER_BY(
-		Participant.Organizer.DESC(),
-		Participant.Accepted.DESC(),
-		Participant.CreatedAt.DESC(),
+			LEFT_JOIN(table.Product, table.Wish.ProductID.EQ(table.Product.ID)),
+	).WHERE(table.Event.ID.EQ(postgres.Int64(event_id))).ORDER_BY(
+		table.Participant.Organizer.DESC(),
+		table.Participant.Accepted.DESC(),
+		table.Participant.CreatedAt.DESC(),
 	)
 
 	var event types.Event

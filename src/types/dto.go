@@ -132,6 +132,8 @@ type CreateParticipant struct {
 	Address string `json:"address,omitempty" validate:"omitempty"`
 	Organizer bool `json:"organizer,omitempty" validate:"omitempty"`
 	Participates bool `json:"participates,omitempty" validate:"omitempty"`
+	UserID *int64 `json:"-" validate:"omitempty"`
+	EventID int64 `json:"-" validate:"omitempty"`
 }
 
 type PatchParticipant struct {
@@ -169,7 +171,7 @@ type CreateEvent struct {
 	Name string `json:"name" validate:"required"`
 	Description string `json:"description,omitempty"`
 	Budget float32 `json:"budget" validate:"required,gte=1"`
-	InviteMessage string `json:"inviteMessage,omitempty"`
+	InvitationMessage string `json:"invitationMessage,omitempty"`
 	DrawAt time.Time `json:"drawAt" validate:"required"`
 	CloseAt time.Time `json:"closeAt" validate:"required"`
 	Participants []CreateParticipant `json:"participants,omitempty" validate:"omitempty"`

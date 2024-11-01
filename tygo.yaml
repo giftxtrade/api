@@ -1,0 +1,9 @@
+packages:
+  - path: "github.com/giftxtrade/api/src/types"
+    output_path: "ts_types/types.ts"
+    exclude_files:
+      - app.go
+      - keys.go
+      - json.go
+    type_mappings:
+      time.Time: "string /* RFC3339 */"

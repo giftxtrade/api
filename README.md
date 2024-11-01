@@ -1,7 +1,6 @@
 <p align="center">
     <a href="http://giftxtrade.com/" target="blank">
-        <!-- <img src="https://giftxtrade.com/logos/logo_profile_rounded.svg" width='50' alt="GiftTrade Logo" /> -->
-        <img src="https://giftxtrade.com/logos/logotype_rounded_color.svg" width='250' alt="GiftTrade Logo" />
+        <img src="https://raw.githubusercontent.com/giftxtrade/logos/master/logotype_rounded_color.svg" width='250' alt="GiftTrade Logo" />
     </a>
 </p>
 
@@ -11,88 +10,80 @@
 
 <br />
 
-## Description
-The GiftTrade API repository serves as the REST API for the [giftxtrade.com](https://giftxtrade.com) web app. This repo is designed to work with a fully working MySQL database.
+## Tech stack
+- [PostgreSQL](https://www.postgresql.org/) - Primary database
+- [GORM](https://gorm.io) - ORM to interact with the database programmatically
+- [Postgres for GORM](https://github.com/go-gorm/postgres) - Postgres Driver for GORM
+- [Google UUID](https://pkg.go.dev/github.com/google/uuid@v1.3.0) - Generates UUID before inserts
+- [Fiber](https://github.com/gofiber/fiber) - Express.js inspired framework for Go (uses [Fasthttp](https://github.com/valyala/fasthttp))
+- [Goth](https://github.com/markbates/goth) - OAuth support for multiple platforms
+- [Goth Fiber](https://github.com/Shareed2k/goth_fiber) - Goth implementation for Fiber
 
-## API endpoints
-| Endpoint                                   | Request Method           | Auth | Description                      |
-| ------------------------------------------ | ------------------------ | ---- | -------------------------------- |
-| `/`                                        | `GET`                    | no   | `n/a` |
-| `/auth/google`                             | `GET`                    | no   | Redirects to Google oauth endpoint |
-| `/auth/google/redirect`                    | `GET`                    | no   | Generates a token given the Google oauth callback |
-| `/auth/profile`                            | `GET`                    | yes  | Given a token, returns the profile details for the authenticated user |
-| `/products`                                | `GET`                    | no   | Returns a list of products with given a set of query parameters to tune the results |
-| `/events`                                  | `GET`, `POST`            | yes  | Create and fetch events for an authenticated user |
-| `/events/:id`                              | `GET`, `PATCH`, `DELETE` | yes  | Fetch, update, or delete a specific event for an authenticated user. Updating or deleting an event requires the user to be an event organizer |
-| `/events/get-details/:linkCode`            | `GET`                    | yes  | Returns the name and description (if exists) for a specific event |
-| `/events/invites`                          | `GET`                    | yes  | Returns a list of all pending invites for an authenticated user |
-| `/events/invites/accept/:eventId`          | `GET`                    | yes  | Accepts the event invite for an authenticated user |
-| `/events/invites/decline/:eventId`         | `GET`                    | yes  | Declines the event invite for an authenticated user |
-| `/events/get-link/:eventId`                | `GET`                    | yes  | Generates the invite link to a specific event |
-| `/events/get-link/:eventId`                | `GET`                    | yes  | Generates the invite link to a specific event |
-| `/events/verify-invite-code/:inviteCode`   | `GET`                    | yes  | Verify the invite code for a specific event |
-| `/events/invite-code/:inviteCode`          | `GET`                    | yes  | Add the event to the user's pending invites list |
-| `/participants/manage`                     | `PATCH`, `DELETE`        | yes  | Update participant details, or remove them from event. Requires that the participant is also an organizer |
-| `/participants/:eventId/:participantId`    | `GET`                    | yes  | Fetch participant information, given the user is part of the same event |
-| `/participants/:participantId`             | `PATCH`, `DELETE`        | yes  | Allows user to manage their participant information, including leaving event, and updating address |
-| `/wishes`                                  | `POST`, `DELETE`         | yes  | Creates or removes a wishlist item |
-| `/wishes/:id`                              | `GET`                    | yes  | Fetch all wishlist items from the user participant given an event id |
-| `/wishes/:eventId/:participantId`          | `GET`                    | yes  | Fetch all wishlist items from a participant given the participant's id and an event id |
-| `/draws`                                   | `POST`                   | yes  | Creates randomized pairings from the active participants. Requires that user is an organizer |
-| `/draws/confirm/:eventId`                  | `GET`                    | yes  | Confirms the generated draws and sends emails to all the participants. Requires that user is an organizer |
-| `/draws/:eventId`                          | `GET`                    | yes  | Fetch all pairings for a given event. Requires that user is an organizer |
-| `/me/:eventId`                             | `GET`                    | yes  | Fetch user's draw for a given event |
-| `/categories`                              | `GET`                    | no   | Fetches all product categories |
+## Instructions
 
-## Set up
+### Set up config files
 
-### Clone repository
-```
-git clone git@github.com:giftxtrade/api.git
-```
+#### `db_config.json`
+This project also uses a PostgreSQL database in order to run. To start, create a file called `db_config.json` in the project root and place the following in the file, replacing all content within the `[]` with the correct database values:
 
-### Install dependencies
-```
-npm install
-```
-
-### Configure database connection
-This repo requires a working connection with a MySQL database and uses TypeORM to manage models and connections with the database.
-
-To set up the config file with the connection details, create a file named `ormconfig.json` in the root of the project directory, then copy the code below, replacing all `<...>` with the appropriate values for you local database.
 ```json
 {
-    "type": "mysql",
     "host": "localhost",
-    "port": 3306,
-    "username": "<username>",
-    "password": "<password>",
-    "database": "<database>",
-    "entities": [
-        "dist/**/*.entity{.ts,.js}"
-    ],
-    "synchronize": true
+    "dbName": "[database name]",
+    "username": "[database username]",
+    "password": "[database password]",
+    "port": 5432
 }
 ```
 
-### Configure API keys
-GiftTrade API requires a number of API keys from Google, Sendgrid, (and possible from Amazon in the near future). To configure the authentication tokens file, copy `auth-tokens.sample.json` file from the root of the project, then rename the file to `auth-tokens.json`, or use the following command in the terminal:
-```
-cp auth-tokens.sample.json ./auth-tokens.json
-```
-Once `auth-tokens.json` is present, make sure to replace all values with the appropriate values, if working locally, you can leave `FRONTEND_BASE` and `JWT.SECRET` as it is. However, it is essential that at the very least you create an account on [Google Console](https://console.cloud.google.com/) and set up an OAuth key and paste the appropriate keys on the `GOOGLE` section. Do the same for [SendGrid](https://sendgrid.com) and use the free tier to get access to the appropriate API tokens.
+***Note:*** All database table and column names are represented in `snake_case`. While all json field names are represented using `camelCase`.
 
-### Start server in watch-mode
-```
-npm start:dev
+#### `tokens.json`
+
+In addition to the `db_config.json`, you will also need to create a `tokens.json` file which will hold the JWT secret, note that this token should be a randomly generated value and must not be made public. The `token.json` file should contain the following:
+```json
+{
+    "jwtKey": "[YOUR SECRET TOKEN]",
+    "twitter": {
+        "apiKey": "[Twitter OAuth 1.0 API Key]",
+        "apiKeySecret": "[Twitter OAuth 1.0 API Secret]",
+        "bearerToken": "[Twitter OAuth Bearer Token]",
+        "callbackUrl": "http://localhost:8080/auth/twitter/callback"
+    },
+    "google": {
+        "clientId": "[Google Client Id]",
+        "clientSecret": "[Google Secret Key]",
+        "callbackUrl": "http://localhost:8080/auth/google/callback"
+    }
+}
 ```
 
-### Start server
+### Generate Binary
+
 ```
-npm start
+$ make build
 ```
 
-### Build server
+or 
+
 ```
-npm build
+$ go build src/server.go
 ```
+
+Creates an executable binary file called `server`. To run this file call `./server`, like so:
+
+```
+$ ./server
+```
+
+This should start the server on port `8080`.
+
+### Run without Binary
+
+Another way to run the server is by using the `make run` command.
+
+```
+$ make run
+```
+
+Running the command should also start the server on port `8080`. This command is equivalent to running `go run src/server.go`.

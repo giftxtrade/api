@@ -1,0 +1,20 @@
+# Reference: https://docs.sqlc.dev/en/latest/reference/config.html
+version: "2"
+sql:
+  - engine: postgresql
+    queries: src/database/queries/*.sql
+    schema: src/database/migrations/*.sql
+    database:
+      # uri: postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      # uri: postgresql://postgres:postgres@localhost:5433/postgres
+    gen:
+      go:
+        package: database
+        out: src/database
+        sql_package: pg
+        json_tags_case_style: camel
+        emit_json_tags: true
+        emit_db_tags: true
+        emit_prepared_queries: true
+        emit_enum_valid_method: true
+        emit_all_enum_values: true

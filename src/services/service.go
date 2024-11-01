@@ -11,6 +11,7 @@ import (
 
 type ServiceBase struct {
 	DB *sql.DB
+	TX *sql.Tx
 	Querier *database.Queries
 	Validator *validator.Validate
 	Tokens *types.Tokens

@@ -18,7 +18,7 @@ func CreateEventToDbCreateEventParams(input types.CreateEvent) database.CreateEv
 			Valid: input.Description != "",
 		},
 		Budget: fmt.Sprintf("%f", input.Budget),
-		InvitationMessage: input.InviteMessage,
+		InvitationMessage: input.InvitationMessage,
 		DrawAt: input.DrawAt,
 		CloseAt: input.CloseAt,
 	}

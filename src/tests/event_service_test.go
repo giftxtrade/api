@@ -107,6 +107,25 @@ func TestEventService(t *testing.T) {
 				t.Fatal("event should not be created. main participant was not provided")
 			}
 		})
+
+		t.Run("no participant user", func(t *testing.T) {
+			event := types.CreateEvent{
+				Name: "Event with no matching user",
+				Budget: 100.00,
+				DrawAt: time.Now(),
+				CloseAt: time.Now().Add(time.Hour * 24 * 30),
+				Participants: append(create_participants(5), types.CreateParticipant{
+					Name: user_1.Name,
+					Email: "somerandomemail123@xyz.com",
+					Organizer: true,
+					Participates: true,
+				}),
+			}
+			_, err := event_service.CreateEvent(context.Background(), &user_1, event)
+			if err == nil {
+				t.Fatal("event should not be created. main participant is not provided")
+			}
+		})
 	})
 
 	t.Run("event authentication", func(t *testing.T) {

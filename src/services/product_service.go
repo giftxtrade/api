@@ -3,8 +3,10 @@ package services
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/giftxtrade/api/src/database"
 	"github.com/giftxtrade/api/src/database/jet/postgres/public/table"
@@ -27,13 +29,6 @@ func (service *ProductService) Search(ctx context.Context, filter types.ProductF
 			table.Product.AllColumns, 
 			table.Category.ID,
 			table.Category.Name,
-			postgres.CEIL(postgres.RawFloat(fmt.Sprintf(
-				"%s.%s * %s.%s", 
-				table.Product.TableName(), 
-				table.Product.TotalReviews.Name(), 
-				table.Product.TableName(), 
-				table.Product.Rating.Name(),
-			))).AS("weight"),
 		).
 		FROM(table.Product.
 			INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID),
@@ -64,12 +59,82 @@ func (service *ProductService) Search(ctx context.Context, filter types.ProductF
 				WHEN(postgres.Bool(*filter.Sort == "price")).
 				THEN(table.Product.Price).
 				ASC(),
-			postgres.FloatColumn("weight").DESC(),
+			table.Product.Ranking.DESC(),
 		).
 		LIMIT(int64(filter.Limit)).
 		OFFSET(int64(filter.Limit * (filter.Page - 1)))
 	err = qb.QueryContext(ctx, service.DB, &products)
 	return products, err
+}
+
+func (service *ProductService) SearchWithCursor(ctx context.Context, filter types.ProductFilterWithCursor) (res types.ProductsResultWithNextCursor, err error) {
+	res.Products = []types.Product{}
+	search := ""
+	if filter.Search != nil {
+		search = *filter.Search
+	}
+	var cursor_id int64 = 0
+	if filter.Cursor != nil && *filter.Cursor != "" {
+		decoded_cursor_str, err := base64.URLEncoding.DecodeString(*filter.Cursor)
+		if err != nil {
+			return res, fmt.Errorf("invalid cursor")
+		}
+		cursor_id, err = strconv.ParseInt(string(decoded_cursor_str), 10, 64)
+		if err != nil {
+			return res, fmt.Errorf("cursor could not be parsed")
+		}
+	}
+	// TODO: Add condition to handle sort value
+	qb := table.Product.
+		SELECT(
+			table.Product.AllColumns, 
+			table.Category.ID,
+			table.Category.Name,
+		).
+		FROM(table.Product.
+			INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID),
+		)).
+		WHERE(
+			postgres.AND(
+				postgres.String(search).EQ(postgres.String("")). // skips the ts_query expression if search is empty
+				OR(
+					postgres.RawBool(
+						fmt.Sprintf(
+							"%s.%s @@ to_tsquery('english', $search::TEXT)",
+							table.Product.ProductTs.TableName(),
+							table.Product.ProductTs.Name(),
+						),
+						postgres.RawArgs{"$search": search},
+					),
+				),
+				postgres.RawBool(fmt.Sprintf(
+					"%s.%s BETWEEN '$%.2f'::MONEY AND '$%.2f'::MONEY", 
+					table.Product.TableName(), table.Product.Price.Name(), 
+					filter.MinPrice, 
+					filter.MaxPrice,
+				)),
+				table.Product.ID.LT_EQ(postgres.Int(cursor_id)), // handles cursor-based pagination
+			),
+		).
+		ORDER_BY(
+			postgres.CASE().
+				WHEN(postgres.Bool(*filter.Sort == "price")).
+				THEN(table.Product.Price).
+				ASC(),
+			table.Product.Ranking.DESC(),
+		).
+		LIMIT(int64(filter.Limit) + 1) // use the last element to display the next cursor
+	
+	fmt.Println(qb.DebugSql())
+	err = qb.QueryContext(ctx, service.DB, &res.Products)
+	if err != nil && len(res.Products) > 0 {
+		next_cursor_id := res.Products[len(res.Products) - 1].ID
+		next_cursor := base64.URLEncoding.EncodeToString([]byte(fmt.Sprint(next_cursor_id)))
+		res.NextCursor = &next_cursor
+		res.Products = res.Products[:len(res.Products) - 1]
+		fmt.Println(res.NextCursor)
+	}
+	return res, err
 }
 
 func (service *ProductService) UpdateOrCreate(ctx context.Context, input types.CreateProduct) (database.Product, bool, error) {

@@ -69,7 +69,7 @@ func (q *Queries) DeleteWish(ctx context.Context, id int64) (int64, error) {
 const getAllWishesForUser = `-- name: GetAllWishesForUser :many
 SELECT
     wish.id, wish.user_id, wish.participant_id, wish.product_id, wish.event_id, wish.created_at, wish.updated_at, wish.quantity,
-    product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin
+    product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin, product.ranking
 FROM wish
 INNER JOIN product ON product.id = wish.product_id
 WHERE
@@ -123,6 +123,7 @@ func (q *Queries) GetAllWishesForUser(ctx context.Context, arg GetAllWishesForUs
 			&i.Product.UpdatedAt,
 			&i.Product.ProductTs,
 			&i.Product.Origin,
+			&i.Product.Ranking,
 		); err != nil {
 			return nil, err
 		}

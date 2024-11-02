@@ -170,6 +170,7 @@ type Product struct {
 	UpdatedAt    time.Time      `db:"updated_at" json:"updatedAt"`
 	ProductTs    interface{}    `db:"product_ts" json:"productTs"`
 	Origin       string         `db:"origin" json:"origin"`
+	Ranking      int64          `db:"ranking" json:"ranking"`
 }
 
 type User struct {

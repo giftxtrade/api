@@ -32,6 +32,7 @@ type productTable struct {
 	UpdatedAt    postgres.ColumnTimestampz
 	ProductTs    postgres.ColumnString
 	Origin       postgres.ColumnString
+	Ranking      postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -87,7 +88,8 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		UpdatedAtColumn    = postgres.TimestampzColumn("updated_at")
 		ProductTsColumn    = postgres.StringColumn("product_ts")
 		OriginColumn       = postgres.StringColumn("origin")
-		allColumns         = postgres.ColumnList{IDColumn, TitleColumn, DescriptionColumn, ProductKeyColumn, ImageURLColumn, TotalReviewsColumn, RatingColumn, PriceColumn, CurrencyColumn, URLColumn, CategoryIDColumn, CreatedAtColumn, UpdatedAtColumn, ProductTsColumn, OriginColumn}
+		RankingColumn      = postgres.IntegerColumn("ranking")
+		allColumns         = postgres.ColumnList{IDColumn, TitleColumn, DescriptionColumn, ProductKeyColumn, ImageURLColumn, TotalReviewsColumn, RatingColumn, PriceColumn, CurrencyColumn, URLColumn, CategoryIDColumn, CreatedAtColumn, UpdatedAtColumn, ProductTsColumn, OriginColumn, RankingColumn}
 		mutableColumns     = postgres.ColumnList{TitleColumn, DescriptionColumn, ProductKeyColumn, ImageURLColumn, TotalReviewsColumn, RatingColumn, PriceColumn, CurrencyColumn, URLColumn, CategoryIDColumn, CreatedAtColumn, UpdatedAtColumn, OriginColumn}
 	)
 
@@ -110,6 +112,7 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		UpdatedAt:    UpdatedAtColumn,
 		ProductTs:    ProductTsColumn,
 		Origin:       OriginColumn,
+		Ranking:      RankingColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

@@ -183,5 +183,22 @@ func TestProductService(t *testing.T) {
 				t.Fatal("products length is incorrect", len(products))
 			}
 		})
+
+		t.Run("cursor", func(t *testing.T) {
+			// search := "tees"
+			sort := "rating"
+			res, err := product_service.SearchWithCursor(context.Background(), types.ProductFilterWithCursor{
+				Limit: 10,
+				MinPrice: 1,
+				MaxPrice: 200,
+				Sort: &sort,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(res.Products) != 10 {
+				t.Fatal("products length is incorrect", len(res.Products))
+			}
+		})
 	})
 }

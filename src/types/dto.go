@@ -93,6 +93,20 @@ type ProductFilter struct {
 	Sort *string `json:"sort,omitempty" validate:"omitempty"`
 }
 
+type ProductFilterWithCursor struct {
+	Search *string `json:"search,omitempty" validate:"omitempty"`
+	Limit int32 `json:"limit" validate:"required,min=1,max=200"`
+	Cursor *string `json:"cursor" validate:"omitempty"`
+	MinPrice float32 `json:"minPrice,omitempty" validate:"omitempty,gte=1,ltefield=MaxPrice"`
+	MaxPrice float32 `json:"maxPrice,omitempty" validate:"omitempty,gtefield=MinPrice"`
+	Sort *string `json:"sort,omitempty" validate:"omitempty"`
+}
+
+type ProductsResultWithNextCursor struct {
+	Products []Product `json:"products"`
+	NextCursor *string `json:"next_cursor"`
+}
+
 type CreateWish struct {
 	ProductID *int64 `json:"productId,omitempty"`
 }

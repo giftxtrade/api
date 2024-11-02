@@ -25,7 +25,7 @@ INSERT INTO "product" (
   "category_id"
 ) VALUES (
 	$1, $2, $3, $4, $5, $6, $7, $11, $8, $9, $10
-) RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin
+) RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin, ranking
 `
 
 type CreateProductParams struct {
@@ -73,13 +73,14 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.UpdatedAt,
 		&i.ProductTs,
 		&i.Origin,
+		&i.Ranking,
 	)
 	return i, err
 }
 
 const filterProducts = `-- name: FilterProducts :many
 SELECT
-  product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin,
+  product.id, product.title, product.description, product.product_key, product.image_url, product.total_reviews, product.rating, product.price, product.currency, product.url, product.category_id, product.created_at, product.updated_at, product.product_ts, product.origin, product.ranking,
   category.id, category.name, category.description, category.category_url, category.created_at, category.updated_at,
   CEIL("product"."total_reviews" * "product"."rating") AS "weight"
 FROM "product"
@@ -150,6 +151,7 @@ func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) 
 			&i.Product.UpdatedAt,
 			&i.Product.ProductTs,
 			&i.Product.Origin,
+			&i.Product.Ranking,
 			&i.Category.ID,
 			&i.Category.Name,
 			&i.Category.Description,
@@ -172,7 +174,7 @@ func (q *Queries) FilterProducts(ctx context.Context, arg FilterProductsParams) 
 }
 
 const findProductById = `-- name: FindProductById :one
-SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin FROM "product"
+SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin, ranking FROM "product"
 WHERE "id" = $1
 `
 
@@ -195,12 +197,13 @@ func (q *Queries) FindProductById(ctx context.Context, id int64) (Product, error
 		&i.UpdatedAt,
 		&i.ProductTs,
 		&i.Origin,
+		&i.Ranking,
 	)
 	return i, err
 }
 
 const findProductByProductKey = `-- name: FindProductByProductKey :one
-SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin FROM "product"
+SELECT id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin, ranking FROM "product"
 WHERE "product_key" = $1
 `
 
@@ -223,6 +226,7 @@ func (q *Queries) FindProductByProductKey(ctx context.Context, productKey string
 		&i.UpdatedAt,
 		&i.ProductTs,
 		&i.Origin,
+		&i.Ranking,
 	)
 	return i, err
 }
@@ -238,7 +242,7 @@ SET
   "description" = coalesce($7, "description"),
   "updated_at" = now()
 WHERE "product_key" = $1
-RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin
+RETURNING id, title, description, product_key, image_url, total_reviews, rating, price, currency, url, category_id, created_at, updated_at, product_ts, origin, ranking
 `
 
 type UpdateProductParams struct {
@@ -278,6 +282,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.UpdatedAt,
 		&i.ProductTs,
 		&i.Origin,
+		&i.Ranking,
 	)
 	return i, err
 }

@@ -27,4 +27,5 @@ type Product struct {
 	UpdatedAt    time.Time
 	ProductTs    *string
 	Origin       string
+	Ranking      int64
 }

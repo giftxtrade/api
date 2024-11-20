@@ -27,8 +27,22 @@ services:
       - '54322:5432'
     volumes: 
       - giftxtrade-db-test:/var/lib/postgresql/data
+
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    container_name: es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - giftxtrade-es:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
 volumes:
   giftxtrade-db:
     driver: local
   giftxtrade-db-test:
+    driver: local
+  giftxtrade-es:
     driver: local
